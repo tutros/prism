@@ -18,6 +18,15 @@ This roadmap delivers an AI-powered decision comparison tool that surfaces hidde
 
 **Requirements:** INP-01, INP-02, INP-03, INP-04, WGT-02, WGT-03, WGT-04, RST-01, UX-01, UX-02, UX-04, UX-05
 
+**Plans:** 5 plans in 3 waves
+
+Plans:
+- [ ] 01-01-PLAN.md - Backend setup (FastAPI, Pydantic models, atomic JSON storage)
+- [ ] 01-02-PLAN.md - Frontend setup (Vite + React + TanStack Query + Tailwind)
+- [ ] 01-03-PLAN.md - Comparison flow (form, API integration, polling, display)
+- [ ] 01-04-PLAN.md - Weight system (sliders, client-side recalculation)
+- [ ] 01-05-PLAN.md - Persistence + polish (history, examples, responsive verification)
+
 **Success Criteria:**
 1. User can enter two options and intent, submit comparison, and see results within reasonable time
 2. User can view comparison results side-by-side with clear visual winner indication
