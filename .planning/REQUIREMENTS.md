@@ -81,35 +81,42 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INP-01 | TBD | Pending |
-| INP-02 | TBD | Pending |
-| INP-03 | TBD | Pending |
-| INP-04 | TBD | Pending |
-| RES-01 | TBD | Pending |
-| RES-02 | TBD | Pending |
-| RES-03 | TBD | Pending |
-| RES-04 | TBD | Pending |
-| RES-05 | TBD | Pending |
-| WGT-01 | TBD | Pending |
-| WGT-02 | TBD | Pending |
-| WGT-03 | TBD | Pending |
-| WGT-04 | TBD | Pending |
-| WGT-05 | TBD | Pending |
-| RST-01 | TBD | Pending |
-| RST-02 | TBD | Pending |
-| RST-03 | TBD | Pending |
-| RST-04 | TBD | Pending |
-| UX-01 | TBD | Pending |
-| UX-02 | TBD | Pending |
-| UX-03 | TBD | Pending |
-| UX-04 | TBD | Pending |
-| UX-05 | TBD | Pending |
+| INP-01 | Phase 1 | Pending |
+| INP-02 | Phase 1 | Pending |
+| INP-03 | Phase 1 | Pending |
+| INP-04 | Phase 1 | Pending |
+| RES-01 | Phase 2 | Pending |
+| RES-02 | Phase 2 | Pending |
+| RES-03 | Phase 2 | Pending |
+| RES-04 | Phase 3 | Pending |
+| RES-05 | Phase 4 | Pending |
+| WGT-01 | Phase 2 | Pending |
+| WGT-02 | Phase 1 | Pending |
+| WGT-03 | Phase 1 | Pending |
+| WGT-04 | Phase 1 | Pending |
+| WGT-05 | Phase 3 | Pending |
+| RST-01 | Phase 1 | Pending |
+| RST-02 | Phase 3 | Pending |
+| RST-03 | Phase 3 | Pending |
+| RST-04 | Phase 3 | Pending |
+| UX-01 | Phase 1 | Pending |
+| UX-02 | Phase 1 | Pending |
+| UX-03 | Phase 2 | Pending |
+| UX-04 | Phase 1 | Pending |
+| UX-05 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23 (pending roadmap)
+- Mapped to phases: 23 (100% coverage)
+- Unmapped: 0
+
+**Phase distribution:**
+- Phase 1 (Foundation + Core Trust): 12 requirements
+- Phase 2 (AI Integration + Async Orchestration): 5 requirements
+- Phase 3 (Interactive Analysis + Flip Detection): 5 requirements
+- Phase 4 (Source Quality + Confidence Signals): 1 requirement
+- Phase 5 (Cost Optimization + Scaling Prep): 0 requirements (infrastructure improvements)
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after initial definition*
+*Last updated: 2026-02-02 after roadmap creation*
