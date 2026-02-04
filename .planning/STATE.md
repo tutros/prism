@@ -5,11 +5,11 @@
 **Phase 1: Foundation + Core Trust** — In progress (2/5 plans complete)
 
 Phase: 1 of 5 (01-foundation-core-trust)
-Plan: 02 of 5 completed
+Plan: 03 of 5 completed
 Status: In progress
-Last activity: 2026-02-04 - Completed 01-02-PLAN.md (frontend foundation)
+Last activity: 2026-02-04 - Completed 01-03-PLAN.md (comparison flow)
 
-Progress: ██░░░░░░░░░░░░░░░░░░ 10% (2/5 plans in phase 1)
+Progress: ████░░░░░░░░░░░░░░░░ 15% (3/5 plans in phase 1)
 
 **Next action:** Continue executing remaining Phase 1 plans (01-03 through 01-05)
 
@@ -27,7 +27,7 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 
 | Phase | Status | Progress | Requirements | Plans |
 |-------|--------|----------|--------------|-------|
-| 1 - Foundation + Core Trust | ◐ In Progress | 40% | 12 | 5 (2 done) |
+| 1 - Foundation + Core Trust | ◐ In Progress | 60% | 12 | 5 (3 done) |
 | 2 - AI Integration + Async Orchestration | ○ Pending | 0% | 5 | 0 |
 | 3 - Interactive Analysis + Flip Detection | ○ Pending | 0% | 5 | 0 |
 | 4 - Source Quality + Confidence Signals | ○ Pending | 0% | 1 | 0 |
@@ -46,7 +46,7 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 
 **Planning efficiency:**
 - Plans created: 5 (Phase 1)
-- Plans completed: 2 (01-01, 01-02)
+- Plans completed: 3 (01-01, 01-02, 01-03)
 - Average plan duration: 5 min
 
 **Quality indicators:** Not tracked yet
@@ -72,6 +72,15 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 - data/ gitignored, created at runtime by JSONStorage
 - Storage instantiated at module level in comparison router
 
+**2026-02-04:** Comparison flow (01-03) executed
+- Submit-poll-display pattern: ComparisonForm -> useComparison (POST) -> useResults (polling) -> ResultsDisplay
+- Feature directories: src/features/comparison/ and src/features/results/
+- API helpers in src/lib/api.ts (apiPost, apiGet) with res.ok covering 202 Accepted
+- TanStack Query v5 refetchInterval callback receives Query object; access data via query.state.data
+- Verified end-to-end: POST /api/compare returns 202, poll shows processing then completed with criteria
+- 3 atomic commits: cf1990a, 9a68f84, f0bf246
+- SUMMARY: .planning/phases/01-foundation-core-trust/01-03-SUMMARY.md
+
 **2026-02-04:** Frontend foundation (01-02) executed
 - Tailwind v4 uses @tailwindcss/vite plugin (not PostCSS init -- v4 changed the setup)
 - React 19.2 (scaffold default) instead of 18.x -- TanStack Query v5 fully supports it
@@ -90,6 +99,13 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 None currently.
 
 ### Recent Changes
+
+**2026-02-04:** Plan 01-03 executed - Comparison flow
+- Created API client, types, comparison form, polling hook, and results display
+- Wired App.tsx with submit-poll-display pattern
+- All must_haves verified: form validation, loading spinner, results with scores
+- 3 atomic commits: cf1990a, 9a68f84, f0bf246
+- SUMMARY: .planning/phases/01-foundation-core-trust/01-03-SUMMARY.md
 
 **2026-02-04:** Plan 01-02 executed - Frontend foundation
 - Created frontend/ with Vite 7, React 19, TypeScript, TanStack Query v5, Tailwind CSS v4
@@ -135,5 +151,5 @@ None currently.
 5. Begin execution
 
 ---
-*Last updated: 2026-02-04 after 01-02 execution*
-*Next milestone: Continue Phase 1 plans (01-03 through 01-05)*
+*Last updated: 2026-02-04 after 01-03 execution*
+*Next milestone: Continue Phase 1 plans (01-04 through 01-05)*

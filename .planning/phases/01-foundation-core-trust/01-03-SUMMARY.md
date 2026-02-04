@@ -1,55 +1,119 @@
-# Plan Summary: 01-03 Comparison Flow
+---
+phase: 01-foundation-core-trust
+plan: 03
+subsystem: ui
+tags: [react, tanstack-query, typescript, tailwind, fetch, polling]
 
-## Overview
+# Dependency graph
+requires:
+  - phase: 01-foundation-core-trust plan 01
+    provides: FastAPI backend with POST /api/compare (202 Accepted) and GET /api/results/{id} endpoints
+  - phase: 01-foundation-core-trust plan 02
+    provides: Vite + React 19 + TanStack Query v5 frontend scaffold with queryClient singleton
+provides:
+  - API client helpers (apiGet, apiPost) in src/lib/api.ts
+  - TypeScript types mirroring backend Pydantic models
+  - Comparison form with controlled inputs and client-side validation
+  - useMutation hook for POST /api/compare submission
+  - useQuery hook with 1s polling for GET /api/results/{id}
+  - Results display: spinner, winner banner, side-by-side options, criteria with scores and source links
+  - Wired App.tsx: submit -> poll -> display flow
+affects:
+  - 01-04 (weight system UI builds on criteria display and types)
+  - 01-05 (persistence + polish adds to this flow)
+  - All Phase 2+ frontend work
 
-| Field | Value |
-|-------|-------|
-| Plan | 01-03 |
-| Phase | 01-foundation-core-trust |
-| Status | ✓ Complete |
-| Duration | ~5 min |
+# Tech tracking
+tech-stack:
+  added: []
+  patterns:
+    - "useMutation from TanStack Query for POST submissions returning comparison_id"
+    - "useQuery with dynamic refetchInterval callback for status-based polling (stops at completed/error)"
+    - "import type for type-only imports (required by verbatimModuleSyntax: true)"
+    - "Feature-scoped directory structure: src/features/{feature}/ with types, hooks, components"
 
-## What Was Built
+key-files:
+  created:
+    - frontend/src/lib/api.ts
+    - frontend/src/features/comparison/types.ts
+    - frontend/src/features/comparison/useComparison.ts
+    - frontend/src/features/comparison/ComparisonForm.tsx
+    - frontend/src/features/results/useResults.ts
+    - frontend/src/features/results/ResultsDisplay.tsx
+  modified:
+    - frontend/src/App.tsx
 
-Connected frontend to backend with the submit-poll-display pattern. Users can now enter two options and an intent, submit a comparison, see a loading state during processing, and view results with winner banner, side-by-side options, criteria scores, and source citations.
+key-decisions:
+  - "refetchInterval uses query.state.data to conditionally stop polling -- TanStack Query v5 passes the Query object (not raw data) to the refetchInterval callback"
+  - "apiPost/apiGet use res.ok check which covers 202 Accepted from the 202-pattern backend"
 
-## Commits
+patterns-established:
+  - "Pattern: Feature directories under src/features/ with co-located types, hooks, and components"
+  - "Pattern: API helpers in src/lib/ consumed by feature hooks"
+  - "Pattern: Polling hook with self-terminating refetchInterval based on result status"
 
-| Hash | Type | Description |
-|------|------|-------------|
-| cf1990a | feat | Create API client and comparison types |
-| 9a68f84 | feat | Create comparison form and submission hook |
-| f0bf246 | feat | Add results polling hook and display component |
+# Metrics
+duration: 4min
+completed: 2026-02-04
+---
 
-## Deliverables
+# Phase 01 Plan 03: Comparison Flow Summary
 
-### Artifacts Created
+**Submit-poll-display flow wiring ComparisonForm mutation through useResults polling to ResultsDisplay with winner banner and scored criteria**
 
-- `frontend/src/lib/api.ts` — Generic API client with apiGet/apiPost helpers
-- `frontend/src/features/comparison/types.ts` — TypeScript types mirroring backend models
-- `frontend/src/features/comparison/useComparison.ts` — TanStack Query mutation hook for POST /api/compare
-- `frontend/src/features/comparison/ComparisonForm.tsx` — Form with controlled inputs and validation
-- `frontend/src/features/results/useResults.ts` — TanStack Query hook with polling that stops on completion
-- `frontend/src/features/results/ResultsDisplay.tsx` — Results UI with loading spinner, winner banner, criteria list
-- `frontend/src/App.tsx` — Updated to integrate form and results
+## Performance
 
-### Key Patterns
+- **Duration:** 4 min
+- **Started:** 2026-02-04T04:49:16Z
+- **Completed:** 2026-02-04T04:53:51Z
+- **Tasks:** 3
+- **Files created:** 6, modified: 1
 
-- **Submit-poll-display**: Form submits to POST /api/compare, receives comparison_id, polls GET /api/results/{id} every 1s until status is 'completed'
-- **Controlled inputs**: React useState for form fields with immediate validation
-- **Mobile-first**: grid-cols-1 default, md:grid-cols-2 for larger screens
-- **TanStack Query v5**: useMutation for submit, useQuery with refetchInterval for polling
+## Accomplishments
+- Created generic API client (apiPost, apiGet) with error handling and TypeScript types mirroring all backend Pydantic models
+- Built ComparisonForm with controlled inputs, HTML required + trim validation, pending-state button label, and error display
+- Implemented useResults polling hook that auto-stops when the backend reports completed or error status
+- Built ResultsDisplay with processing spinner, error card, winner banner with reasoning, side-by-side option cards, per-criterion score breakdown, and clickable source citations
+- Wired App.tsx with the complete submit-poll-display pattern: form onSubmit sets comparisonId, useResults polls, ResultsDisplay renders
 
-## Verification
+## Task Commits
 
-- [x] User can enter two options and intent in form fields
-- [x] User can click Compare button to submit
-- [x] Loading spinner appears during processing
-- [x] Results display with option names and scores when ready
-- [x] Form validates required fields before submission
-- [x] Source citations are clickable links
-- [x] TypeScript compiles without errors
+Each task was committed atomically:
 
-## Notes
+1. **Task 1: Create API client and types** - `cf1990a` (feat)
+2. **Task 2: Create comparison form and submission hook** - `9a68f84` (feat)
+3. **Task 3: Create results polling and display** - `f0bf246` (feat)
 
-The ResultsDisplay component was later enhanced by plan 01-04 to include weight sliders and client-side score recalculation. The base version created here uses the server's winner determination.
+## Files Created/Modified
+- `frontend/src/lib/api.ts` - Generic apiPost/apiGet helpers with status-aware error handling
+- `frontend/src/features/comparison/types.ts` - ComparisonInput, Criterion, ComparisonResult, SubmitResponse interfaces
+- `frontend/src/features/comparison/useComparison.ts` - useMutation hook wrapping POST /api/compare
+- `frontend/src/features/comparison/ComparisonForm.tsx` - Controlled form: Option A, Option B, Intent textarea; validation; pending/error states
+- `frontend/src/features/results/useResults.ts` - useQuery hook with 1s polling that self-terminates on completed/error
+- `frontend/src/features/results/ResultsDisplay.tsx` - Spinner, error card, winner banner, option cards, criteria with scores and source links
+- `frontend/src/App.tsx` - Root component wiring form submission to polling to results display
+
+## Decisions Made
+- `refetchInterval` callback receives the TanStack Query `Query` object, not raw data. Access data via `query.state.data`. This is the v5 API.
+- `apiPost` uses `res.ok` check which returns true for 202 Accepted -- no special handling needed for the backend's 202 pattern.
+- No CORS proxy configured; frontend points directly at `http://localhost:8000`. This works for local development. Production will need a proxy or CORS headers.
+
+## Deviations from Plan
+
+None - plan executed exactly as written.
+
+## Issues Encountered
+None.
+
+## User Setup Required
+None - no external service configuration required. Both backend and frontend run locally.
+
+## Next Phase Readiness
+- Comparison flow is fully wired and verified end-to-end via curl (submit returns 202, immediate poll shows processing, subsequent poll shows completed with 3 criteria, winner, and reasoning)
+- Types file is the single source of truth shared between comparison and results features -- 01-04 weight system can import Criterion directly
+- useResults polling hook is ready to feed criteria data to the weight system UI (01-04)
+- No blockers or concerns for 01-04 or 01-05
+
+---
+*Phase: 01-foundation-core-trust*
+*Completed: 2026-02-04*
