@@ -1,16 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useComparison } from './useComparison'
+import { ExamplePrompts, type Example } from './ExamplePrompts'
 
 interface ComparisonFormProps {
   onSubmit: (comparisonId: string) => void
+  initialValues?: Example | null
 }
 
-export function ComparisonForm({ onSubmit }: ComparisonFormProps) {
+export function ComparisonForm({ onSubmit, initialValues }: ComparisonFormProps) {
   const [optionA, setOptionA] = useState('')
   const [optionB, setOptionB] = useState('')
   const [intent, setIntent] = useState('')
+  const [showExamples, setShowExamples] = useState(true)
 
   const mutation = useComparison()
+
+  // Apply initial values when provided
+  useEffect(() => {
+    if (initialValues) {
+      setOptionA(initialValues.optionA)
+      setOptionB(initialValues.optionB)
+      setIntent(initialValues.intent)
+      setShowExamples(false)
+    }
+  }, [initialValues])
+
+  const handleExampleSelect = (example: Example) => {
+    setOptionA(example.optionA)
+    setOptionB(example.optionB)
+    setIntent(example.intent)
+    setShowExamples(false)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,8 +49,17 @@ export function ComparisonForm({ onSubmit }: ComparisonFormProps) {
     )
   }
 
+  const handleClear = () => {
+    setOptionA('')
+    setOptionB('')
+    setIntent('')
+    setShowExamples(true)
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {showExamples && <ExamplePrompts onSelect={handleExampleSelect} />}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="optionA" className="block text-sm font-medium text-gray-700 mb-1">
@@ -77,13 +106,25 @@ export function ComparisonForm({ onSubmit }: ComparisonFormProps) {
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={mutation.isPending}
-        className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
-      >
-        {mutation.isPending ? 'Comparing...' : 'Compare'}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          type="submit"
+          disabled={mutation.isPending}
+          className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+        >
+          {mutation.isPending ? 'Comparing...' : 'Compare'}
+        </button>
+
+        {(optionA || optionB || intent) && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="w-full sm:w-auto px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Clear
+          </button>
+        )}
+      </div>
 
       {mutation.isError && (
         <p className="text-red-600 text-sm">
