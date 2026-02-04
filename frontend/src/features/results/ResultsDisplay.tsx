@@ -1,10 +1,14 @@
 import type { ComparisonResult } from '../comparison/types'
+import { WeightsPanel } from '../weights/WeightsPanel'
+import { useWeightedScores } from '../weights/useWeightedScores'
 
 interface ResultsDisplayProps {
   result: ComparisonResult
 }
 
 export function ResultsDisplay({ result }: ResultsDisplayProps) {
+  const { weights, scores, updateWeight } = useWeightedScores(result.criteria)
+
   if (result.status === 'processing') {
     return (
       <div className="flex items-center justify-center py-12">
@@ -22,9 +26,10 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
     )
   }
 
-  const winnerLabel = result.winner === 'a'
+  // Use calculated winner instead of server's winner
+  const winnerLabel = scores.winner === 'a'
     ? result.option_a_name
-    : result.winner === 'b'
+    : scores.winner === 'b'
     ? result.option_b_name
     : 'Tie'
 
@@ -40,27 +45,39 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
 
       {/* Side-by-side Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className={`p-4 rounded-lg border-2 ${result.winner === 'a' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'}`}>
+        <div className={`p-4 rounded-lg border-2 ${scores.winner === 'a' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'}`}>
           <h3 className="text-lg font-bold mb-2">{result.option_a_name}</h3>
-          {result.winner === 'a' && (
+          {scores.winner === 'a' && (
             <span className="inline-block px-2 py-1 text-xs font-medium bg-green-500 text-white rounded mb-2">
               Winner
             </span>
           )}
+          <div className="text-2xl font-bold text-gray-800">{scores.totalA}</div>
         </div>
-        <div className={`p-4 rounded-lg border-2 ${result.winner === 'b' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'}`}>
+        <div className={`p-4 rounded-lg border-2 ${scores.winner === 'b' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'}`}>
           <h3 className="text-lg font-bold mb-2">{result.option_b_name}</h3>
-          {result.winner === 'b' && (
+          {scores.winner === 'b' && (
             <span className="inline-block px-2 py-1 text-xs font-medium bg-green-500 text-white rounded mb-2">
               Winner
             </span>
           )}
+          <div className="text-2xl font-bold text-gray-800">{scores.totalB}</div>
         </div>
       </div>
 
-      {/* Criteria List */}
+      {/* Weights Panel */}
+      <WeightsPanel
+        criteria={result.criteria}
+        weights={weights}
+        scores={scores}
+        optionAName={result.option_a_name}
+        optionBName={result.option_b_name}
+        onWeightChange={updateWeight}
+      />
+
+      {/* Criteria Details */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Criteria</h3>
+        <h3 className="text-lg font-semibold">Criteria Details</h3>
         {result.criteria.map((criterion) => (
           <div key={criterion.id} className="p-4 bg-white border border-gray-200 rounded-lg">
             <div className="flex justify-between items-start mb-2">
@@ -68,6 +85,9 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
                 <h4 className="font-medium">{criterion.name}</h4>
                 <p className="text-sm text-gray-600">{criterion.description}</p>
               </div>
+              <span className="text-sm text-blue-600 font-medium">
+                Weight: {weights[criterion.id] ?? criterion.weight}%
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-3">
               <div>
