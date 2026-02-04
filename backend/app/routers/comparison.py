@@ -101,5 +101,19 @@ async def get_results(comparison_id: str):
 
 @router.get("/results")
 async def list_results():
-    """List all saved comparison IDs."""
-    return {"comparisons": storage.list_results()}
+    """List all saved comparisons with metadata."""
+    comparison_ids = storage.list_results()
+    results = []
+    for cid in comparison_ids:
+        result = storage.read_result(cid)
+        if result:
+            results.append({
+                "comparison_id": result.comparison_id,
+                "option_a_name": result.option_a_name,
+                "option_b_name": result.option_b_name,
+                "status": result.status,
+                "created_at": result.created_at.isoformat() if result.created_at else None,
+            })
+    # Sort by created_at descending (most recent first)
+    results.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+    return {"comparisons": results}
