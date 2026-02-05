@@ -2,16 +2,16 @@
 
 ## Current Phase
 
-**Phase 1: Foundation + Core Trust** — In progress (2/5 plans complete)
+**Phase 1: Foundation + Core Trust** — Complete (5/5 plans)
 
 Phase: 1 of 5 (01-foundation-core-trust)
-Plan: 03 of 5 completed
-Status: In progress
-Last activity: 2026-02-04 - Completed 01-03-PLAN.md (comparison flow)
+Plan: 05 of 5 completed
+Status: Phase complete
+Last activity: 2026-02-04 - Completed 01-05-PLAN.md (persistence + polish, Phase 1 verified)
 
-Progress: ████░░░░░░░░░░░░░░░░ 15% (3/5 plans in phase 1)
+Progress: ████████████████████ 20% (Phase 1 complete; 1/5 phases done)
 
-**Next action:** Continue executing remaining Phase 1 plans (01-03 through 01-05)
+**Next action:** Begin Phase 2 (AI Integration + Async Orchestration) — run `/gsd:plan-phase 2`
 
 ## Project Reference
 
@@ -27,13 +27,13 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 
 | Phase | Status | Progress | Requirements | Plans |
 |-------|--------|----------|--------------|-------|
-| 1 - Foundation + Core Trust | ◐ In Progress | 60% | 12 | 5 (3 done) |
+| 1 - Foundation + Core Trust | ● Complete | 100% | 12 | 5 (5 done) |
 | 2 - AI Integration + Async Orchestration | ○ Pending | 0% | 5 | 0 |
 | 3 - Interactive Analysis + Flip Detection | ○ Pending | 0% | 5 | 0 |
 | 4 - Source Quality + Confidence Signals | ○ Pending | 0% | 1 | 0 |
 | 5 - Cost Optimization + Scaling Prep | ○ Pending | 0% | 0 | 0 |
 
-**Overall:** ░░░░░░░░░░░░░░░░░░░░ 0% (0/5 phases complete)
+**Overall:** ████░░░░░░░░░░░░░░░░ 20% (1/5 phases complete)
 
 **Legend:** ○ Pending | ◐ In Progress | ● Complete
 
@@ -46,7 +46,7 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 
 **Planning efficiency:**
 - Plans created: 5 (Phase 1)
-- Plans completed: 3 (01-01, 01-02, 01-03)
+- Plans completed: 5 (01-01, 01-02, 01-03, 01-04, 01-05)
 - Average plan duration: 5 min
 
 **Quality indicators:** Not tracked yet
@@ -87,6 +87,15 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 - tailwind.config.js kept as extension point even though v4 is zero-config
 - queryClient singleton in src/lib/ pattern established for data fetching modules
 
+**2026-02-04:** Persistence + polish (01-05) executed, Phase 1 verified
+- Example prompts: 3 curated scenarios as pill buttons, populate form on click
+- History sidebar: useHistory hook + HistoryList component, recall via click, status badges
+- Backend list_results enriched with option names, status, created_at (sorted descending)
+- Responsive two-column grid: sidebar left at lg:, stacks below main on mobile via order swap
+- Phase 1 verification checkpoint approved by user -- all 12 requirements satisfied
+- 3 atomic commits: 7e8b985, 1f490ce, 3eee3bb
+- SUMMARY: .planning/phases/01-foundation-core-trust/01-05-SUMMARY.md
+
 ### Active TODOs
 
 - [x] Run `/gsd:plan-phase 1` to decompose Phase 1 into executable plans
@@ -99,6 +108,12 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 None currently.
 
 ### Recent Changes
+
+**2026-02-04:** Plan 01-05 executed - Persistence + polish (Phase 1 complete)
+- Created example prompts, history sidebar with recall, responsive layout
+- Phase 1 verification checkpoint approved -- all 12 requirements satisfied
+- 3 atomic commits: 7e8b985, 1f490ce, 3eee3bb
+- SUMMARY: .planning/phases/01-foundation-core-trust/01-05-SUMMARY.md
 
 **2026-02-04:** Plan 01-03 executed - Comparison flow
 - Created API client, types, comparison form, polling hook, and results display
@@ -151,5 +166,5 @@ None currently.
 5. Begin execution
 
 ---
-*Last updated: 2026-02-04 after 01-03 execution*
-*Next milestone: Continue Phase 1 plans (01-04 through 01-05)*
+*Last updated: 2026-02-04 after 01-05 execution (Phase 1 complete)*
+*Next milestone: Begin Phase 2 — AI Integration + Async Orchestration*
