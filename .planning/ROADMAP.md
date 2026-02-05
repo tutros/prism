@@ -21,11 +21,11 @@ This roadmap delivers an AI-powered decision comparison tool that surfaces hidde
 **Plans:** 5 plans in 3 waves
 
 Plans:
-- [ ] 01-01-PLAN.md - Backend setup (FastAPI, Pydantic models, atomic JSON storage)
-- [ ] 01-02-PLAN.md - Frontend setup (Vite + React + TanStack Query + Tailwind)
-- [ ] 01-03-PLAN.md - Comparison flow (form, API integration, polling, display)
-- [ ] 01-04-PLAN.md - Weight system (sliders, client-side recalculation)
-- [ ] 01-05-PLAN.md - Persistence + polish (history, examples, responsive verification)
+- [x] 01-01-PLAN.md - Backend setup (FastAPI, Pydantic models, atomic JSON storage)
+- [x] 01-02-PLAN.md - Frontend setup (Vite + React + TanStack Query + Tailwind)
+- [x] 01-03-PLAN.md - Comparison flow (form, API integration, polling, display)
+- [x] 01-04-PLAN.md - Weight system (sliders, client-side recalculation)
+- [x] 01-05-PLAN.md - Persistence + polish (history, examples, responsive verification)
 
 **Success Criteria:**
 1. User can enter two options and intent, submit comparison, and see results within reasonable time
@@ -122,7 +122,7 @@ Plans:
 
 | Phase | Status | Progress | Requirements |
 |-------|--------|----------|--------------|
-| 1 - Foundation + Core Trust | ○ Pending | 0% | 12 requirements |
+| 1 - Foundation + Core Trust | ● Complete | 100% | 12 requirements |
 | 2 - AI Integration + Async Orchestration | ○ Pending | 0% | 5 requirements |
 | 3 - Interactive Analysis + Flip Detection | ○ Pending | 0% | 5 requirements |
 | 4 - Source Quality + Confidence Signals | ○ Pending | 0% | 1 requirement |
@@ -152,4 +152,4 @@ Plans:
 - Phase 5 enables sustainable scaling
 
 ---
-*Last updated: 2026-02-02 after roadmap creation*
+*Last updated: 2026-02-04 after Phase 1 completion*

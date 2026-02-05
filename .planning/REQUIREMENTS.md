@@ -81,29 +81,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INP-01 | Phase 1 | Pending |
-| INP-02 | Phase 1 | Pending |
-| INP-03 | Phase 1 | Pending |
-| INP-04 | Phase 1 | Pending |
+| INP-01 | Phase 1 | Complete |
+| INP-02 | Phase 1 | Complete |
+| INP-03 | Phase 1 | Complete |
+| INP-04 | Phase 1 | Complete |
 | RES-01 | Phase 2 | Pending |
 | RES-02 | Phase 2 | Pending |
 | RES-03 | Phase 2 | Pending |
 | RES-04 | Phase 3 | Pending |
 | RES-05 | Phase 4 | Pending |
 | WGT-01 | Phase 2 | Pending |
-| WGT-02 | Phase 1 | Pending |
-| WGT-03 | Phase 1 | Pending |
-| WGT-04 | Phase 1 | Pending |
+| WGT-02 | Phase 1 | Complete |
+| WGT-03 | Phase 1 | Complete |
+| WGT-04 | Phase 1 | Complete |
 | WGT-05 | Phase 3 | Pending |
-| RST-01 | Phase 1 | Pending |
+| RST-01 | Phase 1 | Complete |
 | RST-02 | Phase 3 | Pending |
 | RST-03 | Phase 3 | Pending |
 | RST-04 | Phase 3 | Pending |
-| UX-01 | Phase 1 | Pending |
-| UX-02 | Phase 1 | Pending |
+| UX-01 | Phase 1 | Complete |
+| UX-02 | Phase 1 | Complete |
 | UX-03 | Phase 2 | Pending |
-| UX-04 | Phase 1 | Pending |
-| UX-05 | Phase 1 | Pending |
+| UX-04 | Phase 1 | Complete |
+| UX-05 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 23 total
@@ -119,4 +119,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-02 after roadmap creation*
+*Last updated: 2026-02-04 after Phase 1 completion*
