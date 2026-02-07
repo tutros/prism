@@ -47,6 +47,13 @@ Plans:
 
 **Requirements:** RES-01, RES-02, RES-03, WGT-01, UX-03
 
+**Plans:** 3 plans in 3 waves
+
+Plans:
+- [ ] 02-01-PLAN.md - Dependencies and Tavily search service (parallel web research)
+- [ ] 02-02-PLAN.md - Claude criteria generation and orchestration (structured outputs)
+- [ ] 02-03-PLAN.md - SSE progress streaming (real-time status updates)
+
 **Success Criteria:**
 1. User sees AI discover 3-5 criteria that are non-obvious (not price/durability/convenience)
 2. User sees criteria focused on hidden costs (embedded energy, subsidies, externalities, supply chain)
@@ -122,13 +129,13 @@ Plans:
 
 | Phase | Status | Progress | Requirements |
 |-------|--------|----------|--------------|
-| 1 - Foundation + Core Trust | ● Complete | 100% | 12 requirements |
-| 2 - AI Integration + Async Orchestration | ○ Pending | 0% | 5 requirements |
-| 3 - Interactive Analysis + Flip Detection | ○ Pending | 0% | 5 requirements |
-| 4 - Source Quality + Confidence Signals | ○ Pending | 0% | 1 requirement |
-| 5 - Cost Optimization + Scaling Prep | ○ Pending | 0% | 0 requirements (infra) |
+| 1 - Foundation + Core Trust | Complete | 100% | 12 requirements |
+| 2 - AI Integration + Async Orchestration | Pending | 0% | 5 requirements |
+| 3 - Interactive Analysis + Flip Detection | Pending | 0% | 5 requirements |
+| 4 - Source Quality + Confidence Signals | Pending | 0% | 1 requirement |
+| 5 - Cost Optimization + Scaling Prep | Pending | 0% | 0 requirements (infra) |
 
-**Legend:** ○ Pending | ◐ In Progress | ● Complete
+**Legend:** Pending | In Progress | Complete
 
 ## Phase Ordering Rationale
 
@@ -152,4 +159,4 @@ Plans:
 - Phase 5 enables sustainable scaling
 
 ---
-*Last updated: 2026-02-04 after Phase 1 completion*
+*Last updated: 2026-02-07 after Phase 2 planning*
