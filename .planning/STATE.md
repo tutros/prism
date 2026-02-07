@@ -2,16 +2,16 @@
 
 ## Current Phase
 
-**Phase 1: Foundation + Core Trust** — Complete (5/5 plans)
+**Phase 2: AI Integration + Async Orchestration** — In Progress (1/3 plans)
 
-Phase: 1 of 5 (01-foundation-core-trust)
-Plan: 05 of 5 completed
-Status: Phase complete
-Last activity: 2026-02-04 - Completed 01-05-PLAN.md (persistence + polish, Phase 1 verified)
+Phase: 2 of 5 (02-ai-integration-async-orchestration)
+Plan: 01 of 3 completed
+Status: In progress
+Last activity: 2026-02-07 - Completed 02-01-PLAN.md (AI dependencies and Tavily service)
 
-Progress: ████████████████████ 20% (Phase 1 complete; 1/5 phases done)
+Progress: ████████████████████░░░░░░░░░░░░░░░░ 25% (1 of 3 Phase 2 plans; Phase 1 complete)
 
-**Next action:** Begin Phase 2 (AI Integration + Async Orchestration) — run `/gsd:plan-phase 2`
+**Next action:** Execute 02-02-PLAN.md (Criteria discovery with Claude structured outputs)
 
 ## Project Reference
 
@@ -19,7 +19,7 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 
 **Core value:** Surface the invisible threads that connect everyday choices to systemic impacts
 
-**Current focus:** Phase 1 - Establishing trust infrastructure (source citations, human oversight, responsive UI)
+**Current focus:** Phase 2 - AI integration for criteria discovery and impact analysis with async orchestration
 
 **Tech stack:** React 19 + Vite 7 + Tailwind v4 + TanStack Query v5 (frontend), Python 3.11+ + FastAPI 0.128+ (backend), Claude API + Tavily Search API
 
@@ -28,12 +28,12 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 | Phase | Status | Progress | Requirements | Plans |
 |-------|--------|----------|--------------|-------|
 | 1 - Foundation + Core Trust | ● Complete | 100% | 12 | 5 (5 done) |
-| 2 - AI Integration + Async Orchestration | ○ Pending | 0% | 5 | 0 |
+| 2 - AI Integration + Async Orchestration | ◐ In Progress | 33% | 5 | 3 (1 done) |
 | 3 - Interactive Analysis + Flip Detection | ○ Pending | 0% | 5 | 0 |
 | 4 - Source Quality + Confidence Signals | ○ Pending | 0% | 1 | 0 |
 | 5 - Cost Optimization + Scaling Prep | ○ Pending | 0% | 0 | 0 |
 
-**Overall:** ████░░░░░░░░░░░░░░░░ 20% (1/5 phases complete)
+**Overall:** █████░░░░░░░░░░░░░░░ 25% (1.33/5 phases - Phase 1 done, Phase 2 33%)
 
 **Legend:** ○ Pending | ◐ In Progress | ● Complete
 
@@ -45,9 +45,9 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 - Estimated completion: Not projected
 
 **Planning efficiency:**
-- Plans created: 5 (Phase 1)
-- Plans completed: 5 (01-01, 01-02, 01-03, 01-04, 01-05)
-- Average plan duration: 5 min
+- Plans created: 8 (Phase 1: 5, Phase 2: 3)
+- Plans completed: 6 (01-01, 01-02, 01-03, 01-04, 01-05, 02-01)
+- Average plan duration: 4 min
 
 **Quality indicators:** Not tracked yet
 - Plans requiring revision: 0
@@ -96,6 +96,16 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 - 3 atomic commits: 7e8b985, 1f490ce, 3eee3bb
 - SUMMARY: .planning/phases/01-foundation-core-trust/01-05-SUMMARY.md
 
+**2026-02-07:** AI dependencies and Tavily service (02-01) executed
+- Added anthropic>=0.40.0, tavily-python>=0.7.21, sse-starlette>=2.2.1 to requirements.txt
+- Created backend/app/services/ with config.py for API client singletons using lru_cache
+- Implemented tavily_service.py with parallel search using asyncio.gather
+- Query design targets hidden costs, subsidies, externalities, supply chain
+- search_depth="basic" for balanced speed/quality, max_results=10 for source diversity
+- return_exceptions=True pattern for graceful partial failure handling
+- 3 atomic commits: ff3fead, 5f1192c, d48a690
+- SUMMARY: .planning/phases/02-ai-integration-async-orchestration/02-01-SUMMARY.md
+
 ### Active TODOs
 
 - [x] Run `/gsd:plan-phase 1` to decompose Phase 1 into executable plans
@@ -108,6 +118,14 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 None currently.
 
 ### Recent Changes
+
+**2026-02-07:** Plan 02-01 executed - AI dependencies and Tavily service
+- Added anthropic, tavily-python, sse-starlette dependencies
+- Created services/ package with API client config using lru_cache singletons
+- Implemented parallel web search with asyncio.gather, return_exceptions=True
+- Query targets hidden costs, subsidies, externalities, supply chain
+- 3 atomic commits: ff3fead, 5f1192c, d48a690
+- SUMMARY: .planning/phases/02-ai-integration-async-orchestration/02-01-SUMMARY.md
 
 **2026-02-04:** Plan 01-05 executed - Persistence + polish (Phase 1 complete)
 - Created example prompts, history sidebar with recall, responsive layout
@@ -166,5 +184,5 @@ None currently.
 5. Begin execution
 
 ---
-*Last updated: 2026-02-04 after 01-05 execution (Phase 1 complete)*
-*Next milestone: Begin Phase 2 — AI Integration + Async Orchestration*
+*Last updated: 2026-02-07 after 02-01 execution*
+*Next milestone: Execute 02-02 (Criteria Discovery) and 02-03 (LLM Orchestration)*
