@@ -88,7 +88,7 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Criteria Details</h3>
         {result.criteria.map((criterion) => (
-          <div key={criterion.id} className="p-4 bg-white border border-gray-200 rounded-lg">
+          <div key={criterion.id} id={`criterion-${criterion.id}`} className="p-4 bg-white border border-gray-200 rounded-lg scroll-mt-4">
             <div className="flex justify-between items-start mb-2">
               <div>
                 <h4 className="font-medium">{criterion.name}</h4>

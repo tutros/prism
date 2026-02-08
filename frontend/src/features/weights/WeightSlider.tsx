@@ -18,12 +18,15 @@ export function WeightSlider({
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <label
-          htmlFor={`weight-${criterionId}`}
-          className="text-sm font-medium text-gray-700"
+        <button
+          type="button"
+          onClick={() => {
+            document.getElementById(`criterion-${criterionId}`)?.scrollIntoView({ behavior: 'smooth' })
+          }}
+          className="text-sm font-medium text-gray-700 hover:text-blue-600 hover:underline text-left"
         >
           {label}
-        </label>
+        </button>
         <span className="text-sm font-semibold text-blue-600 min-w-[3rem] text-right">
           {value}%
         </span>
