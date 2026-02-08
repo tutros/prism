@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import health, comparison
+from .routers import health, comparison, progress
 
 app = FastAPI(
     title="Hidden Cost Comparator API",
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(comparison.router)
+app.include_router(progress.router)
 
 
 @app.get("/")
