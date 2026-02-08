@@ -1,20 +1,26 @@
 import type { ComparisonResult } from '../comparison/types'
 import { WeightsPanel } from '../weights/WeightsPanel'
 import { useWeightedScores } from '../weights/useWeightedScores'
+import { useProgress } from '../progress/useProgress'
+import { ProgressDisplay } from '../progress/ProgressDisplay'
 
 interface ResultsDisplayProps {
   result: ComparisonResult
+  comparisonId: string | null
 }
 
-export function ResultsDisplay({ result }: ResultsDisplayProps) {
+export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
   const { weights, scores, updateWeight } = useWeightedScores(result.criteria)
+  const progress = useProgress(
+    result.status === 'processing' ? comparisonId : null
+  )
 
   if (result.status === 'processing') {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-        <span className="ml-3 text-gray-600">Analyzing options...</span>
-      </div>
+      <ProgressDisplay
+        status={progress.status}
+        connected={progress.connected}
+      />
     )
   }
 
