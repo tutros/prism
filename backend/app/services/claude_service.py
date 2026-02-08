@@ -87,7 +87,25 @@ RESEARCH FOR "{option_b}":
 AVAILABLE SOURCE URLS (only use these):
 {chr(10).join(sorted(all_sources))}
 
-Generate exactly 3-5 criteria with scores, weights, and source citations."""
+Generate exactly 3-5 criteria with scores, weights, and source citations.
+
+RESPOND WITH ONLY A JSON OBJECT in this exact format:
+{{
+  "criteria": [
+    {{
+      "name": "Criterion Name",
+      "description": "Why this matters",
+      "score_a": 75,
+      "score_b": 60,
+      "weight": 30,
+      "sources": ["https://example.com/source"]
+    }}
+  ],
+  "winner": "a",
+  "reasoning": "2-3 sentence explanation"
+}}
+
+Do not include any text before or after the JSON."""
 
     response = await client.messages.create(
         model="claude-sonnet-4-5-20250929",
@@ -133,19 +151,9 @@ Always ground your analysis in the provided research. Never hallucinate facts or
     try:
         data = json.loads(json_str)
         return CriteriaOutput.model_validate(data)
-    except (json.JSONDecodeError, Exception) as e:
-        # Fallback: return a minimal valid response
-        return CriteriaOutput(
-            criteria=[
-                CriterionOutput(
-                    name="Analysis Error",
-                    description=f"Failed to parse AI response: {str(e)}",
-                    score_a=50,
-                    score_b=50,
-                    weight=100,
-                    sources=[],
-                )
-            ],
-            winner="tie",
-            reasoning="Unable to complete analysis due to parsing error.",
-        )
+    except json.JSONDecodeError as e:
+        # Re-raise with context for better error messages
+        raise ValueError(f"Failed to parse AI response as JSON: {str(e)}")
+    except Exception as e:
+        # Re-raise validation and other errors
+        raise ValueError(f"Failed to validate AI response: {str(e)}")

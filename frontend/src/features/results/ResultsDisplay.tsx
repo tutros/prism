@@ -27,7 +27,10 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
   if (result.status === 'error') {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-red-700">An error occurred during analysis.</p>
+        <p className="text-red-700 font-medium">An error occurred during analysis.</p>
+        {result.reasoning && (
+          <p className="text-red-600 text-sm mt-2">{result.reasoning}</p>
+        )}
       </div>
     )
   }
