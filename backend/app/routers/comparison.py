@@ -2,60 +2,22 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 import uuid
 from datetime import datetime
-import time
 
 from ..models import ComparisonInput, ComparisonResult, Criterion
 from ..storage import JSONStorage
+from ..services.orchestrator import generate_comparison
 
 router = APIRouter(prefix="/api", tags=["comparison"])
 storage = JSONStorage()
 
 
-def generate_mock_result(comparison_id: str, data: ComparisonInput) -> None:
-    """Simulate AI processing with mock criteria data."""
-    time.sleep(1)  # Simulate processing delay
-
-    mock_criteria = [
-        Criterion(
-            id="1",
-            name="Environmental Impact",
-            description="Overall environmental footprint including production and disposal",
-            score_a=75,
-            score_b=65,
-            weight=50,
-            sources=["https://example.com/env-study"],
-        ),
-        Criterion(
-            id="2",
-            name="Hidden Costs",
-            description="Subsidies, externalities, and unaccounted expenses",
-            score_a=60,
-            score_b=70,
-            weight=50,
-            sources=["https://example.com/cost-analysis"],
-        ),
-        Criterion(
-            id="3",
-            name="Supply Chain Transparency",
-            description="Visibility into sourcing and manufacturing practices",
-            score_a=80,
-            score_b=55,
-            weight=50,
-            sources=["https://example.com/supply-chain"],
-        ),
-    ]
-
-    result = ComparisonResult(
+async def process_comparison(comparison_id: str, data: ComparisonInput) -> None:
+    """Process comparison using AI orchestrator."""
+    result = await generate_comparison(
         comparison_id=comparison_id,
-        status="completed",
-        option_a_name=data.option_a,
-        option_b_name=data.option_b,
+        option_a=data.option_a,
+        option_b=data.option_b,
         intent=data.intent,
-        criteria=mock_criteria,
-        winner="a",
-        reasoning=f"Based on your intent '{data.intent}', {data.option_a} scores higher overall.",
-        created_at=datetime.now(),
-        completed_at=datetime.now(),
     )
     storage.write_result(comparison_id, result)
 
@@ -82,8 +44,8 @@ async def submit_comparison(
     )
     storage.write_result(comparison_id, initial)
 
-    # Queue mock processing in background
-    background_tasks.add_task(generate_mock_result, comparison_id, data)
+    # Queue AI processing in background
+    background_tasks.add_task(process_comparison, comparison_id, data)
 
     return JSONResponse(
         status_code=202,
