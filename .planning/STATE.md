@@ -2,16 +2,16 @@
 
 ## Current Phase
 
-**Phase 2: AI Integration + Async Orchestration** — In Progress (1/3 plans)
+**Phase 2: AI Integration + Async Orchestration** — In Progress (2/3 plans)
 
 Phase: 2 of 5 (02-ai-integration-async-orchestration)
-Plan: 01 of 3 completed
+Plan: 02 of 3 completed
 Status: In progress
-Last activity: 2026-02-07 - Completed 02-01-PLAN.md (AI dependencies and Tavily service)
+Last activity: 2026-02-08 - Completed 02-02-PLAN.md (Criteria discovery with Claude)
 
-Progress: ████████████████████░░░░░░░░░░░░░░░░ 25% (1 of 3 Phase 2 plans; Phase 1 complete)
+Progress: ████████████████████████████░░░░░░░░ 42% (2 of 3 Phase 2 plans; Phase 1 complete)
 
-**Next action:** Execute 02-02-PLAN.md (Criteria discovery with Claude structured outputs)
+**Next action:** Execute 02-03-PLAN.md (Async orchestration with progress tracking)
 
 ## Project Reference
 
@@ -28,12 +28,12 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 | Phase | Status | Progress | Requirements | Plans |
 |-------|--------|----------|--------------|-------|
 | 1 - Foundation + Core Trust | ● Complete | 100% | 12 | 5 (5 done) |
-| 2 - AI Integration + Async Orchestration | ◐ In Progress | 33% | 5 | 3 (1 done) |
+| 2 - AI Integration + Async Orchestration | ◐ In Progress | 67% | 5 | 3 (2 done) |
 | 3 - Interactive Analysis + Flip Detection | ○ Pending | 0% | 5 | 0 |
 | 4 - Source Quality + Confidence Signals | ○ Pending | 0% | 1 | 0 |
 | 5 - Cost Optimization + Scaling Prep | ○ Pending | 0% | 0 | 0 |
 
-**Overall:** █████░░░░░░░░░░░░░░░ 25% (1.33/5 phases - Phase 1 done, Phase 2 33%)
+**Overall:** ██████░░░░░░░░░░░░░░ 30% (1.67/5 phases - Phase 1 done, Phase 2 67%)
 
 **Legend:** ○ Pending | ◐ In Progress | ● Complete
 
@@ -46,8 +46,8 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 
 **Planning efficiency:**
 - Plans created: 8 (Phase 1: 5, Phase 2: 3)
-- Plans completed: 6 (01-01, 01-02, 01-03, 01-04, 01-05, 02-01)
-- Average plan duration: 4 min
+- Plans completed: 7 (01-01, 01-02, 01-03, 01-04, 01-05, 02-01, 02-02)
+- Average plan duration: 6 min
 
 **Quality indicators:** Not tracked yet
 - Plans requiring revision: 0
@@ -96,6 +96,17 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 - 3 atomic commits: 7e8b985, 1f490ce, 3eee3bb
 - SUMMARY: .planning/phases/01-foundation-core-trust/01-05-SUMMARY.md
 
+**2026-02-08:** Claude criteria generation and orchestration (02-02) executed
+- Created claude_service.py with structured output models (CriterionOutput, CriteriaOutput)
+- Implemented prompt caching on system prompt (cache_control: ephemeral) for 90% cost reduction
+- Criteria focus on non-obvious hidden costs (subsidies, externalities, supply chain, embedded impacts)
+- Created orchestrator.py with 3-step flow: Tavily search -> Claude analysis -> ComparisonResult
+- Wired orchestrator into comparison endpoint, replaced mock with real AI processing
+- Error handling at each orchestration step returns meaningful error messages
+- Model: claude-sonnet-4-5-20250929 with JSON parsing fallback for robustness
+- 3 atomic commits: f078949, 24b7de4, 8786311
+- SUMMARY: .planning/phases/02-ai-integration-async-orchestration/02-02-SUMMARY.md
+
 **2026-02-07:** AI dependencies and Tavily service (02-01) executed
 - Added anthropic>=0.40.0, tavily-python>=0.7.21, sse-starlette>=2.2.1 to requirements.txt
 - Created backend/app/services/ with config.py for API client singletons using lru_cache
@@ -118,6 +129,15 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 None currently.
 
 ### Recent Changes
+
+**2026-02-08:** Plan 02-02 executed - Claude criteria generation and orchestration
+- Created Claude service with structured outputs (Pydantic models) and prompt caching
+- Implemented orchestrator combining Tavily and Claude in 3-step flow
+- Replaced mock comparison generator with real AI processing
+- Error handling at each step with meaningful messages
+- Focus on non-obvious criteria (hidden costs, subsidies, externalities)
+- 3 atomic commits: f078949, 24b7de4, 8786311
+- SUMMARY: .planning/phases/02-ai-integration-async-orchestration/02-02-SUMMARY.md
 
 **2026-02-07:** Plan 02-01 executed - AI dependencies and Tavily service
 - Added anthropic, tavily-python, sse-starlette dependencies
@@ -184,5 +204,5 @@ None currently.
 5. Begin execution
 
 ---
-*Last updated: 2026-02-07 after 02-01 execution*
-*Next milestone: Execute 02-02 (Criteria Discovery) and 02-03 (LLM Orchestration)*
+*Last updated: 2026-02-08 after 02-02 execution*
+*Next milestone: Execute 02-03 (Async orchestration with progress tracking)*
