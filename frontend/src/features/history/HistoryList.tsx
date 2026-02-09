@@ -56,7 +56,7 @@ export function HistoryList({ onSelect, currentId }: HistoryListProps) {
               </p>
             </div>
             <span className={`ml-2 px-2 py-0.5 text-xs rounded ${
-              currentId === comparison.comparison_id && comparison.status === 'completed'
+              currentId === comparison.comparison_id
                 ? 'bg-blue-100 text-blue-700'
                 : comparison.status === 'completed'
                 ? 'bg-green-100 text-green-700'
@@ -64,7 +64,7 @@ export function HistoryList({ onSelect, currentId }: HistoryListProps) {
                 ? 'bg-yellow-100 text-yellow-700'
                 : 'bg-red-100 text-red-700'
             }`}>
-              {currentId === comparison.comparison_id && comparison.status === 'completed'
+              {currentId === comparison.comparison_id
                 ? 'reviewing'
                 : comparison.status}
             </span>
