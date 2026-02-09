@@ -28,34 +28,26 @@ export function ScoringExplainer() {
 
       {isOpen && (
         <div className="px-4 pb-4 text-sm text-gray-600 space-y-3">
-          <div className="border-t border-gray-200 pt-3">
-            <p className="font-medium text-gray-800 mb-2">Understanding the Scores</p>
+          <div className="border-t border-gray-200 pt-3 space-y-3">
+            <p>
+              <span className="font-medium text-gray-800">Each option gets its own score.</span> Think of it like a grade — both options could get an A, or both could get a C. They're not splitting points between them.
+            </p>
 
-            <div className="space-y-2">
-              <p>
-                <span className="font-medium">Criterion scores (0-100):</span> Each option is rated independently on how well it performs for each criterion. A score of 80 means "performs well," not "gets 80% of the points." Both options can score high, or both can score low.
-              </p>
+            <p>
+              <span className="font-medium text-gray-800">Weights show what matters most to you.</span> Slide them to match your priorities. Higher weight = bigger impact on the final score.
+            </p>
 
-              <p>
-                <span className="font-medium">Weights (importance):</span> Weights reflect how much each criterion matters to your decision. A criterion with 30% weight has 3x more influence than one with 10%. Adjust the sliders to match your priorities.
-              </p>
-
-              <p>
-                <span className="font-medium">Final score:</span> The weighted average of all criterion scores. Higher score = better overall performance based on your weighted priorities.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded p-3">
-            <p className="text-xs text-gray-500 mb-1">Example calculation:</p>
-            <p className="text-xs font-mono text-gray-700">
-              If Criterion A (weight 60%) scores 80, and Criterion B (weight 40%) scores 50:<br/>
-              Final = (80 × 0.6) + (50 × 0.4) = 48 + 20 = <span className="font-bold">68</span>
+            <p>
+              <span className="font-medium text-gray-800">The final score combines everything.</span> It blends all the scores based on your weights. The higher the number, the better that option fits your priorities.
             </p>
           </div>
 
-          <p className="text-xs text-gray-500 italic">
-            Scores are based on AI analysis of web sources. Adjust weights to explore how different priorities affect the outcome.
+          <div className="bg-white border border-gray-200 rounded p-3 text-xs text-gray-600">
+            <span className="font-medium">Try it:</span> Move a weight slider and watch the final scores update instantly.
+          </div>
+
+          <p className="text-xs text-gray-500">
+            Scores come from AI analysis of real web sources. Click any source link to verify.
           </p>
         </div>
       )}
