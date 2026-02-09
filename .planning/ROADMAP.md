@@ -74,6 +74,13 @@ Plans:
 
 **Requirements:** RES-04, RES-06, WGT-05, RST-02, RST-03, RST-04
 
+**Plans:** 3 plans in 2 waves
+
+Plans:
+- [ ] 03-01-PLAN.md - Criteria CRUD backend and origin tracking (POST/PATCH/DELETE endpoints)
+- [ ] 03-02-PLAN.md - Go Deeper and Regenerate Weights (additional criteria, weight refresh)
+- [ ] 03-03-PLAN.md - Flip detection and inline criteria editing (sensitivity, actionable suggestions)
+
 **Success Criteria:**
 1. User can click "Go Deeper" and see AI generate additional criteria beyond initial 3-5
 2. User can click "Regenerate Weights" and see AI recalculate based on same intent with fresh analysis
@@ -133,11 +140,11 @@ Plans:
 |-------|--------|----------|--------------|
 | 1 - Foundation + Core Trust | Complete | 100% | 12 requirements |
 | 2 - AI Integration + Async Orchestration | Complete | 100% | 5 requirements |
-| 3 - Interactive Analysis + Flip Detection | Pending | 0% | 6 requirements |
+| 3 - Interactive Analysis + Flip Detection | Planned | 0% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Pending | 0% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Pending | 0% | 0 requirements (infra) |
 
-**Legend:** Pending | In Progress | Complete
+**Legend:** Pending | Planned | In Progress | Complete
 
 ## Phase Ordering Rationale
 
@@ -161,4 +168,4 @@ Plans:
 - Phase 5 enables sustainable scaling
 
 ---
-*Last updated: 2026-02-07 after Phase 2 planning*
+*Last updated: 2026-02-08 after Phase 3 planning*
