@@ -12,6 +12,7 @@ export interface Criterion {
   score_b: number
   weight: number
   sources: string[]
+  origin: 'ai' | 'user'
 }
 
 export interface ComparisonResult {

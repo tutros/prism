@@ -17,6 +17,25 @@ class Criterion(BaseModel):
     score_b: float = Field(ge=0, le=100)
     weight: float = Field(ge=0, le=100, default=50)
     sources: list[str] = []
+    origin: Literal["ai", "user"] = "ai"
+
+
+class CriterionCreate(BaseModel):
+    """Model for creating a new user criterion."""
+    name: str = Field(..., min_length=1, max_length=200)
+    description: str = Field(..., min_length=1, max_length=1000)
+    score_a: float = Field(..., ge=0, le=100)
+    score_b: float = Field(..., ge=0, le=100)
+    weight: float = Field(default=50, ge=0, le=100)
+
+
+class CriterionUpdate(BaseModel):
+    """Model for updating a criterion (all fields optional)."""
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, min_length=1, max_length=1000)
+    score_a: float | None = Field(default=None, ge=0, le=100)
+    score_b: float | None = Field(default=None, ge=0, le=100)
+    weight: float | None = Field(default=None, ge=0, le=100)
 
 
 class ComparisonResult(BaseModel):
