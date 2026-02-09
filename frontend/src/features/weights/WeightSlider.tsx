@@ -2,6 +2,7 @@ interface WeightSliderProps {
   criterionId: string
   label: string
   value: number
+  effectivePercent: number
   onChange: (criterionId: string, value: number) => void
 }
 
@@ -9,6 +10,7 @@ export function WeightSlider({
   criterionId,
   label,
   value,
+  effectivePercent,
   onChange,
 }: WeightSliderProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,8 +34,9 @@ export function WeightSlider({
         >
           {label}
         </button>
-        <span className="text-sm font-semibold text-blue-600 min-w-[3rem] text-right">
-          {value}%
+        <span className="text-sm min-w-[5rem] text-right">
+          <span className="font-semibold text-blue-600">{effectivePercent}%</span>
+          <span className="text-gray-400 text-xs ml-1">({value})</span>
         </span>
       </div>
       <input

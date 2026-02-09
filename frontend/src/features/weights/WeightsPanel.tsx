@@ -19,6 +19,12 @@ export function WeightsPanel({
   optionBName,
   onWeightChange,
 }: WeightsPanelProps) {
+  // Calculate total for normalization display
+  const totalWeight = criteria.reduce(
+    (sum, c) => sum + (weights[c.id] ?? c.weight),
+    0
+  )
+
   return (
     <div className="space-y-6">
       {/* Scores Summary */}
@@ -38,17 +44,29 @@ export function WeightsPanel({
 
       {/* Weight Sliders */}
       <div>
-        <h4 className="text-sm font-medium text-gray-500 mb-3">Adjust Weights</h4>
+        <div className="flex justify-between items-center mb-3">
+          <h4 className="text-sm font-medium text-gray-500">Adjust Weights</h4>
+          <span className="text-xs text-gray-400">
+            Weights are relative — what matters is the ratio between them
+          </span>
+        </div>
         <div className="space-y-4">
-          {criteria.map((criterion) => (
-            <WeightSlider
-              key={criterion.id}
-              criterionId={criterion.id}
-              label={criterion.name}
-              value={weights[criterion.id] ?? criterion.weight}
-              onChange={onWeightChange}
-            />
-          ))}
+          {criteria.map((criterion) => {
+            const rawWeight = weights[criterion.id] ?? criterion.weight
+            const effectivePercent = totalWeight > 0
+              ? Math.round((rawWeight / totalWeight) * 100)
+              : 0
+            return (
+              <WeightSlider
+                key={criterion.id}
+                criterionId={criterion.id}
+                label={criterion.name}
+                value={rawWeight}
+                effectivePercent={effectivePercent}
+                onChange={onWeightChange}
+              />
+            )
+          })}
         </div>
       </div>
     </div>
