@@ -21,7 +21,12 @@ export function WeightSlider({
         <button
           type="button"
           onClick={() => {
-            document.getElementById(`criterion-${criterionId}`)?.scrollIntoView({ behavior: 'smooth' })
+            const el = document.getElementById(`criterion-${criterionId}`)
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth' })
+              el.classList.add('highlight-flash')
+              setTimeout(() => el.classList.remove('highlight-flash'), 1500)
+            }
           }}
           className="text-sm font-medium text-gray-700 hover:text-blue-600 hover:underline text-left"
         >

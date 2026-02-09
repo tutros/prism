@@ -4,3 +4,13 @@
 body {
   @apply bg-gray-50 text-gray-900 antialiased;
 }
+
+/* Highlight flash animation for scroll-to targets */
+@keyframes highlight-flash {
+  0% { background-color: rgb(219 234 254); } /* blue-100 */
+  100% { background-color: white; }
+}
+
+.highlight-flash {
+  animation: highlight-flash 1.5s ease-out;
+}
