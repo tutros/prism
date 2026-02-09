@@ -21,6 +21,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **RES-03**: Every criterion includes source citations (clickable links)
 - [ ] **RES-04**: User can "Go Deeper" to generate additional criteria
 - [ ] **RES-05**: Sources display quality indicators (peer-reviewed, government, blog, etc.)
+- [ ] **RES-06**: User can add/edit custom criteria alongside AI-generated ones
 
 ### Weights
 
@@ -72,7 +73,6 @@ Explicitly excluded. Documented to prevent scope creep.
 | More than 2 options | Complexity explosion, keep v1 simple |
 | Real-time price tracking | Maintenance burden, out of core value |
 | Collaborative editing | Scope creep for MVP |
-| Custom criteria input | Defeats AI discovery purpose |
 | Mobile native app | Web-first, responsive design sufficient |
 
 ## Traceability
@@ -90,6 +90,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RES-03 | Phase 2 | Pending |
 | RES-04 | Phase 3 | Pending |
 | RES-05 | Phase 4 | Pending |
+| RES-06 | Phase 3 | Pending |
 | WGT-01 | Phase 2 | Pending |
 | WGT-02 | Phase 1 | Complete |
 | WGT-03 | Phase 1 | Complete |
@@ -106,14 +107,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-05 | Phase 1 | Complete |
 
 **Coverage:**
-- v1 requirements: 23 total
-- Mapped to phases: 23 (100% coverage)
+- v1 requirements: 24 total
+- Mapped to phases: 24 (100% coverage)
 - Unmapped: 0
 
 **Phase distribution:**
 - Phase 1 (Foundation + Core Trust): 12 requirements
 - Phase 2 (AI Integration + Async Orchestration): 5 requirements
-- Phase 3 (Interactive Analysis + Flip Detection): 5 requirements
+- Phase 3 (Interactive Analysis + Flip Detection): 6 requirements
 - Phase 4 (Source Quality + Confidence Signals): 1 requirement
 - Phase 5 (Cost Optimization + Scaling Prep): 0 requirements (infrastructure improvements)
 

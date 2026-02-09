@@ -6,7 +6,7 @@ This roadmap delivers an AI-powered decision comparison tool that surfaces hidde
 
 **Phases:** 5
 **Depth:** Standard (5-8 phases, 3-5 plans each)
-**Coverage:** 23/23 v1 requirements mapped
+**Coverage:** 24/24 v1 requirements mapped
 
 ## Phases
 
@@ -72,7 +72,7 @@ Plans:
 
 **Dependencies:** Phase 2 (requires working AI system to recalculate against)
 
-**Requirements:** RES-04, WGT-05, RST-02, RST-03, RST-04
+**Requirements:** RES-04, RES-06, WGT-05, RST-02, RST-03, RST-04
 
 **Success Criteria:**
 1. User can click "Go Deeper" and see AI generate additional criteria beyond initial 3-5
@@ -81,6 +81,8 @@ Plans:
 4. Flip suggestions are actionable only (no impossible changes like "change the laws")
 5. Flip suggestions include source citations justifying the suggested changes
 6. User sees which criteria are most sensitive (high impact on outcome if weights change)
+7. User can add custom criteria with their own name, description, scores, and weight
+8. User can edit existing criteria (both AI-generated and custom)
 
 **Notes:** Client-side scoring service for instant recalculation. Flip analysis algorithm calculates weight threshold changes. Optimistic UI updates with backend sync. Addresses pitfalls: weight bias transparency, loss of user agency, information overload via progressive disclosure.
 
@@ -131,7 +133,7 @@ Plans:
 |-------|--------|----------|--------------|
 | 1 - Foundation + Core Trust | Complete | 100% | 12 requirements |
 | 2 - AI Integration + Async Orchestration | Pending | 0% | 5 requirements |
-| 3 - Interactive Analysis + Flip Detection | Pending | 0% | 5 requirements |
+| 3 - Interactive Analysis + Flip Detection | Pending | 0% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Pending | 0% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Pending | 0% | 0 requirements (infra) |
 
