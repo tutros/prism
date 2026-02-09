@@ -3,6 +3,7 @@ import { WeightsPanel } from '../weights/WeightsPanel'
 import { useWeightedScores } from '../weights/useWeightedScores'
 import { useProgress } from '../progress/useProgress'
 import { ProgressDisplay } from '../progress/ProgressDisplay'
+import { ScoringExplainer } from './ScoringExplainer'
 
 interface ResultsDisplayProps {
   result: ComparisonResult
@@ -61,7 +62,7 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
               Winner
             </span>
           )}
-          <div className="text-2xl font-bold text-gray-800">{scores.totalA}</div>
+          <div className="text-2xl font-bold text-gray-800">{scores.totalA}<span className="text-sm font-normal text-gray-500">/100</span></div>
         </div>
         <div className={`p-4 rounded-lg border-2 ${scores.winner === 'b' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'}`}>
           <h3 className="text-lg font-bold mb-2">{result.option_b_name}</h3>
@@ -70,9 +71,12 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
               Winner
             </span>
           )}
-          <div className="text-2xl font-bold text-gray-800">{scores.totalB}</div>
+          <div className="text-2xl font-bold text-gray-800">{scores.totalB}<span className="text-sm font-normal text-gray-500">/100</span></div>
         </div>
       </div>
+
+      {/* Scoring Explanation */}
+      <ScoringExplainer />
 
       {/* Weights Panel */}
       <WeightsPanel
@@ -101,11 +105,11 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
             <div className="grid grid-cols-2 gap-4 mt-3">
               <div>
                 <span className="text-sm text-gray-500">{result.option_a_name}</span>
-                <div className="text-lg font-semibold">{criterion.score_a}</div>
+                <div className="text-lg font-semibold">{criterion.score_a}<span className="text-sm font-normal text-gray-400">/100</span></div>
               </div>
               <div>
                 <span className="text-sm text-gray-500">{result.option_b_name}</span>
-                <div className="text-lg font-semibold">{criterion.score_b}</div>
+                <div className="text-lg font-semibold">{criterion.score_b}<span className="text-sm font-normal text-gray-400">/100</span></div>
               </div>
             </div>
             {criterion.sources.length > 0 && (
