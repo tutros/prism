@@ -50,9 +50,9 @@ Plans:
 **Plans:** 3 plans in 3 waves
 
 Plans:
-- [ ] 02-01-PLAN.md - Dependencies and Tavily search service (parallel web research)
-- [ ] 02-02-PLAN.md - Claude criteria generation and orchestration (structured outputs)
-- [ ] 02-03-PLAN.md - SSE progress streaming (real-time status updates)
+- [x] 02-01-PLAN.md - Dependencies and Tavily search service (parallel web research)
+- [x] 02-02-PLAN.md - Claude criteria generation and orchestration (structured outputs)
+- [x] 02-03-PLAN.md - SSE progress streaming (real-time status updates)
 
 **Success Criteria:**
 1. User sees AI discover 3-5 criteria that are non-obvious (not price/durability/convenience)
@@ -132,7 +132,7 @@ Plans:
 | Phase | Status | Progress | Requirements |
 |-------|--------|----------|--------------|
 | 1 - Foundation + Core Trust | Complete | 100% | 12 requirements |
-| 2 - AI Integration + Async Orchestration | Pending | 0% | 5 requirements |
+| 2 - AI Integration + Async Orchestration | Complete | 100% | 5 requirements |
 | 3 - Interactive Analysis + Flip Detection | Pending | 0% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Pending | 0% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Pending | 0% | 0 requirements (infra) |

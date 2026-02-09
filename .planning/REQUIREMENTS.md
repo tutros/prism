@@ -85,13 +85,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INP-02 | Phase 1 | Complete |
 | INP-03 | Phase 1 | Complete |
 | INP-04 | Phase 1 | Complete |
-| RES-01 | Phase 2 | Pending |
-| RES-02 | Phase 2 | Pending |
-| RES-03 | Phase 2 | Pending |
+| RES-01 | Phase 2 | Complete |
+| RES-02 | Phase 2 | Complete |
+| RES-03 | Phase 2 | Complete |
 | RES-04 | Phase 3 | Pending |
 | RES-05 | Phase 4 | Pending |
 | RES-06 | Phase 3 | Pending |
-| WGT-01 | Phase 2 | Pending |
+| WGT-01 | Phase 2 | Complete |
 | WGT-02 | Phase 1 | Complete |
 | WGT-03 | Phase 1 | Complete |
 | WGT-04 | Phase 1 | Complete |
@@ -102,7 +102,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RST-04 | Phase 3 | Pending |
 | UX-01 | Phase 1 | Complete |
 | UX-02 | Phase 1 | Complete |
-| UX-03 | Phase 2 | Pending |
+| UX-03 | Phase 2 | Complete |
 | UX-04 | Phase 1 | Complete |
 | UX-05 | Phase 1 | Complete |
 
