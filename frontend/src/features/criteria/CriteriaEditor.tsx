@@ -41,10 +41,10 @@ export function CriteriaEditor({
       return res.json()
     },
     onMutate: async (update) => {
-      await queryClient.cancelQueries({ queryKey: ['results', comparisonId] })
-      const previous = queryClient.getQueryData(['results', comparisonId])
+      await queryClient.cancelQueries({ queryKey: ['comparison', comparisonId] })
+      const previous = queryClient.getQueryData(['comparison', comparisonId])
 
-      queryClient.setQueryData(['results', comparisonId], (old: any) => {
+      queryClient.setQueryData(['comparison', comparisonId], (old: any) => {
         if (!old) return old
         return {
           ...old,
@@ -57,10 +57,10 @@ export function CriteriaEditor({
       return { previous }
     },
     onError: (_err, _update, context) => {
-      queryClient.setQueryData(['results', comparisonId], context?.previous)
+      queryClient.setQueryData(['comparison', comparisonId], context?.previous)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['results', comparisonId] })
+      queryClient.invalidateQueries({ queryKey: ['comparison', comparisonId] })
     },
   })
 

@@ -15,7 +15,7 @@ export function RegenerateWeights({ comparisonId }: RegenerateWeightsProps) {
       return apiPost<ComparisonResult>(`/api/comparisons/${comparisonId}/regenerate-weights`, {})
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results', comparisonId] })
+      queryClient.invalidateQueries({ queryKey: ['comparison', comparisonId] })
     },
   })
 

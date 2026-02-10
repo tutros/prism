@@ -15,7 +15,7 @@ export function GoDeeper({ comparisonId }: GoeDeeperProps) {
       return apiPost<ComparisonResult>(`/api/comparisons/${comparisonId}/go-deeper`, {})
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results', comparisonId] })
+      queryClient.invalidateQueries({ queryKey: ['comparison', comparisonId] })
     },
   })
 

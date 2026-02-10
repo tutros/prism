@@ -26,7 +26,7 @@ export function AddCriterion({ comparisonId, optionAName, optionBName }: AddCrit
       return apiPost<Criterion>(`/api/comparisons/${comparisonId}/criteria`, form)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results', comparisonId] })
+      queryClient.invalidateQueries({ queryKey: ['comparison', comparisonId] })
       setForm({ name: '', description: '', score_a: 50, score_b: 50, weight: 50 })
       setIsOpen(false)
     },
