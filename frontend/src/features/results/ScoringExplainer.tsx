@@ -38,6 +38,10 @@ export function ScoringExplainer() {
             </p>
 
             <p>
+              <span className="font-medium text-gray-800">Impact badges</span> — Criteria marked "High Impact" or "Medium Impact" have the most influence on the winner. These are calculated from score difference × weight.
+            </p>
+
+            <p>
               <span className="font-medium text-gray-800">The final score combines everything.</span> It blends all the scores based on your weights. The higher the number, the better that option fits your priorities.
             </p>
           </div>
