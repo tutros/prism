@@ -49,3 +49,6 @@ class ComparisonResult(BaseModel):
     reasoning: str = ""
     created_at: datetime
     completed_at: datetime | None = None
+    # Cached research for Go Deeper / Regenerate Weights
+    research_a: dict | None = None
+    research_b: dict | None = None

@@ -1,5 +1,6 @@
 """Orchestrator combining web search and AI analysis."""
 
+from dataclasses import asdict
 from datetime import datetime
 
 from ..models import ComparisonResult, Criterion
@@ -103,6 +104,8 @@ async def generate_comparison(
         reasoning=criteria_output.reasoning,
         created_at=datetime.now(),
         completed_at=datetime.now(),
+        research_a=asdict(research_a),
+        research_b=asdict(research_b),
     )
 
     mark_complete(comparison_id)

@@ -6,6 +6,8 @@ from datetime import datetime
 from ..models import ComparisonInput, ComparisonResult, Criterion, CriterionCreate, CriterionUpdate
 from ..storage import JSONStorage
 from ..services.orchestrator import generate_comparison
+from ..services.criteria_service import go_deeper, regenerate_weights
+from ..services.tavily_service import OptionResearch, SearchResult
 
 router = APIRouter(prefix="/api", tags=["comparison"])
 storage = JSONStorage()
@@ -144,3 +146,79 @@ async def delete_criterion(comparison_id: str, criterion_id: str):
 
     storage.write_result(comparison_id, result)
     return {"deleted": criterion_id}
+
+
+def _dict_to_option_research(data: dict) -> OptionResearch:
+    """Convert cached research dict back to OptionResearch."""
+    return OptionResearch(
+        option=data.get("option", ""),
+        results=[
+            SearchResult(
+                title=r.get("title", ""),
+                url=r.get("url", ""),
+                content=r.get("content", ""),
+                score=r.get("score", 0.0),
+            )
+            for r in data.get("results", [])
+        ],
+        error=data.get("error"),
+    )
+
+
+@router.post("/comparisons/{comparison_id}/go-deeper")
+async def go_deeper_endpoint(comparison_id: str):
+    """Generate 2-3 additional criteria using cached research."""
+    result = storage.read_result(comparison_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+
+    # Check for cached research
+    if not result.research_a or not result.research_b:
+        raise HTTPException(
+            status_code=400,
+            detail="Re-run comparison to use Go Deeper (no cached research)"
+        )
+
+    # Convert cached dicts back to OptionResearch
+    research_a = _dict_to_option_research(result.research_a)
+    research_b = _dict_to_option_research(result.research_b)
+
+    # Generate new criteria
+    new_criteria = await go_deeper(
+        option_a=result.option_a_name,
+        option_b=result.option_b_name,
+        intent=result.intent,
+        existing_criteria=result.criteria,
+        research_a=research_a,
+        research_b=research_b,
+    )
+
+    # Append to existing criteria
+    result.criteria.extend(new_criteria)
+    storage.write_result(comparison_id, result)
+    return result
+
+
+@router.post("/comparisons/{comparison_id}/regenerate-weights")
+async def regenerate_weights_endpoint(comparison_id: str):
+    """Re-weight all criteria based on intent using AI."""
+    result = storage.read_result(comparison_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+
+    if not result.criteria:
+        raise HTTPException(status_code=400, detail="No criteria to weight")
+
+    # Get new weights from AI
+    new_weights = await regenerate_weights(
+        criteria=result.criteria,
+        intent=result.intent,
+    )
+
+    # Apply new weights to each criterion
+    for criterion in result.criteria:
+        if criterion.id in new_weights:
+            criterion.weight = new_weights[criterion.id]
+
+    storage.write_result(comparison_id, result)
+    return result
