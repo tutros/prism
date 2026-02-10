@@ -104,7 +104,6 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
         <FlipAnalysis
           comparisonId={comparisonId}
           loserName={loserLabel}
-          weights={weights}
         />
       )}
 

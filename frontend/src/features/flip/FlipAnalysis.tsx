@@ -5,23 +5,21 @@ import type { FlipAnalysisResponse } from '../comparison/types'
 interface FlipAnalysisProps {
   comparisonId: string
   loserName: string
-  weights: Record<string, number>
 }
 
-export function FlipAnalysis({ comparisonId, loserName, weights }: FlipAnalysisProps) {
-  // Include weights in query key so it refetches when weights change
-  const weightsKey = Object.entries(weights).sort().map(([k, v]) => `${k}:${v}`).join(',')
+export function FlipAnalysis({ comparisonId, loserName }: FlipAnalysisProps) {
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['flip-analysis', comparisonId, weightsKey],
+    queryKey: ['flip-analysis', comparisonId],
     queryFn: async () => {
       // apiGet already returns parsed JSON and throws on error
       return apiGet<FlipAnalysisResponse>(`/api/comparisons/${comparisonId}/flip-analysis`)
     },
-    staleTime: 30000,
+    staleTime: 60000, // Cache for 1 minute
+    placeholderData: (previousData) => previousData, // Keep previous data during refetch to prevent flickering
   })
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <div className="p-4 bg-gray-50 rounded-lg">
         <div className="flex items-center gap-2 text-gray-600">
@@ -54,8 +52,8 @@ export function FlipAnalysis({ comparisonId, loserName, weights }: FlipAnalysisP
   if (data.suggestions.length === 0) {
     return (
       <div className="p-4 bg-gray-50 rounded-lg text-gray-600">
-        <p className="font-medium">This comparison is very close</p>
-        <p className="text-sm mt-1">Small changes in weights could flip the outcome.</p>
+        <p className="font-medium">No realistic way to flip this outcome</p>
+        <p className="text-sm mt-1">The winner outperforms on most criteria, or the gap is too large to overcome with weight adjustments alone.</p>
       </div>
     )
   }
