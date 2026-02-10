@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiPost } from '../../lib/api'
+import type { Criterion } from '../comparison/types'
 
 interface AddCriterionProps {
   comparisonId: string
@@ -21,12 +22,8 @@ export function AddCriterion({ comparisonId, optionAName, optionBName }: AddCrit
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await apiPost(`/api/comparisons/${comparisonId}/criteria`, form)
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to add criterion')
-      }
-      return response.json()
+      // apiPost already returns parsed JSON and throws on error
+      return apiPost<Criterion>(`/api/comparisons/${comparisonId}/criteria`, form)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['results', comparisonId] })

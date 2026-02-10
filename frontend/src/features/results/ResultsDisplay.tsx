@@ -26,12 +26,9 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
   // Fetch sensitivity data for criteria
   const { data: flipData } = useQuery({
     queryKey: ['flip-analysis', comparisonId],
-    queryFn: async (): Promise<FlipAnalysisResponse> => {
-      const response = await apiGet(`/api/comparisons/${comparisonId}/flip-analysis`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch flip analysis')
-      }
-      return response.json()
+    queryFn: async () => {
+      // apiGet already returns parsed JSON and throws on error
+      return apiGet<FlipAnalysisResponse>(`/api/comparisons/${comparisonId}/flip-analysis`)
     },
     enabled: !!comparisonId && result.status === 'completed',
     staleTime: 30000,

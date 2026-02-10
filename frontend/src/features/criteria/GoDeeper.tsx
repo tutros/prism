@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiPost } from '../../lib/api'
+import type { ComparisonResult } from '../comparison/types'
 
 interface GoeDeeperProps {
   comparisonId: string
@@ -10,15 +11,10 @@ export function GoDeeper({ comparisonId }: GoeDeeperProps) {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await apiPost(`/api/comparisons/${comparisonId}/go-deeper`, {})
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to generate additional criteria')
-      }
-      return response.json()
+      // apiPost already returns parsed JSON and throws on error
+      return apiPost<ComparisonResult>(`/api/comparisons/${comparisonId}/go-deeper`, {})
     },
     onSuccess: () => {
-      // Invalidate to refetch the comparison result
       queryClient.invalidateQueries({ queryKey: ['results', comparisonId] })
     },
   })

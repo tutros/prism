@@ -14,14 +14,11 @@ export function FlipAnalysis({ comparisonId, loserName, weights }: FlipAnalysisP
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['flip-analysis', comparisonId, weightsKey],
-    queryFn: async (): Promise<FlipAnalysisResponse> => {
-      const response = await apiGet(`/api/comparisons/${comparisonId}/flip-analysis`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch flip analysis')
-      }
-      return response.json()
+    queryFn: async () => {
+      // apiGet already returns parsed JSON and throws on error
+      return apiGet<FlipAnalysisResponse>(`/api/comparisons/${comparisonId}/flip-analysis`)
     },
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 30000,
   })
 
   if (isLoading) {
