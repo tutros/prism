@@ -4,6 +4,8 @@ import { useWeightedScores } from '../weights/useWeightedScores'
 import { useProgress } from '../progress/useProgress'
 import { ProgressDisplay } from '../progress/ProgressDisplay'
 import { ScoringExplainer } from './ScoringExplainer'
+import { GoDeeper } from '../criteria/GoDeeper'
+import { RegenerateWeights } from '../weights/RegenerateWeights'
 
 interface ResultsDisplayProps {
   result: ComparisonResult
@@ -79,24 +81,40 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
       <ScoringExplainer />
 
       {/* Weights Panel */}
-      <WeightsPanel
-        criteria={result.criteria}
-        weights={weights}
-        scores={scores}
-        optionAName={result.option_a_name}
-        optionBName={result.option_b_name}
-        onWeightChange={updateWeight}
-      />
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Weights</h3>
+          {comparisonId && <RegenerateWeights comparisonId={comparisonId} />}
+        </div>
+        <WeightsPanel
+          criteria={result.criteria}
+          weights={weights}
+          scores={scores}
+          optionAName={result.option_a_name}
+          optionBName={result.option_b_name}
+          onWeightChange={updateWeight}
+        />
+      </div>
 
       {/* Criteria Details */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Criteria Details</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Criteria Details</h3>
+          {comparisonId && <GoDeeper comparisonId={comparisonId} />}
+        </div>
         {result.criteria.map((criterion) => (
           <div key={criterion.id} id={`criterion-${criterion.id}`} className="p-4 bg-white border border-gray-200 rounded-lg scroll-mt-4">
             <div className="flex justify-between items-start mb-2">
-              <div>
-                <h4 className="font-medium">{criterion.name}</h4>
-                <p className="text-sm text-gray-600">{criterion.description}</p>
+              <div className="flex items-start gap-2">
+                <div>
+                  <h4 className="font-medium">{criterion.name}</h4>
+                  <p className="text-sm text-gray-600">{criterion.description}</p>
+                </div>
+                {criterion.origin === 'user' && (
+                  <span className="inline-block px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded">
+                    Custom
+                  </span>
+                )}
               </div>
               <span className="text-sm text-blue-600 font-medium">
                 Weight: {weights[criterion.id] ?? criterion.weight}%
