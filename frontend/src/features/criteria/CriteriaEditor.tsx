@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Criterion } from '../comparison/types'
 
+const API_BASE = 'http://localhost:8000'
+
 interface CriteriaEditorProps {
   criterion: Criterion
   comparisonId: string
@@ -30,7 +32,7 @@ export function CriteriaEditor({
   const updateMutation = useMutation({
     mutationFn: async (update: Partial<Criterion>) => {
       const res = await fetch(
-        `/api/comparisons/${comparisonId}/criteria/${criterion.id}`,
+        `${API_BASE}/api/comparisons/${comparisonId}/criteria/${criterion.id}`,
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
