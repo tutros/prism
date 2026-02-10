@@ -38,6 +38,29 @@ class CriterionUpdate(BaseModel):
     weight: float | None = Field(default=None, ge=0, le=100)
 
 
+class FlipSuggestionModel(BaseModel):
+    """Mathematical flip suggestion."""
+    criterion_id: str
+    criterion_name: str
+    current_weight: float
+    required_weight_increase: float
+    sensitivity_score: float
+
+
+class ActionableSuggestionModel(BaseModel):
+    """User-facing actionable suggestion."""
+    action: str
+    affected_criterion: str
+    impact: str
+    sources: list[str] = []
+
+
+class FlipAnalysisResponse(BaseModel):
+    """Response from flip analysis endpoint."""
+    suggestions: list[ActionableSuggestionModel] = []
+    sensitivity: dict[str, float] = {}
+
+
 class ComparisonResult(BaseModel):
     comparison_id: str
     status: Literal["processing", "completed", "error"]

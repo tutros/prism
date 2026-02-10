@@ -3,11 +3,17 @@ from fastapi.responses import JSONResponse
 import uuid
 from datetime import datetime
 
-from ..models import ComparisonInput, ComparisonResult, Criterion, CriterionCreate, CriterionUpdate
+from ..models import (
+    ComparisonInput, ComparisonResult, Criterion, CriterionCreate, CriterionUpdate,
+    FlipAnalysisResponse, ActionableSuggestionModel
+)
 from ..storage import JSONStorage
 from ..services.orchestrator import generate_comparison
 from ..services.criteria_service import go_deeper, regenerate_weights
 from ..services.tavily_service import OptionResearch, SearchResult
+from ..services.flip_service import (
+    calculate_sensitivity, calculate_flip_analysis, generate_actionable_suggestions
+)
 
 router = APIRouter(prefix="/api", tags=["comparison"])
 storage = JSONStorage()
@@ -222,3 +228,49 @@ async def regenerate_weights_endpoint(comparison_id: str):
 
     storage.write_result(comparison_id, result)
     return result
+
+
+@router.get("/comparisons/{comparison_id}/flip-analysis")
+async def get_flip_analysis(comparison_id: str):
+    """Calculate flip analysis with sensitivity and actionable suggestions."""
+    result = storage.read_result(comparison_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+
+    if not result.criteria or not result.winner:
+        return FlipAnalysisResponse(suggestions=[], sensitivity={})
+
+    # Get current weights from criteria
+    weights = {c.id: c.weight for c in result.criteria}
+
+    # Calculate sensitivity for all criteria
+    sensitivity = calculate_sensitivity(result.criteria, weights)
+
+    # Calculate mathematical flip analysis
+    flip_analysis = calculate_flip_analysis(result.criteria, weights, result.winner)
+
+    # If we have cached research, generate actionable suggestions
+    suggestions = []
+    if result.research_a and result.research_b and flip_analysis:
+        research_a = _dict_to_option_research(result.research_a)
+        research_b = _dict_to_option_research(result.research_b)
+
+        actionable = await generate_actionable_suggestions(
+            option_a=result.option_a_name,
+            option_b=result.option_b_name,
+            winner=result.winner,
+            flip_analysis=flip_analysis,
+            research_a=research_a,
+            research_b=research_b,
+        )
+        suggestions = [
+            ActionableSuggestionModel(
+                action=s.action,
+                affected_criterion=s.affected_criterion,
+                impact=s.impact,
+                sources=s.sources,
+            )
+            for s in actionable
+        ]
+
+    return FlipAnalysisResponse(suggestions=suggestions, sensitivity=sensitivity)
