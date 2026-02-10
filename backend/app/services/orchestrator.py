@@ -87,6 +87,7 @@ async def generate_comparison(
             score_b=c.score_b,
             weight=c.weight,
             sources=c.sources,
+            origin="ai",
         )
         for i, c in enumerate(criteria_output.criteria)
     ]
