@@ -1,4 +1,5 @@
-import type { ComparisonResult } from '../comparison/types'
+import { useQuery } from '@tanstack/react-query'
+import type { ComparisonResult, FlipAnalysisResponse } from '../comparison/types'
 import { WeightsPanel } from '../weights/WeightsPanel'
 import { useWeightedScores } from '../weights/useWeightedScores'
 import { useProgress } from '../progress/useProgress'
@@ -6,6 +7,10 @@ import { ProgressDisplay } from '../progress/ProgressDisplay'
 import { ScoringExplainer } from './ScoringExplainer'
 import { GoDeeper } from '../criteria/GoDeeper'
 import { RegenerateWeights } from '../weights/RegenerateWeights'
+import { FlipAnalysis } from '../flip/FlipAnalysis'
+import { CriteriaEditor } from '../criteria/CriteriaEditor'
+import { AddCriterion } from '../criteria/AddCriterion'
+import { apiGet } from '../../lib/api'
 
 interface ResultsDisplayProps {
   result: ComparisonResult
@@ -17,6 +22,20 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
   const progress = useProgress(
     result.status === 'processing' ? comparisonId : null
   )
+
+  // Fetch sensitivity data for criteria
+  const { data: flipData } = useQuery({
+    queryKey: ['flip-analysis', comparisonId],
+    queryFn: async (): Promise<FlipAnalysisResponse> => {
+      const response = await apiGet(`/api/comparisons/${comparisonId}/flip-analysis`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch flip analysis')
+      }
+      return response.json()
+    },
+    enabled: !!comparisonId && result.status === 'completed',
+    staleTime: 30000,
+  })
 
   if (result.status === 'processing') {
     return (
@@ -44,6 +63,12 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
     : scores.winner === 'b'
     ? result.option_b_name
     : 'Tie'
+
+  const loserLabel = scores.winner === 'a'
+    ? result.option_b_name
+    : scores.winner === 'b'
+    ? result.option_a_name
+    : null
 
   return (
     <div className="space-y-6">
@@ -77,6 +102,15 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
         </div>
       </div>
 
+      {/* Flip Analysis */}
+      {comparisonId && loserLabel && scores.winner !== 'tie' && (
+        <FlipAnalysis
+          comparisonId={comparisonId}
+          loserName={loserLabel}
+          weights={weights}
+        />
+      )}
+
       {/* Scoring Explanation */}
       <ScoringExplainer />
 
@@ -103,51 +137,23 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
           {comparisonId && <GoDeeper comparisonId={comparisonId} />}
         </div>
         {result.criteria.map((criterion) => (
-          <div key={criterion.id} id={`criterion-${criterion.id}`} className="p-4 bg-white border border-gray-200 rounded-lg scroll-mt-4">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex items-start gap-2">
-                <div>
-                  <h4 className="font-medium">{criterion.name}</h4>
-                  <p className="text-sm text-gray-600">{criterion.description}</p>
-                </div>
-                {criterion.origin === 'user' && (
-                  <span className="inline-block px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded">
-                    Custom
-                  </span>
-                )}
-              </div>
-              <span className="text-sm text-blue-600 font-medium">
-                Weight: {weights[criterion.id] ?? criterion.weight}%
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mt-3">
-              <div>
-                <span className="text-sm text-gray-500">{result.option_a_name}</span>
-                <div className="text-lg font-semibold">{criterion.score_a}<span className="text-sm font-normal text-gray-400">/100</span></div>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">{result.option_b_name}</span>
-                <div className="text-lg font-semibold">{criterion.score_b}<span className="text-sm font-normal text-gray-400">/100</span></div>
-              </div>
-            </div>
-            {criterion.sources.length > 0 && (
-              <div className="mt-2 pt-2 border-t border-gray-100">
-                <span className="text-xs text-gray-500">Sources: </span>
-                {criterion.sources.map((src, i) => (
-                  <a
-                    key={i}
-                    href={src}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline ml-1"
-                  >
-                    [{i + 1}]
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
+          <CriteriaEditor
+            key={criterion.id}
+            criterion={criterion}
+            comparisonId={comparisonId || ''}
+            optionAName={result.option_a_name}
+            optionBName={result.option_b_name}
+            weight={weights[criterion.id] ?? criterion.weight}
+            sensitivity={flipData?.sensitivity[criterion.id] ?? 0.5}
+          />
         ))}
+        {comparisonId && (
+          <AddCriterion
+            comparisonId={comparisonId}
+            optionAName={result.option_a_name}
+            optionBName={result.option_b_name}
+          />
+        )}
       </div>
     </div>
   )

@@ -31,3 +31,15 @@ export interface ComparisonResult {
 export interface SubmitResponse {
   comparison_id: string
 }
+
+export interface ActionableSuggestion {
+  action: string
+  affected_criterion: string
+  impact: string
+  sources: string[]
+}
+
+export interface FlipAnalysisResponse {
+  suggestions: ActionableSuggestion[]
+  sensitivity: Record<string, number>
+}
