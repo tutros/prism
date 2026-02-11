@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import uuid
 from datetime import datetime
 
 from ..models import (
     ComparisonInput, ComparisonResult, Criterion, CriterionCreate, CriterionUpdate,
-    FlipAnalysisResponse, ActionableSuggestionModel
+    FlipAnalysisResponse, ActionableSuggestionModel, SourceMetadata
 )
 from ..storage import JSONStorage
 from ..services.orchestrator import generate_comparison
@@ -14,6 +15,12 @@ from ..services.tavily_service import OptionResearch, SearchResult
 from ..services.flip_service import (
     calculate_sensitivity, calculate_flip_analysis, generate_actionable_suggestions
 )
+
+
+class SourceFlagRequest(BaseModel):
+    """Request body for flagging a source URL."""
+    url: str
+    flagged: bool
 
 router = APIRouter(prefix="/api", tags=["comparison"])
 storage = JSONStorage()
@@ -152,6 +159,23 @@ async def delete_criterion(comparison_id: str, criterion_id: str):
 
     storage.write_result(comparison_id, result)
     return {"deleted": criterion_id}
+
+
+@router.patch("/comparisons/{comparison_id}/sources/flag")
+async def flag_source(comparison_id: str, data: SourceFlagRequest):
+    """Toggle the flagged state of a source URL in a comparison."""
+    result = storage.read_result(comparison_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+
+    # Set or update metadata for this URL
+    if data.url in result.source_metadata:
+        result.source_metadata[data.url].flagged = data.flagged
+    else:
+        result.source_metadata[data.url] = SourceMetadata(flagged=data.flagged)
+
+    storage.write_result(comparison_id, result)
+    return {"url": data.url, "flagged": data.flagged}
 
 
 def _dict_to_option_research(data: dict) -> OptionResearch:

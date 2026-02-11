@@ -16,11 +16,18 @@ class CriterionOutput(BaseModel):
     sources: list[str] = Field(description="Source URLs from research that support this criterion")
 
 
+class SourceClassification(BaseModel):
+    """AI classification of a source URL's quality tier."""
+    url: str = Field(description="Source URL being classified")
+    quality: str = Field(description="One of: peer-reviewed, government, industry, news, blog, unknown")
+
+
 class CriteriaOutput(BaseModel):
     """Full criteria generation output."""
     criteria: list[CriterionOutput] = Field(min_length=3, max_length=5)
     winner: str = Field(description="'a', 'b', or 'tie' based on weighted scores")
     reasoning: str = Field(description="2-3 sentence explanation of why the winner won")
+    source_classifications: list[SourceClassification] = Field(default_factory=list, description="Quality classification for each source URL used")
 
 
 async def generate_criteria(
@@ -78,6 +85,15 @@ CRITICAL RULES:
 5. Score both options 0-100 for each criterion based on the research.
    Higher score = better performance on that criterion.
 
+6. For each source URL you cite in your criteria, classify its quality tier:
+   - "peer-reviewed": Academic journals, scientific studies, peer-reviewed publications
+   - "government": .gov domains, official regulatory bodies, government agencies
+   - "industry": Trade associations, industry reports, company sustainability reports
+   - "news": News outlets, journalism, mainstream media
+   - "blog": Personal blogs, opinion pieces, non-peer-reviewed commentary
+   - "unknown": Cannot determine source type
+   Include ALL URLs you cite across all criteria in source_classifications.
+
 RESEARCH FOR "{option_a}":
 {context_a}
 
@@ -102,7 +118,13 @@ RESPOND WITH ONLY A JSON OBJECT in this exact format:
     }}
   ],
   "winner": "a",
-  "reasoning": "2-3 sentence explanation"
+  "reasoning": "2-3 sentence explanation",
+  "source_classifications": [
+    {{
+      "url": "https://example.com/source",
+      "quality": "government"
+    }}
+  ]
 }}
 
 Do not include any text before or after the JSON."""
@@ -150,6 +172,9 @@ Always ground your analysis in the provided research. Never hallucinate facts or
 
     try:
         data = json.loads(json_str)
+        # Fallback: ensure source_classifications exists before model_validate
+        if "source_classifications" not in data:
+            data["source_classifications"] = []
         return CriteriaOutput.model_validate(data)
     except json.JSONDecodeError as e:
         # Re-raise with context for better error messages
