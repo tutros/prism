@@ -4,6 +4,16 @@ export interface ComparisonInput {
   intent: string
 }
 
+export type SourceQuality = 'peer-reviewed' | 'government' | 'industry' | 'news' | 'blog' | 'unknown'
+
+export type ConfidenceLevel = 'high' | 'medium' | 'low'
+
+export interface SourceMetadata {
+  quality: SourceQuality
+  flagged: boolean
+  last_verified: string | null
+}
+
 export interface Criterion {
   id: string
   name: string
@@ -13,6 +23,7 @@ export interface Criterion {
   weight: number
   sources: string[]
   origin: 'ai' | 'user'
+  confidence: ConfidenceLevel
 }
 
 export interface ComparisonResult {
@@ -26,6 +37,7 @@ export interface ComparisonResult {
   reasoning: string
   created_at: string
   completed_at: string | null
+  source_metadata: Record<string, SourceMetadata>
 }
 
 export interface SubmitResponse {
