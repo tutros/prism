@@ -103,6 +103,13 @@ Plans:
 
 **Requirements:** RES-05
 
+**Plans:** 3 plans in 2 waves
+
+Plans:
+- [ ] 04-01-PLAN.md - Backend data model + Claude source classification
+- [ ] 04-02-PLAN.md - Flag endpoint + frontend types
+- [ ] 04-03-PLAN.md - Frontend source display + verification checkpoint
+
 **Success Criteria:**
 1. User sees source quality indicators for each citation (peer-reviewed, government, industry, blog)
 2. User sees confidence scores for AI claims based on source quality and diversity
@@ -110,7 +117,7 @@ Plans:
 4. User can flag unreliable sources and see flagged status persist
 5. User sees multiple sources per claim when available (not just single citation)
 
-**Notes:** Domain-based heuristics for quality classification (.gov, .edu, journals). Caches source content at analysis time to prevent dead links. Multi-source verification when available. Addresses pitfalls: source reliability, poor data quality.
+**Notes:** AI classification during criteria generation (not domain heuristics). Confidence = High/Medium/Low text badges matching existing impact badge pattern. Sources displayed as domain names with quality badges. Flag toggle with optimistic update. Backward compatible with existing JSON files.
 
 ---
 
@@ -141,7 +148,7 @@ Plans:
 | 1 - Foundation + Core Trust | Complete | 100% | 12 requirements |
 | 2 - AI Integration + Async Orchestration | Complete | 100% | 5 requirements |
 | 3 - Interactive Analysis + Flip Detection | Complete | 100% | 6 requirements |
-| 4 - Source Quality + Confidence Signals | Pending | 0% | 1 requirement |
+| 4 - Source Quality + Confidence Signals | Planned | 0% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Pending | 0% | 0 requirements (infra) |
 
 **Legend:** Pending | Planned | In Progress | Complete
@@ -168,4 +175,4 @@ Plans:
 - Phase 5 enables sustainable scaling
 
 ---
-*Last updated: 2026-02-09 after Phase 3 completion*
+*Last updated: 2026-02-10 after Phase 4 planning*
