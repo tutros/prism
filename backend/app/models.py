@@ -3,6 +3,13 @@ from typing import Literal
 from datetime import datetime
 
 
+class SourceMetadata(BaseModel):
+    """Quality and trust metadata for a single source URL."""
+    quality: Literal["peer-reviewed", "government", "industry", "news", "blog", "unknown"] = "unknown"
+    flagged: bool = False
+    last_verified: datetime | None = None
+
+
 class ComparisonInput(BaseModel):
     option_a: str = Field(..., min_length=1, max_length=200)
     option_b: str = Field(..., min_length=1, max_length=200)
@@ -18,6 +25,7 @@ class Criterion(BaseModel):
     weight: float = Field(ge=0, le=100, default=50)
     sources: list[str] = []
     origin: Literal["ai", "user"] = "ai"
+    confidence: Literal["high", "medium", "low"] = "low"
 
 
 class CriterionCreate(BaseModel):
@@ -75,3 +83,4 @@ class ComparisonResult(BaseModel):
     # Cached research for Go Deeper / Regenerate Weights
     research_a: dict | None = None
     research_b: dict | None = None
+    source_metadata: dict[str, SourceMetadata] = {}  # keyed by URL
