@@ -129,6 +129,13 @@ Plans:
 
 **Requirements:** None (infrastructure improvements, not user-facing features)
 
+**Plans:** 3 plans in 2 waves
+
+Plans:
+- [ ] 05-01-PLAN.md - Token usage tracking + cost calculation + spending guard
+- [ ] 05-02-PLAN.md - Tavily result caching (24h TTL) + cache age model
+- [ ] 05-03-PLAN.md - Monitoring endpoint + frontend cache age indicator + verification
+
 **Success Criteria:**
 1. Developer sees token usage metrics broken down by feature and request type
 2. Developer sees cost per comparison tracked and displayed in monitoring dashboard
@@ -149,7 +156,7 @@ Plans:
 | 2 - AI Integration + Async Orchestration | Complete | 100% | 5 requirements |
 | 3 - Interactive Analysis + Flip Detection | Complete | 100% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Complete | 100% | 1 requirement |
-| 5 - Cost Optimization + Scaling Prep | Pending | 0% | 0 requirements (infra) |
+| 5 - Cost Optimization + Scaling Prep | Planned | 0% | 0 requirements (infra) |
 
 **Legend:** Pending | Planned | In Progress | Complete
 
