@@ -141,6 +141,7 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
             optionBName={result.option_b_name}
             weight={weights[criterion.id] ?? criterion.weight}
             sensitivity={flipData?.sensitivity[criterion.id] ?? 0.5}
+            sourceMetadata={result.source_metadata ?? {}}
           />
         ))}
         {comparisonId && (

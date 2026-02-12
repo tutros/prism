@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { Criterion } from '../comparison/types'
+import type { Criterion, SourceMetadata } from '../comparison/types'
+import { SourceLink } from './SourceLink'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -11,6 +12,7 @@ interface CriteriaEditorProps {
   optionBName: string
   weight: number
   sensitivity: number
+  sourceMetadata: Record<string, SourceMetadata>
 }
 
 export function CriteriaEditor({
@@ -20,6 +22,7 @@ export function CriteriaEditor({
   optionBName,
   weight,
   sensitivity,
+  sourceMetadata,
 }: CriteriaEditorProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState({
@@ -98,6 +101,23 @@ export function CriteriaEditor({
     </span>
   ) : null
 
+  // Confidence badge - only for AI-generated criteria
+  const confidenceBadge = criterion.origin === 'ai' ? (
+    criterion.confidence === 'high' ? (
+      <span className="inline-block px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
+        High Confidence
+      </span>
+    ) : criterion.confidence === 'medium' ? (
+      <span className="inline-block px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded">
+        Med Confidence
+      </span>
+    ) : (
+      <span className="inline-block px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded">
+        Low Confidence
+      </span>
+    )
+  ) : null
+
   if (!isEditing) {
     return (
       <div
@@ -117,6 +137,7 @@ export function CriteriaEditor({
               </span>
             )}
             {sensitivityBadge}
+            {confidenceBadge}
           </div>
           <span className="text-sm text-blue-600 font-medium">
             Weight: {weight}%
@@ -141,17 +162,17 @@ export function CriteriaEditor({
         {criterion.sources.length > 0 && (
           <div className="mt-2 pt-2 border-t border-gray-100">
             <span className="text-xs text-gray-500">Sources: </span>
-            {criterion.sources.map((src, i) => (
-              <a
-                key={i}
-                href={src}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:underline ml-1"
-                onClick={(e) => e.stopPropagation()}
-              >
-                [{i + 1}]
-              </a>
+            {criterion.sources.map((src, idx) => (
+              <span key={src}>
+                <SourceLink
+                  url={src}
+                  metadata={sourceMetadata[src]}
+                  comparisonId={comparisonId}
+                />
+                {idx < criterion.sources.length - 1 && (
+                  <span className="text-xs text-gray-400">, </span>
+                )}
+              </span>
             ))}
           </div>
         )}
