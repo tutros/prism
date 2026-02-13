@@ -84,3 +84,4 @@ class ComparisonResult(BaseModel):
     research_a: dict | None = None
     research_b: dict | None = None
     source_metadata: dict[str, SourceMetadata] = {}  # keyed by URL
+    tavily_cached_at: str | None = None  # ISO timestamp if Tavily data came from cache

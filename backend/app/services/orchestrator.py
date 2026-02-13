@@ -49,6 +49,7 @@ async def generate_comparison(
     option_a: str,
     option_b: str,
     intent: str,
+    force_refresh: bool = False,
 ) -> ComparisonResult:
     """Orchestrate full comparison with progress updates.
 
@@ -62,10 +63,13 @@ async def generate_comparison(
     add_progress(comparison_id, f"Searching web for {option_a}...")
     add_progress(comparison_id, f"Searching web for {option_b}...")
 
-    research_a, research_b = await search_both_options(option_a, option_b)
+    research_a, research_b = await search_both_options(option_a, option_b, force_refresh=force_refresh)
 
     add_progress(comparison_id, f"Found {len(research_a.results)} sources for {option_a}")
     add_progress(comparison_id, f"Found {len(research_b.results)} sources for {option_b}")
+
+    # Determine if Tavily results came from cache
+    tavily_cached_at = research_a.cached_at or research_b.cached_at
 
     # Check for complete search failure
     if research_a.error and research_b.error:
@@ -152,6 +156,7 @@ async def generate_comparison(
         research_a=asdict(research_a),
         research_b=asdict(research_b),
         source_metadata=source_metadata,
+        tavily_cached_at=tavily_cached_at,
     )
 
     mark_complete(comparison_id)
