@@ -77,7 +77,7 @@ function App() {
             {comparisonId && result && (
               <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-4">Results</h2>
-                <ResultsDisplay result={result} comparisonId={comparisonId} />
+                <ResultsDisplay result={result} comparisonId={comparisonId} onNewComparison={handleNewComparison} />
               </section>
             )}
           </main>

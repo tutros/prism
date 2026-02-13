@@ -28,9 +28,10 @@ function formatCacheAge(cachedAt: string): string {
 interface ResultsDisplayProps {
   result: ComparisonResult
   comparisonId: string | null
+  onNewComparison?: (id: string) => void
 }
 
-export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
+export function ResultsDisplay({ result, comparisonId, onNewComparison }: ResultsDisplayProps) {
   const { weights, scores, updateWeight } = useWeightedScores(result.criteria)
   const progress = useProgress(
     result.status === 'processing' ? comparisonId : null
@@ -98,15 +99,14 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
           </p>
           <button
             onClick={() => {
-              if (comparisonId) {
+              if (comparisonId && onNewComparison) {
                 const params = new URLSearchParams({ force_refresh: 'true' })
                 apiPost<{ comparison_id: string }>(`/api/compare?${params}`, {
                   option_a: result.option_a_name,
                   option_b: result.option_b_name,
                   intent: result.intent,
                 }).then(data => {
-                  window.location.hash = data.comparison_id
-                  window.location.reload()
+                  onNewComparison(data.comparison_id)
                 })
               }
             }}
