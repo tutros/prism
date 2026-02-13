@@ -5,13 +5,13 @@
 **Phase 5: Cost Optimization + Scaling Prep** — In Progress
 
 Phase: 5 of 5 (05-cost-optimization-scaling-prep)
-Plan: 1 of 3 executed
+Plan: 2 of 3 executed
 Status: In progress
-Last activity: 2026-02-12 - Completed 05-01-PLAN.md (token usage tracking + daily spending cap)
+Last activity: 2026-02-13 - Completed 05-02-PLAN.md (Tavily result caching with TTLCache 24h TTL)
 
-Progress: ████████████████████████████████████████████░ 93% (4/5 phases complete, phase 5 plan 1/3 done)
+Progress: █████████████████████████████████████████████░ 95% (4/5 phases complete, phase 5 plan 2/3 done)
 
-**Next action:** Execute Phase 5 Plan 02 (prompt caching optimization)
+**Next action:** Execute Phase 5 Plan 03 (comparison deduplication at router level)
 
 ## Project Reference
 
@@ -166,6 +166,16 @@ None currently.
 
 ### Recent Changes
 
+**2026-02-13:** Plan 05-02 executed - Tavily result caching with TTLCache
+- Added cachetools>=5.5.0 to requirements.txt
+- TTLCache(maxsize=200, ttl=86400) in tavily_service.py with asyncio.Lock
+- Cache key = full query string (lowercased/stripped) to prevent collisions
+- OptionResearch.cached_at carries ISO timestamp on cache hits
+- ComparisonResult.tavily_cached_at populated when Tavily data from cache
+- force_refresh=False flows from generate_comparison -> search_both_options -> search_option
+- 2 atomic commits: c991e70, 60da657
+- SUMMARY: .planning/phases/05-cost-optimization-scaling-prep/05-02-SUMMARY.md
+
 **2026-02-09:** Phase 3 execution complete
 - Executed 3 plans: Criteria CRUD, Go Deeper/Regenerate Weights, Flip Detection
 - 12 commits total including bug fixes
@@ -272,5 +282,5 @@ None currently.
 - SUMMARY: .planning/phases/05-cost-optimization-scaling-prep/05-01-SUMMARY.md
 
 ---
-*Last updated: 2026-02-12 after Phase 5 Plan 01 execution (token usage tracking)*
-*Next milestone: Execute Phase 5 Plan 02 (prompt caching optimization)*
+*Last updated: 2026-02-13 after Phase 5 Plan 02 execution (Tavily result caching)*
+*Next milestone: Execute Phase 5 Plan 03 (comparison deduplication at router level)*
