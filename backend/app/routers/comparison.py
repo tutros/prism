@@ -74,6 +74,10 @@ async def submit_comparison(
                     from datetime import timezone as _tz
                     created = created.replace(tzinfo=_tz.utc)
                 if created >= cutoff:
+                    # Mark as cached so frontend shows cache age banner
+                    if not existing.tavily_cached_at:
+                        existing.tavily_cached_at = existing.created_at.isoformat()
+                        storage.write_result(existing.comparison_id, existing)
                     return {"comparison_id": existing.comparison_id, "deduplicated": True}
 
     comparison_id = str(uuid.uuid4())
