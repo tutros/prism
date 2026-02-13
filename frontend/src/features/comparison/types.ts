@@ -38,6 +38,7 @@ export interface ComparisonResult {
   created_at: string
   completed_at: string | null
   source_metadata: Record<string, SourceMetadata>
+  tavily_cached_at?: string | null  // ISO timestamp if Tavily data from cache
 }
 
 export interface SubmitResponse {

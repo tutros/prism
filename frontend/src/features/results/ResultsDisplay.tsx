@@ -10,7 +10,20 @@ import { RegenerateWeights } from '../weights/RegenerateWeights'
 import { FlipAnalysis } from '../flip/FlipAnalysis'
 import { CriteriaEditor } from '../criteria/CriteriaEditor'
 import { AddCriterion } from '../criteria/AddCriterion'
-import { apiGet } from '../../lib/api'
+import { apiGet, apiPost } from '../../lib/api'
+
+function formatCacheAge(cachedAt: string): string {
+  const cached = new Date(cachedAt)
+  const now = new Date()
+  const diffMs = now.getTime() - cached.getTime()
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+
+  if (diffHours >= 1) {
+    return `${diffHours}h ago`
+  }
+  return `${diffMinutes}m ago`
+}
 
 interface ResultsDisplayProps {
   result: ComparisonResult
@@ -76,6 +89,33 @@ export function ResultsDisplay({ result, comparisonId }: ResultsDisplayProps) {
         </p>
         <p className="text-sm text-green-700 mt-1">{result.reasoning}</p>
       </div>
+
+      {/* Cache Age Indicator */}
+      {result.tavily_cached_at && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+          <p className="text-sm text-amber-700">
+            Results based on cached research data ({formatCacheAge(result.tavily_cached_at)})
+          </p>
+          <button
+            onClick={() => {
+              if (comparisonId) {
+                const params = new URLSearchParams({ force_refresh: 'true' })
+                apiPost<{ comparison_id: string }>(`/api/compare?${params}`, {
+                  option_a: result.option_a_name,
+                  option_b: result.option_b_name,
+                  intent: result.intent,
+                }).then(data => {
+                  window.location.hash = data.comparison_id
+                  window.location.reload()
+                })
+              }
+            }}
+            className="px-3 py-1 text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded border border-amber-300 transition-colors"
+          >
+            Refresh with latest data
+          </button>
+        </div>
+      )}
 
       {/* Side-by-side Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
