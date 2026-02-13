@@ -2,16 +2,16 @@
 
 ## Current Phase
 
-**Phase 4: Source Quality + Confidence Signals** — Complete
+**Phase 5: Cost Optimization + Scaling Prep** — In Progress
 
-Phase: 4 of 5 (04-source-quality-confidence-signals)
-Plan: 3 of 3 executed
-Status: Phase complete
-Last activity: 2026-02-11 - Completed 04-03-PLAN.md (source quality UI: SourceLink, confidence badges)
+Phase: 5 of 5 (05-cost-optimization-scaling-prep)
+Plan: 1 of 3 executed
+Status: In progress
+Last activity: 2026-02-12 - Completed 05-01-PLAN.md (token usage tracking + daily spending cap)
 
-Progress: ████████████████████████████████████████████░ 90% (4/5 phases complete, phase 5 pending)
+Progress: ████████████████████████████████████████████░ 93% (4/5 phases complete, phase 5 plan 1/3 done)
 
-**Next action:** Execute Phase 5 (Cost Optimization + Scaling Prep)
+**Next action:** Execute Phase 5 Plan 02 (prompt caching optimization)
 
 ## Project Reference
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 | 2 - AI Integration + Async Orchestration | ● Complete | 100% | 5 | 3 (3 done) |
 | 3 - Interactive Analysis + Flip Detection | ● Complete | 100% | 6 | 3 (3 done) |
 | 4 - Source Quality + Confidence Signals | ● Complete | 100% | 1 | 3 (3 done) |
-| 5 - Cost Optimization + Scaling Prep | ○ Pending | 0% | 0 | 0 |
+| 5 - Cost Optimization + Scaling Prep | ◐ In Progress | 33% | 0 | 1/3 done |
 
 **Overall:** ████████████████████░ 80% (4/5 phases complete, phase 5 pending)
 
@@ -263,6 +263,14 @@ None currently.
 4. Review and approve phase plan
 5. Begin execution
 
+**2026-02-12:** Token usage tracking + daily spending cap (05-01) executed
+- Created usage_tracker.py: PRICE_PER_TOKEN, calculate_cost(), record_usage() with atomic persistence to data/usage_metrics.json, get_usage_stats() aggregated by feature
+- Created spending_guard.py: DAILY_SPEND_CAP_USD env var (default $5), check_spending_cap() raises ValueError, add_cost() accumulates with day-boundary reset
+- Wired record_usage() into all 4 Claude API call sites: criteria/go_deeper/regenerate_weights/flip_suggestions
+- threading.Lock (not asyncio) for fast in-memory ops; lazy import of add_cost avoids circular import
+- 2 atomic commits: 84c8dac, b5e43cf
+- SUMMARY: .planning/phases/05-cost-optimization-scaling-prep/05-01-SUMMARY.md
+
 ---
-*Last updated: 2026-02-11 after Phase 4 Plan 03 execution (Phase 4 complete)*
-*Next milestone: Execute Phase 5 (Cost Optimization + Scaling Prep)*
+*Last updated: 2026-02-12 after Phase 5 Plan 01 execution (token usage tracking)*
+*Next milestone: Execute Phase 5 Plan 02 (prompt caching optimization)*
