@@ -3,6 +3,8 @@ import json
 import os
 import tempfile
 
+from pydantic import ValidationError
+
 from .models import ComparisonResult
 
 
@@ -34,8 +36,11 @@ class JSONStorage:
         target_path = self.data_dir / f"{comparison_id}.json"
         if not target_path.exists():
             return None
-        data = json.loads(target_path.read_text())
-        return ComparisonResult.model_validate(data)
+        try:
+            data = json.loads(target_path.read_text())
+            return ComparisonResult.model_validate(data)
+        except (ValidationError, json.JSONDecodeError):
+            return None
 
     def list_results(self) -> list[str]:
         """Return list of comparison IDs stored on disk."""
