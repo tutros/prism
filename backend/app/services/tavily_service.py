@@ -84,6 +84,14 @@ async def search_option(option: str, force_refresh: bool = False) -> OptionResea
         return OptionResearch(option=option, results=[], error=str(e))
 
 
+def get_cache_stats() -> dict:
+    """Return Tavily cache statistics."""
+    return {
+        "tavily_entries": len(_TAVILY_CACHE),
+        "tavily_maxsize": _TAVILY_CACHE.maxsize,
+    }
+
+
 async def search_both_options(
     option_a: str, option_b: str, force_refresh: bool = False
 ) -> tuple[OptionResearch, OptionResearch]:

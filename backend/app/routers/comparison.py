@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import hashlib
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from ..models import (
     ComparisonInput, ComparisonResult, Criterion, CriterionCreate, CriterionUpdate,
@@ -10,6 +11,7 @@ from ..models import (
 )
 from ..storage import JSONStorage
 from ..services.orchestrator import generate_comparison
+from ..services.spending_guard import check_spending_cap
 from ..services.criteria_service import go_deeper, regenerate_weights
 from ..services.tavily_service import OptionResearch, SearchResult
 from ..services.flip_service import (
@@ -26,22 +28,54 @@ router = APIRouter(prefix="/api", tags=["comparison"])
 storage = JSONStorage()
 
 
-async def process_comparison(comparison_id: str, data: ComparisonInput) -> None:
+async def process_comparison(comparison_id: str, data: ComparisonInput, force_refresh: bool = False) -> None:
     """Process comparison using AI orchestrator."""
     result = await generate_comparison(
         comparison_id=comparison_id,
         option_a=data.option_a,
         option_b=data.option_b,
         intent=data.intent,
+        force_refresh=force_refresh,
     )
     storage.write_result(comparison_id, result)
+
+
+def _dedup_key(option_a: str, option_b: str, intent: str) -> str:
+    """Generate a short hash key for deduplication."""
+    raw = f"{option_a.lower().strip()}|{option_b.lower().strip()}|{intent.lower().strip()}"
+    return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
 @router.post("/compare")
 async def submit_comparison(
     data: ComparisonInput,
     background_tasks: BackgroundTasks,
+    force_refresh: bool = False,
 ):
+    # Check spending cap before starting
+    try:
+        check_spending_cap()
+    except ValueError as e:
+        raise HTTPException(status_code=429, detail=str(e))
+
+    # Dedup: return existing result for identical inputs within 24h
+    if not force_refresh:
+        target_key = _dedup_key(data.option_a, data.option_b, data.intent)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        for cid in storage.list_results():
+            existing = storage.read_result(cid)
+            if not existing or existing.status != "completed":
+                continue
+            existing_key = _dedup_key(existing.option_a_name, existing.option_b_name, existing.intent)
+            if existing_key == target_key:
+                created = existing.created_at
+                # Ensure timezone-aware comparison
+                if created.tzinfo is None:
+                    from datetime import timezone as _tz
+                    created = created.replace(tzinfo=_tz.utc)
+                if created >= cutoff:
+                    return {"comparison_id": existing.comparison_id, "deduplicated": True}
+
     comparison_id = str(uuid.uuid4())
 
     # Write initial "processing" status immediately
@@ -60,7 +94,7 @@ async def submit_comparison(
     storage.write_result(comparison_id, initial)
 
     # Queue AI processing in background
-    background_tasks.add_task(process_comparison, comparison_id, data)
+    background_tasks.add_task(process_comparison, comparison_id, data, force_refresh)
 
     return JSONResponse(
         status_code=202,
