@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from .config import get_anthropic_client
 from .tavily_service import OptionResearch
+from .usage_tracker import record_usage
 from ..models import Criterion
 
 
@@ -133,6 +134,7 @@ Always ground your analysis in the provided research. Never hallucinate facts or
         ],
         messages=[{"role": "user", "content": prompt}],
     )
+    record_usage("go_deeper", "claude-sonnet-4-5-20250929", response.usage)
 
     # Parse response
     content = response.content[0].text
@@ -238,6 +240,7 @@ Be thoughtful about what the user actually cares about based on their intent sta
         ],
         messages=[{"role": "user", "content": prompt}],
     )
+    record_usage("regenerate_weights", "claude-sonnet-4-5-20250929", response.usage)
 
     # Parse response
     content = response.content[0].text

@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from .config import get_anthropic_client
 from .tavily_service import OptionResearch
+from .usage_tracker import record_usage
 from ..models import Criterion
 
 
@@ -225,6 +226,7 @@ Always ground suggestions in the research sources provided. Never suggest imposs
             ],
             messages=[{"role": "user", "content": prompt}],
         )
+        record_usage("flip_suggestions", "claude-sonnet-4-5-20250929", response.usage)
 
         # Parse response
         content = response.content[0].text
