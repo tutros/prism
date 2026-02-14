@@ -148,6 +148,32 @@ Plans:
 
 ---
 
+### Phase 6: Tech Debt Cleanup
+
+**Goal:** Fix accumulated tech debt identified by milestone audit — SSE progress display, spending cap error UX, and missing verification documentation.
+
+**Dependencies:** Phase 5 (audit completed after all phases)
+
+**Requirements:** None (bug fixes and documentation from audit)
+
+**Gap Closure:** Closes tech debt items from v1.0-MILESTONE-AUDIT.md
+
+**Plans:** 3 plans in 1 wave
+
+Plans:
+- [ ] 06-01-PLAN.md - Fix SSE EventSource URL (add Vite proxy for /api)
+- [ ] 06-02-PLAN.md - Surface spending cap error message in frontend
+- [ ] 06-03-PLAN.md - Create Phase 3 VERIFICATION.md
+
+**Success Criteria:**
+1. SSE progress display shows live step messages during AI processing (not stuck on "Connecting...")
+2. When spending cap is hit, user sees descriptive message ("Daily spending cap of $X.XX reached") not "API error: 429"
+3. Phase 3 has formal VERIFICATION.md documenting all 6 requirements satisfied
+
+**Notes:** All 3 fixes are independent and can run in parallel. Items 1-2 are code fixes; item 3 is documentation only. Prompt caching (tech debt #4) is accepted as-is — no code change needed.
+
+---
+
 ## Progress
 
 | Phase | Status | Progress | Requirements |
@@ -157,6 +183,7 @@ Plans:
 | 3 - Interactive Analysis + Flip Detection | Complete | 100% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Complete | 100% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Complete | 100% | 0 requirements (infra) |
+| 6 - Tech Debt Cleanup | Pending | 0% | 0 (audit gap closure) |
 
 **Legend:** Pending | Planned | In Progress | Complete
 
@@ -168,6 +195,7 @@ Plans:
 - Phase 3 requires working AI system from Phase 2 to enable interactive recalculation
 - Phase 4 enhances AI integration from Phase 2 with quality signals
 - Phase 5 optimizes proven system from Phase 2 before scaling
+- Phase 6 closes tech debt identified by milestone audit after all phases complete
 
 **Risk-mitigation order:**
 - Critical pitfalls (hallucination, sources, costs, UX) addressed in Phases 1-2 before scaling
@@ -180,6 +208,7 @@ Plans:
 - Phase 3 delivers key differentiator (flip analysis) unique to this tool
 - Phase 4 enhances trust in existing features
 - Phase 5 enables sustainable scaling
+- Phase 6 polishes rough edges before milestone completion
 
 ---
-*Last updated: 2026-02-13 after Phase 5 completion*
+*Last updated: 2026-02-13 after gap closure phase added*
