@@ -4,7 +4,7 @@
 
 This roadmap delivers an AI-powered decision comparison tool that surfaces hidden costs and systemic impacts invisible in traditional comparisons. The five phases progress from trust infrastructure (sources, human oversight) through AI integration (criteria discovery, weighting) to differentiation (flip analysis, confidence signals) and scaling preparation (cost optimization). Every phase delivers verifiable user capabilities that build toward the core value: surfacing invisible threads connecting choices to systemic impacts.
 
-**Phases:** 5
+**Phases:** 6
 **Depth:** Standard (5-8 phases, 3-5 plans each)
 **Coverage:** 24/24 v1 requirements mapped
 
@@ -161,7 +161,7 @@ Plans:
 **Plans:** 3 plans in 1 wave
 
 Plans:
-- [ ] 06-01-PLAN.md - Fix SSE EventSource URL (add Vite proxy for /api)
+- [ ] 06-01-PLAN.md - Fix SSE EventSource URL (absolute URL to backend)
 - [ ] 06-02-PLAN.md - Surface spending cap error message in frontend
 - [ ] 06-03-PLAN.md - Create Phase 3 VERIFICATION.md
 
@@ -183,7 +183,7 @@ Plans:
 | 3 - Interactive Analysis + Flip Detection | Complete | 100% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Complete | 100% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Complete | 100% | 0 requirements (infra) |
-| 6 - Tech Debt Cleanup | Pending | 0% | 0 (audit gap closure) |
+| 6 - Tech Debt Cleanup | Planned | 0% | 0 (audit gap closure) |
 
 **Legend:** Pending | Planned | In Progress | Complete
 
@@ -211,4 +211,4 @@ Plans:
 - Phase 6 polishes rough edges before milestone completion
 
 ---
-*Last updated: 2026-02-13 after gap closure phase added*
+*Last updated: 2026-02-13 after phase 6 planning*
