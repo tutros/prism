@@ -5,13 +5,13 @@
 **Phase 6 in progress — Gap closure from milestone audit**
 
 Phase: 6 of 6 (5 complete, 1 in progress)
-Plan: 1 of 3 in phase
+Plan: 2 of 3 in phase
 Status: In progress
-Last activity: 2026-02-14 - Completed 06-01-PLAN.md (fix SSE EventSource URL)
+Last activity: 2026-02-14 - Completed 06-02-PLAN.md (surface FastAPI error detail in apiPost)
 
-Progress: ██████████████████████████████████████████████░░░░ 86% (plan 1 of 3 in phase 6 done)
+Progress: ███████████████████████████████████████████████░░░ 88% (plan 2 of 3 in phase 6 done)
 
-**Next action:** `/gsd:execute-phase 6` (plans 06-02, 06-03 remaining)
+**Next action:** `/gsd:execute-phase 6` (plan 06-03 remaining)
 
 ## Project Reference
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 | 3 - Interactive Analysis + Flip Detection | ● Complete | 100% | 6 | 3 (3 done) |
 | 4 - Source Quality + Confidence Signals | ● Complete | 100% | 1 | 3 (3 done) |
 | 5 - Cost Optimization + Scaling Prep | ● Complete | 100% | 0 (infra) | 3 (3 done) |
-| 6 - Tech Debt Cleanup | ◐ In Progress | 33% | 0 (audit) | 1 done / 3 total |
+| 6 - Tech Debt Cleanup | ◐ In Progress | 67% | 0 (audit) | 2 done / 3 total |
 
 **Overall:** ██████████████████████████████████████████████░░░░ 86% (5 phases complete + phase 6 in progress)
 
@@ -119,6 +119,12 @@ None.
 - One-line change — matches api.ts pattern, no proxy config needed
 - SSE progress now connects to FastAPI backend instead of Vite dev server silently failing
 
+**2026-02-14:** Phase 6 plan 02 executed (surface FastAPI error detail in apiPost)
+- apiPost now parses error response body via try/catch res.json() in error branch
+- Surfaces body.detail if present; falls back to "API error: {status}" if body non-JSON or no detail
+- Spending cap 429 now shows "Daily spending cap of $X.XX reached" to users
+- apiGet unchanged; one targeted change in frontend/src/lib/api.ts
+
 ---
-*Last updated: 2026-02-14 after 06-01 completion (SSE URL fix)*
-*Next: Execute plans 06-02 and 06-03*
+*Last updated: 2026-02-14 after 06-02 completion (apiPost error body parsing)*
+*Next: Execute plan 06-03*
