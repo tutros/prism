@@ -13,6 +13,8 @@ function App() {
 
   const handleNewComparison = (id: string) => {
     setComparisonId(id)
+    // Invalidate comparison data (dedup may return same id with updated fields)
+    queryClient.invalidateQueries({ queryKey: ['comparison', id] })
     // Invalidate history to include new comparison
     queryClient.invalidateQueries({ queryKey: ['history'] })
   }
