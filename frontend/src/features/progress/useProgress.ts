@@ -30,7 +30,7 @@ export function useProgress(comparisonId: string | null) {
     // Reset state for new comparison
     resetProgress()
 
-    const eventSource = new EventSource(`/api/progress/${comparisonId}`)
+    const eventSource = new EventSource(`http://localhost:8000/api/progress/${comparisonId}`)
 
     eventSource.onopen = () => {
       setState(prev => ({ ...prev, connected: true }))
