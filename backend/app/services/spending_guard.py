@@ -1,8 +1,10 @@
 """Daily spending cap guard for Claude API costs."""
 
+import json
 import os
 import threading
 from datetime import date
+from pathlib import Path
 
 
 _DAILY_CAP_USD = float(os.environ.get("DAILY_SPEND_CAP_USD", "5.0"))
@@ -10,6 +12,26 @@ _DAILY_CAP_USD = float(os.environ.get("DAILY_SPEND_CAP_USD", "5.0"))
 _today: str = date.today().isoformat()
 _daily_cost_usd: float = 0.0
 _lock = threading.Lock()
+
+
+def _load_today_cost() -> None:
+    """Load today's accumulated cost from persisted usage records on startup."""
+    global _daily_cost_usd
+    metrics_file = Path(__file__).parent.parent.parent / "data" / "usage_metrics.json"
+    if not metrics_file.exists():
+        return
+    today = date.today().isoformat()
+    try:
+        records = json.loads(metrics_file.read_text())
+        if isinstance(records, list):
+            for r in records:
+                if r.get("timestamp", "").startswith(today):
+                    _daily_cost_usd += r.get("cost_usd", 0.0)
+    except Exception:
+        pass  # Start fresh if file is corrupt
+
+
+_load_today_cost()
 
 
 def _reset_if_new_day() -> None:
