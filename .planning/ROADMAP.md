@@ -161,9 +161,9 @@ Plans:
 **Plans:** 3 plans in 1 wave
 
 Plans:
-- [ ] 06-01-PLAN.md - Fix SSE EventSource URL (absolute URL to backend)
-- [ ] 06-02-PLAN.md - Surface spending cap error message in frontend
-- [ ] 06-03-PLAN.md - Create Phase 3 VERIFICATION.md
+- [x] 06-01-PLAN.md - Fix SSE EventSource URL (absolute URL to backend)
+- [x] 06-02-PLAN.md - Surface spending cap error message in frontend
+- [x] 06-03-PLAN.md - Create Phase 3 VERIFICATION.md
 
 **Success Criteria:**
 1. SSE progress display shows live step messages during AI processing (not stuck on "Connecting...")
@@ -183,7 +183,7 @@ Plans:
 | 3 - Interactive Analysis + Flip Detection | Complete | 100% | 6 requirements |
 | 4 - Source Quality + Confidence Signals | Complete | 100% | 1 requirement |
 | 5 - Cost Optimization + Scaling Prep | Complete | 100% | 0 requirements (infra) |
-| 6 - Tech Debt Cleanup | Planned | 0% | 0 (audit gap closure) |
+| 6 - Tech Debt Cleanup | Complete | 100% | 0 (audit gap closure) |
 
 **Legend:** Pending | Planned | In Progress | Complete
 
@@ -211,4 +211,4 @@ Plans:
 - Phase 6 polishes rough edges before milestone completion
 
 ---
-*Last updated: 2026-02-13 after phase 6 planning*
+*Last updated: 2026-02-14 after phase 6 execution complete*
