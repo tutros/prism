@@ -2,15 +2,16 @@
 
 ## Current Phase
 
-**Phase 6 pending — Gap closure from milestone audit**
+**Phase 6 in progress — Gap closure from milestone audit**
 
-Phase: 6 of 6 (5 complete, 1 pending)
-Status: Gap closure phase created from audit tech debt
-Last activity: 2026-02-13 - Phase 6 added to close audit gaps
+Phase: 6 of 6 (5 complete, 1 in progress)
+Plan: 1 of 3 in phase
+Status: In progress
+Last activity: 2026-02-14 - Completed 06-01-PLAN.md (fix SSE EventSource URL)
 
-Progress: █████████████████████████████████████████████░░░░░ 83% (5/6 phases complete)
+Progress: ██████████████████████████████████████████████░░░░ 86% (plan 1 of 3 in phase 6 done)
 
-**Next action:** `/gsd:plan-phase 6` then `/gsd:execute-phase 6`
+**Next action:** `/gsd:execute-phase 6` (plans 06-02, 06-03 remaining)
 
 ## Project Reference
 
@@ -29,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-02-01)
 | 3 - Interactive Analysis + Flip Detection | ● Complete | 100% | 6 | 3 (3 done) |
 | 4 - Source Quality + Confidence Signals | ● Complete | 100% | 1 | 3 (3 done) |
 | 5 - Cost Optimization + Scaling Prep | ● Complete | 100% | 0 (infra) | 3 (3 done) |
-| 6 - Tech Debt Cleanup | ○ Pending | 0% | 0 (audit) | 0 (not planned) |
+| 6 - Tech Debt Cleanup | ◐ In Progress | 33% | 0 (audit) | 1 done / 3 total |
 
-**Overall:** █████████████████████████████████████████████░░░░░ 83% (5/6 phases complete)
+**Overall:** ██████████████████████████████████████████████░░░░ 86% (5 phases complete + phase 6 in progress)
 
 **Legend:** ○ Pending | ◐ In Progress | ● Complete
 
@@ -113,6 +114,11 @@ None.
 
 - Prompt caching (cache_control: ephemeral) is architecturally correct but inactive — system prompt ~150 tokens, Anthropic minimum ~1024 tokens. Would activate with larger system prompts at scale.
 
+**2026-02-14:** Phase 6 plan 01 executed (fix SSE EventSource URL)
+- Fixed relative `/api/progress/${id}` URL to absolute `http://localhost:8000/api/progress/${id}` in useProgress.ts
+- One-line change — matches api.ts pattern, no proxy config needed
+- SSE progress now connects to FastAPI backend instead of Vite dev server silently failing
+
 ---
-*Last updated: 2026-02-13 after Phase 5 completion (all phases done)*
-*Next: Milestone audit or completion*
+*Last updated: 2026-02-14 after 06-01 completion (SSE URL fix)*
+*Next: Execute plans 06-02 and 06-03*
