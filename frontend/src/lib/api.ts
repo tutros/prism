@@ -7,7 +7,16 @@ export async function apiPost<T>(endpoint: string, data: unknown): Promise<T> {
     body: JSON.stringify(data),
   })
   if (!res.ok) {
-    throw new Error(`API error: ${res.status}`)
+    let message = `API error: ${res.status}`
+    try {
+      const body = await res.json()
+      if (body.detail) {
+        message = body.detail
+      }
+    } catch {
+      // Response body not parseable as JSON, use status code fallback
+    }
+    throw new Error(message)
   }
   return res.json()
 }
