@@ -70,23 +70,165 @@ Browser (React) ──HTTP──▸ FastAPI backend ──▸ Tavily (web search
 
 The frontend is a single-page React app. The backend is a stateless FastAPI service that persists results as JSON files in `data/`. There is no database.
 
-### Request Flow
+### Data Flow: Single Comparison Request
+
+#### 1. User Submission (Frontend)
+
+The user fills in option A, option B, and intent, then clicks Compare.
+
+```
+ComparisonForm.handleSubmit()
+  └── useComparison().mutate()          TanStack Query mutation
+        └── apiPost('/api/compare', { option_a, option_b, intent })
+              └── HTTP POST ──▸ FastAPI backend
+```
+
+#### 2. Request Handling (Backend)
+
+The backend validates, deduplicates, and returns immediately.
 
 ```
 POST /api/compare
-  ├── Dedup check (SHA-256 hash of inputs)
-  │   └── If match found, return existing comparison_id (202)
-  ├── Spending guard check (daily cap)
-  ├── Return 202 + comparison_id immediately
-  └── Background task:
-        ├── Tavily: search both options in parallel
-        ├── Claude: generate criteria from research
-        ├── Score, classify sources, compute confidence
-        └── Write result to data/{id}.json
-
-GET /api/progress/{id}   ◀── SSE stream of progress messages
-GET /api/results/{id}    ◀── Poll until status != "processing"
+  │
+  ├── check_spending_cap()              Reject with 429 if daily cap reached
+  │
+  ├── Dedup check (if not force_refresh)
+  │     SHA-256(lower(option_a)|lower(option_b)|lower(intent))[:16]
+  │     Scan all data/*.json for matching hash, completed, and < 24h old
+  │     If match: stamp tavily_cached_at, return { comparison_id, deduplicated: true }
+  │
+  ├── Generate UUID comparison_id
+  │
+  ├── Write initial result to data/{id}.json with status="processing"
+  │     (atomic write: tempfile → fsync → os.replace)
+  │
+  ├── Queue background task: process_comparison()
+  │
+  └── Return 202 { comparison_id }
 ```
+
+#### 3. Background Processing (Backend)
+
+The background task runs the full AI pipeline.
+
+```
+process_comparison()
+  └── generate_comparison()
+        │
+        ├── Step 1: Web Search (Tavily) ── runs both in parallel via asyncio.gather
+        │     search_option(option_a)
+        │       query = "{option} hidden costs environmental impact subsidies externalities supply chain"
+        │       Check in-memory cache (TTLCache, 200 entries, 24h TTL)
+        │       If miss: tavily.search(query, depth="basic", max_results=10)
+        │       Cache result with ISO timestamp
+        │       Return OptionResearch { results: [{ title, url, content, score }] }
+        │     search_option(option_b) ── same flow
+        │
+        │     Progress messages emitted:
+        │       "Searching web for {option_a/b}..."
+        │       "Found {n} sources for {option_a/b}"
+        │
+        │     If both searches fail → write error result, return early
+        │
+        ├── Step 2: AI Analysis (Claude)
+        │     Progress: "Analyzing sources for hidden costs..."
+        │
+        │     generate_criteria()
+        │       Build prompt with research context + source URL allowlist
+        │       System prompt: "expert at discovering non-obvious decision criteria..."
+        │       User prompt: research for both options, scoring rules, JSON format
+        │
+        │       claude.messages.create(model="claude-sonnet-4-5-20250929", max_tokens=4096)
+        │
+        │       record_usage()
+        │         Calculate cost from token counts
+        │         Persist to data/usage_metrics.json (atomic write)
+        │         add_cost() → spending guard daily accumulator
+        │
+        │       Parse JSON response (strip markdown code blocks if present)
+        │       Validate via CriteriaOutput.model_validate()
+        │       Returns: { criteria[], winner, reasoning, source_classifications[] }
+        │
+        │     Progress: "Generated {n} criteria"
+        │
+        └── Step 3: Package Result
+              Progress: "Finalizing comparison..."
+
+              Build source_metadata: { url → SourceMetadata(quality) }
+                from Claude's source_classifications
+
+              Build criteria list with confidence levels:
+                high:   ≥2 sources AND ≥1 peer-reviewed or government
+                medium: ≥1 source AND ≥1 industry or news
+                low:    0 sources or only blog/unknown
+
+              Assemble ComparisonResult:
+                status="completed", criteria, winner, reasoning,
+                research_a/b (cached for Go Deeper), source_metadata
+
+              mark_complete(comparison_id)
+              storage.write_result() → data/{id}.json (atomic write)
+```
+
+#### 4. Real-Time Progress (Parallel with Step 3)
+
+Two channels keep the frontend updated while the background task runs.
+
+```
+SSE Progress Stream:
+  useProgress(comparisonId)
+    new EventSource('/api/progress/{id}')
+      Backend polls progress_store dict every 0.5s
+      Yields SSE events as the orchestrator adds messages:
+        event: progress  { status: "Searching web for..." }
+        event: progress  { status: "Analyzing sources..." }
+        event: progress  { status: "Generated 4 criteria" }
+        event: complete  { comparison_id }
+      Cleans up in-memory store after completion
+      Times out after 2 minutes
+
+Result Polling:
+  useResults(comparisonId)
+    TanStack Query polls GET /api/results/{id} every 1s
+    Reads data/{id}.json → ComparisonResult.model_validate()
+    While status="processing" → keep polling
+    When status="completed" or "error" → stop polling
+    Times out after 2 minutes
+```
+
+#### 5. Result Display (Frontend)
+
+Once `useResults` returns a completed result, the UI renders.
+
+```
+App.tsx renders <ResultsDisplay>
+  ├── Winner banner + reasoning
+  ├── Criteria cards with scores, weights, confidence badges
+  ├── Source links with quality tier indicators
+  ├── Weight sliders (recalculate scores client-side, no API call)
+  ├── "Go Deeper" → POST /api/comparisons/{id}/go-deeper (adds 2-3 criteria)
+  ├── "Regenerate Weights" → POST /api/comparisons/{id}/regenerate-weights
+  ├── Flip Analysis → GET /api/comparisons/{id}/flip-analysis
+  └── Source flagging → PATCH /api/comparisons/{id}/sources/flag
+```
+
+#### Data Written to Disk
+
+```
+data/
+├── {comparison_id}.json     Written twice: first with status="processing", then "completed"
+└── usage_metrics.json       Append-only list of usage records from every Claude API call
+```
+
+#### In-Memory State
+
+| Store | Type | Lifecycle |
+|-------|------|-----------|
+| `progress_store` | `dict[str, list[str]]` | Created per comparison, cleaned up after SSE completes |
+| `progress_complete` | `dict[str, bool]` | Same lifecycle as progress_store |
+| `_TAVILY_CACHE` | `TTLCache(maxsize=200, ttl=86400)` | 24h TTL, evicts LRU when full |
+| `_usage_records` | `list[dict]` | Loaded from disk on startup, appended per API call |
+| `_daily_cost_usd` | `float` | Loaded from disk on startup, resets at midnight |
 
 ### Backend Structure
 
