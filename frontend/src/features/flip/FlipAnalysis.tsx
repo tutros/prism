@@ -63,9 +63,9 @@ export function FlipAnalysis({ comparisonId, loserName }: FlipAnalysisProps) {
       <h3 className="font-semibold text-lg text-gray-800">
         What would make {loserName} win?
       </h3>
-      {data.suggestions.map((suggestion, i) => (
+      {data.suggestions.map((suggestion) => (
         <div
-          key={i}
+          key={suggestion.affected_criterion}
           className="p-4 bg-amber-50 border border-amber-200 rounded-lg"
         >
           <p className="font-medium text-amber-900">{suggestion.action}</p>
@@ -78,7 +78,7 @@ export function FlipAnalysis({ comparisonId, loserName }: FlipAnalysisProps) {
               Sources:{' '}
               {suggestion.sources.map((src, j) => (
                 <a
-                  key={j}
+                  key={src}
                   href={src}
                   target="_blank"
                   rel="noopener noreferrer"

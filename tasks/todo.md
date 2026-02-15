@@ -243,11 +243,27 @@ All Critical and High issues are fixable with minimal code changes — most are 
 
 **Verification:** Backend imports clean, frontend TypeScript type check passes.
 
+### Low issues fixed (2026-02-14):
+
+- [x] **L-1 (CORS overly permissive)** — Removed `allow_credentials=True`, restricted `allow_methods` to `GET/POST/PATCH/DELETE`, restricted `allow_headers` to `Content-Type`.
+- [x] **L-2 (Unauthenticated monitoring)** — Added `MONITORING_ENABLED` env var check (defaults to `true`). Set `MONITORING_ENABLED=false` to disable in production.
+- [x] **L-3 (Unpinned dependencies)** — Pinned all backend dependencies to exact versions (`==`) matching currently installed versions.
+- [x] **L-4 (Dead code FlipSuggestionModel)** — Removed unused `FlipSuggestionModel` from `models.py`.
+- [x] **L-5 (Unused devDependencies)** — Removed `autoprefixer` and `postcss` from `package.json` (not needed with Tailwind v4 + `@tailwindcss/vite`).
+- [x] **L-6 (formatCacheAge edge cases)** — Added `Math.max(0, ...)` guard for clock skew and "just now" for sub-minute freshness.
+- [x] **L-7 (Array index as React key)** — Replaced index keys with stable content-derived keys in `ExamplePrompts.tsx` and `FlipAnalysis.tsx`.
+- [x] **L-8 (Winner: Tie green banner)** — Added distinct gray styling for tie results ("Result: Tie") vs green for winners.
+
+**Verification:** Backend imports clean, frontend TypeScript type check passes.
+
 ### Files modified (all fixes):
 
 **Backend:**
+- `backend/app/main.py` — tightened CORS settings
+- `backend/app/models.py` — removed dead FlipSuggestionModel
 - `backend/app/storage.py` — UUID validation, filtered list_results
 - `backend/app/routers/comparison.py` — try/except, asyncio.to_thread, status guards, error handling, AnyHttpUrl
+- `backend/app/routers/monitoring.py` — MONITORING_ENABLED env var gate
 - `backend/app/routers/progress.py` — cleanup on complete/timeout
 - `backend/app/services/orchestrator.py` — timezone.utc, partial failure warning
 - `backend/app/services/usage_tracker.py` — add_cost inside lock
@@ -256,6 +272,7 @@ All Critical and High issues are fixable with minimal code changes — most are 
 - `backend/app/services/flip_service.py` — content guard, weight=0 flip candidates
 - `backend/app/services/progress_store.py` — cleanup function
 - `backend/app/services/spending_guard.py` — _today sync in _load_today_cost
+- `backend/requirements.txt` — pinned to exact versions
 
 **Frontend:**
 - `frontend/src/App.tsx` — ErrorBoundary, URL hash persistence, loading spinner
@@ -267,5 +284,8 @@ All Critical and High issues are fixable with minimal code changes — most are 
 - `frontend/src/features/criteria/CriteriaEditor.tsx` — shared API_BASE, score clamping, draft sync
 - `frontend/src/features/criteria/SourceLink.tsx` — shared API_BASE
 - `frontend/src/features/criteria/AddCriterion.tsx` — score/weight clamping
-- `frontend/src/features/results/ResultsDisplay.tsx` — aligned staleTime, catch on refresh
+- `frontend/src/features/comparison/ExamplePrompts.tsx` — stable React keys
+- `frontend/src/features/flip/FlipAnalysis.tsx` — stable React keys
+- `frontend/src/features/results/ResultsDisplay.tsx` — aligned staleTime, catch on refresh, cache age fix, tie styling
 - `frontend/src/features/results/useResults.ts` — poll timeout, reduced retry
+- `frontend/package.json` — removed unused autoprefixer/postcss

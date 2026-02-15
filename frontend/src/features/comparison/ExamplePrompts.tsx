@@ -31,9 +31,9 @@ export function ExamplePrompts({ onSelect }: ExamplePromptsProps) {
     <div className="mb-6">
       <p className="text-sm text-gray-500 mb-3">Try an example:</p>
       <div className="flex flex-wrap gap-2">
-        {EXAMPLES.map((example, i) => (
+        {EXAMPLES.map((example) => (
           <button
-            key={i}
+            key={`${example.optionA}-${example.optionB}`}
             type="button"
             onClick={() => onSelect(example)}
             className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"

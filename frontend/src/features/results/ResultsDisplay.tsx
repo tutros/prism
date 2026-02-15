@@ -15,12 +15,15 @@ import { apiGet, apiPost } from '../../lib/api'
 function formatCacheAge(cachedAt: string): string {
   const cached = new Date(cachedAt)
   const now = new Date()
-  const diffMs = now.getTime() - cached.getTime()
+  const diffMs = Math.max(0, now.getTime() - cached.getTime())
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
   const diffMinutes = Math.floor(diffMs / (1000 * 60))
 
   if (diffHours >= 1) {
     return `${diffHours}h ago`
+  }
+  if (diffMinutes < 1) {
+    return 'just now'
   }
   return `${diffMinutes}m ago`
 }
@@ -83,12 +86,21 @@ export function ResultsDisplay({ result, comparisonId, onNewComparison }: Result
   return (
     <div className="space-y-6">
       {/* Winner Banner */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-        <p className="text-lg font-semibold text-green-800">
-          Winner: {winnerLabel}
-        </p>
-        <p className="text-sm text-green-700 mt-1">{result.reasoning}</p>
-      </div>
+      {scores.winner === 'tie' ? (
+        <div className="p-4 bg-gray-50 border border-gray-300 rounded-lg">
+          <p className="text-lg font-semibold text-gray-700">
+            Result: Tie
+          </p>
+          <p className="text-sm text-gray-600 mt-1">{result.reasoning}</p>
+        </div>
+      ) : (
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-lg font-semibold text-green-800">
+            Winner: {winnerLabel}
+          </p>
+          <p className="text-sm text-green-700 mt-1">{result.reasoning}</p>
+        </div>
+      )}
 
       {/* Cache Age Indicator */}
       {result.tavily_cached_at && (
