@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { API_BASE } from '../../lib/api'
 
 interface ProgressState {
   status: string
@@ -30,7 +31,7 @@ export function useProgress(comparisonId: string | null) {
     // Reset state for new comparison
     resetProgress()
 
-    const eventSource = new EventSource(`http://localhost:8000/api/progress/${comparisonId}`)
+    const eventSource = new EventSource(`${API_BASE}/api/progress/${comparisonId}`)
 
     eventSource.onopen = () => {
       setState(prev => ({ ...prev, connected: true }))
@@ -64,13 +65,16 @@ export function useProgress(comparisonId: string | null) {
     })
 
     eventSource.onerror = () => {
-      // Connection error - EventSource will auto-reconnect by default
-      // After 3 failed reconnects, give up
+      // Connection error - close to prevent infinite reconnect loop
       setState(prev => {
         if (!prev.connected) {
-          // Never connected - fall back to polling
+          // Never connected - close and fall back to polling
+          eventSource.close()
           return { ...prev, error: 'Unable to connect to progress stream' }
         }
+        // Was connected but dropped - close to stop auto-reconnect
+        // The results polling via useResults will pick up the completed result
+        eventSource.close()
         return prev
       })
     }

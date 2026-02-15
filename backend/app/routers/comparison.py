@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import asyncio
 import hashlib
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -30,14 +31,32 @@ storage = JSONStorage()
 
 async def process_comparison(comparison_id: str, data: ComparisonInput, force_refresh: bool = False) -> None:
     """Process comparison using AI orchestrator."""
-    result = await generate_comparison(
-        comparison_id=comparison_id,
-        option_a=data.option_a,
-        option_b=data.option_b,
-        intent=data.intent,
-        force_refresh=force_refresh,
-    )
-    storage.write_result(comparison_id, result)
+    try:
+        result = await generate_comparison(
+            comparison_id=comparison_id,
+            option_a=data.option_a,
+            option_b=data.option_b,
+            intent=data.intent,
+            force_refresh=force_refresh,
+        )
+        storage.write_result(comparison_id, result)
+    except Exception as e:
+        # Write error result so frontend stops polling instead of hanging forever
+        from ..services.progress_store import mark_complete
+        error_result = ComparisonResult(
+            comparison_id=comparison_id,
+            status="error",
+            option_a_name=data.option_a,
+            option_b_name=data.option_b,
+            intent=data.intent,
+            criteria=[],
+            winner=None,
+            reasoning=f"Unexpected error: {str(e)}",
+            created_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(timezone.utc),
+        )
+        storage.write_result(comparison_id, error_result)
+        mark_complete(comparison_id)
 
 
 def _dedup_key(option_a: str, option_b: str, intent: str) -> str:
@@ -62,22 +81,22 @@ async def submit_comparison(
     if not force_refresh:
         target_key = _dedup_key(data.option_a, data.option_b, data.intent)
         cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
-        for cid in storage.list_results():
-            existing = storage.read_result(cid)
+        all_ids = await asyncio.to_thread(storage.list_results)
+        for cid in all_ids:
+            existing = await asyncio.to_thread(storage.read_result, cid)
             if not existing or existing.status != "completed":
                 continue
             existing_key = _dedup_key(existing.option_a_name, existing.option_b_name, existing.intent)
             if existing_key == target_key:
                 created = existing.created_at
-                # Ensure timezone-aware comparison
+                # Ensure timezone-aware comparison (backwards compat for old naive timestamps)
                 if created.tzinfo is None:
-                    from datetime import timezone as _tz
-                    created = created.replace(tzinfo=_tz.utc)
+                    created = created.replace(tzinfo=timezone.utc)
                 if created >= cutoff:
                     # Mark as cached so frontend shows cache age banner
                     if not existing.tavily_cached_at:
                         existing.tavily_cached_at = existing.created_at.isoformat()
-                        storage.write_result(existing.comparison_id, existing)
+                        await asyncio.to_thread(storage.write_result, existing.comparison_id, existing)
                     return {"comparison_id": existing.comparison_id, "deduplicated": True}
 
     comparison_id = str(uuid.uuid4())
@@ -92,7 +111,7 @@ async def submit_comparison(
         criteria=[],
         winner=None,
         reasoning="",
-        created_at=datetime.now(),
+        created_at=datetime.now(timezone.utc),
         completed_at=None,
     )
     storage.write_result(comparison_id, initial)
@@ -117,10 +136,10 @@ async def get_results(comparison_id: str):
 @router.get("/results")
 async def list_results():
     """List all saved comparisons with metadata."""
-    comparison_ids = storage.list_results()
+    comparison_ids = await asyncio.to_thread(storage.list_results)
     results = []
     for cid in comparison_ids:
-        result = storage.read_result(cid)
+        result = await asyncio.to_thread(storage.read_result, cid)
         if result:
             results.append({
                 "comparison_id": result.comparison_id,
@@ -240,6 +259,9 @@ async def go_deeper_endpoint(comparison_id: str):
     if not result:
         raise HTTPException(status_code=404, detail="Comparison not found")
 
+    if result.status != "completed":
+        raise HTTPException(status_code=409, detail="Comparison is still processing")
+
     # Check for cached research
     if not result.research_a or not result.research_b:
         raise HTTPException(
@@ -252,14 +274,17 @@ async def go_deeper_endpoint(comparison_id: str):
     research_b = _dict_to_option_research(result.research_b)
 
     # Generate new criteria
-    new_criteria = await go_deeper(
-        option_a=result.option_a_name,
-        option_b=result.option_b_name,
-        intent=result.intent,
-        existing_criteria=result.criteria,
-        research_a=research_a,
-        research_b=research_b,
-    )
+    try:
+        new_criteria = await go_deeper(
+            option_a=result.option_a_name,
+            option_b=result.option_b_name,
+            intent=result.intent,
+            existing_criteria=result.criteria,
+            research_a=research_a,
+            research_b=research_b,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"AI analysis failed: {str(e)}")
 
     # Append to existing criteria
     result.criteria.extend(new_criteria)
@@ -274,14 +299,20 @@ async def regenerate_weights_endpoint(comparison_id: str):
     if not result:
         raise HTTPException(status_code=404, detail="Comparison not found")
 
+    if result.status != "completed":
+        raise HTTPException(status_code=409, detail="Comparison is still processing")
+
     if not result.criteria:
         raise HTTPException(status_code=400, detail="No criteria to weight")
 
     # Get new weights from AI
-    new_weights = await regenerate_weights(
-        criteria=result.criteria,
-        intent=result.intent,
-    )
+    try:
+        new_weights = await regenerate_weights(
+            criteria=result.criteria,
+            intent=result.intent,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"AI analysis failed: {str(e)}")
 
     # Apply new weights to each criterion
     for criterion in result.criteria:

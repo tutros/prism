@@ -20,6 +20,7 @@ export function RegenerateWeights({ comparisonId }: RegenerateWeightsProps) {
   })
 
   return (
+    <>
     <button
       onClick={() => mutation.mutate()}
       disabled={mutation.isPending}
@@ -45,9 +46,17 @@ export function RegenerateWeights({ comparisonId }: RegenerateWeightsProps) {
           </svg>
           Regenerating...
         </>
+      ) : mutation.isError ? (
+        'Retry Regenerate'
       ) : (
         'Regenerate Weights'
       )}
     </button>
+    {mutation.isError && (
+      <p className="text-sm text-red-600 mt-1">
+        {mutation.error instanceof Error ? mutation.error.message : 'Failed to regenerate weights'}
+      </p>
+    )}
+    </>
   )
 }

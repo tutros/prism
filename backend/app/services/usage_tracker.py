@@ -95,7 +95,9 @@ def record_usage(feature: str, model: str, usage) -> UsageRecord:
         except Exception:
             pass  # Never fail the API call because of metrics persistence
 
-    add_cost(cost)
+        # Add cost inside lock to prevent TOCTOU race with spending guard
+        add_cost(cost)
+
     return record
 
 

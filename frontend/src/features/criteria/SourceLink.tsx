@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { SourceMetadata } from '../comparison/types'
-
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../../lib/api'
 
 // Quality badge styling - matches existing badge patterns
 const QUALITY_BADGE_MAP: Record<string, { label: string | null; classes: string }> = {

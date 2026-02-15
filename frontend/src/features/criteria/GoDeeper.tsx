@@ -20,6 +20,7 @@ export function GoDeeper({ comparisonId }: GoeDeeperProps) {
   })
 
   return (
+    <>
     <button
       onClick={() => mutation.mutate()}
       disabled={mutation.isPending}
@@ -45,9 +46,17 @@ export function GoDeeper({ comparisonId }: GoeDeeperProps) {
           </svg>
           Generating...
         </>
+      ) : mutation.isError ? (
+        'Retry Go Deeper'
       ) : (
         'Go Deeper'
       )}
     </button>
+    {mutation.isError && (
+      <p className="text-sm text-red-600 mt-1">
+        {mutation.error instanceof Error ? mutation.error.message : 'Failed to generate criteria'}
+      </p>
+    )}
+    </>
   )
 }

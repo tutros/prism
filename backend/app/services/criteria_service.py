@@ -136,7 +136,9 @@ Always ground your analysis in the provided research. Never hallucinate facts or
     )
     record_usage("go_deeper", "claude-sonnet-4-5-20250929", response.usage)
 
-    # Parse response
+    # Parse response - safely extract text content
+    if not response.content or not hasattr(response.content[0], 'text'):
+        raise ValueError("Claude returned an empty or non-text response")
     content = response.content[0].text
 
     # Find JSON in the response
@@ -185,14 +187,14 @@ async def regenerate_weights(
     """
     client = get_anthropic_client()
 
-    # Build criteria list with names for Claude to reference
+    # Build criteria list with IDs for Claude to reference (avoids name collisions)
     criteria_list = "\n".join([
-        f"- {c.name}: {c.description}"
+        f"- [{c.id}] {c.name}: {c.description}"
         for c in criteria
     ])
 
-    # Build name-to-id mapping for response translation
-    name_to_id = {c.name: c.id for c in criteria}
+    # Build id set for validating response
+    valid_ids = {c.id for c in criteria}
 
     prompt = f"""Given these criteria for a comparison, assign weights (0-100) based on the user's intent.
 
@@ -210,13 +212,13 @@ RULES:
 RESPOND WITH ONLY A JSON OBJECT in this exact format:
 {{
   "weights": {{
-    "Criterion Name 1": 35,
-    "Criterion Name 2": 25,
-    "Criterion Name 3": 40
+    "criterion-id-1": 35,
+    "criterion-id-2": 25,
+    "criterion-id-3": 40
   }}
 }}
 
-Use the exact criterion names from the list above as keys.
+Use the exact criterion IDs (the values in [brackets]) from the list above as keys.
 Do not include any text before or after the JSON."""
 
     response = await client.messages.create(
@@ -242,7 +244,9 @@ Be thoughtful about what the user actually cares about based on their intent sta
     )
     record_usage("regenerate_weights", "claude-sonnet-4-5-20250929", response.usage)
 
-    # Parse response
+    # Parse response - safely extract text content
+    if not response.content or not hasattr(response.content[0], 'text'):
+        raise ValueError("Claude returned an empty or non-text response")
     content = response.content[0].text
 
     # Find JSON in the response
@@ -261,11 +265,11 @@ Be thoughtful about what the user actually cares about based on their intent sta
     except Exception as e:
         raise ValueError(f"Failed to validate AI response: {str(e)}")
 
-    # Translate names to IDs
+    # Map weights by ID (Claude returns IDs as keys)
     result = {}
-    for name, weight in output.weights.items():
-        if name in name_to_id:
-            result[name_to_id[name]] = weight
+    for cid, weight in output.weights.items():
+        if cid in valid_ids:
+            result[cid] = weight
 
     # If any criteria were missed, assign default weight
     for c in criteria:

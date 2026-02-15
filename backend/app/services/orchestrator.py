@@ -1,7 +1,7 @@
 """Orchestrator combining web search and AI analysis."""
 
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal
 
 from ..models import ComparisonResult, Criterion, SourceMetadata
@@ -83,8 +83,8 @@ async def generate_comparison(
             criteria=[],
             winner=None,
             reasoning=f"Web search failed: {research_a.error}",
-            created_at=datetime.now(),
-            completed_at=datetime.now(),
+            created_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(timezone.utc),
         )
 
     # Step 2: Generate criteria via Claude
@@ -109,8 +109,8 @@ async def generate_comparison(
             criteria=[],
             winner=None,
             reasoning=f"AI analysis failed: {str(e)}",
-            created_at=datetime.now(),
-            completed_at=datetime.now(),
+            created_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(timezone.utc),
         )
 
     add_progress(comparison_id, f"Generated {len(criteria_output.criteria)} criteria")
@@ -151,8 +151,8 @@ async def generate_comparison(
         criteria=criteria,
         winner=criteria_output.winner,
         reasoning=criteria_output.reasoning,
-        created_at=datetime.now(),
-        completed_at=datetime.now(),
+        created_at=datetime.now(timezone.utc),
+        completed_at=datetime.now(timezone.utc),
         research_a=asdict(research_a),
         research_b=asdict(research_b),
         source_metadata=source_metadata,

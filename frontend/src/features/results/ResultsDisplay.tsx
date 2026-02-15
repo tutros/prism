@@ -37,15 +37,14 @@ export function ResultsDisplay({ result, comparisonId, onNewComparison }: Result
     result.status === 'processing' ? comparisonId : null
   )
 
-  // Fetch sensitivity data for criteria
+  // Fetch sensitivity data for criteria (shares query key with FlipAnalysis component)
   const { data: flipData } = useQuery({
     queryKey: ['flip-analysis', comparisonId],
     queryFn: async () => {
-      // apiGet already returns parsed JSON and throws on error
       return apiGet<FlipAnalysisResponse>(`/api/comparisons/${comparisonId}/flip-analysis`)
     },
     enabled: !!comparisonId && result.status === 'completed',
-    staleTime: 30000,
+    staleTime: 60000, // Must match FlipAnalysis staleTime to avoid cache fights
   })
 
   if (result.status === 'processing') {
@@ -107,6 +106,8 @@ export function ResultsDisplay({ result, comparisonId, onNewComparison }: Result
                   intent: result.intent,
                 }).then(data => {
                   onNewComparison(data.comparison_id)
+                }).catch(() => {
+                  // Error is visible in browser console; button remains clickable for retry
                 })
               }
             }}

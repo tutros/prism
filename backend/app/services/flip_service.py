@@ -228,7 +228,9 @@ Always ground suggestions in the research sources provided. Never suggest imposs
         )
         record_usage("flip_suggestions", "claude-sonnet-4-5-20250929", response.usage)
 
-        # Parse response
+        # Parse response - safely extract text content
+        if not response.content or not hasattr(response.content[0], 'text'):
+            raise ValueError("Claude returned an empty or non-text response")
         content = response.content[0].text
 
         # Find JSON in the response

@@ -157,11 +157,12 @@ Always ground your analysis in the provided research. Never hallucinate facts or
     )
     record_usage("criteria", "claude-sonnet-4-5-20250929", response.usage)
 
-    # Parse response - Claude returns JSON when we specify structured output via tools
-    # For now, use tool_use pattern for structured output
+    # Parse response
     import json
 
-    # Extract text content and parse as JSON
+    # Safely extract text content
+    if not response.content or not hasattr(response.content[0], 'text'):
+        raise ValueError("Claude returned an empty or non-text response")
     content = response.content[0].text
 
     # Find JSON in the response (Claude often wraps it in markdown code blocks)

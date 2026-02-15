@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Criterion, SourceMetadata } from '../comparison/types'
 import { SourceLink } from './SourceLink'
-
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../../lib/api'
 
 interface CriteriaEditorProps {
   criterion: Criterion

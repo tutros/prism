@@ -1,11 +1,21 @@
 from pathlib import Path
 import json
 import os
+import re
 import tempfile
 
 from pydantic import ValidationError
 
 from .models import ComparisonResult
+
+# UUID4 pattern for validating comparison IDs
+_UUID_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
+
+
+def _validate_comparison_id(comparison_id: str) -> None:
+    """Validate comparison_id is a UUID to prevent path traversal."""
+    if not _UUID_RE.match(comparison_id):
+        raise ValueError(f"Invalid comparison_id: {comparison_id}")
 
 
 class JSONStorage:
@@ -15,6 +25,7 @@ class JSONStorage:
 
     def write_result(self, comparison_id: str, data: ComparisonResult) -> None:
         """Atomically write JSON to prevent corruption on crash."""
+        _validate_comparison_id(comparison_id)
         target_path = self.data_dir / f"{comparison_id}.json"
 
         # Write to temp file in same directory (required for atomic os.replace)
@@ -33,6 +44,7 @@ class JSONStorage:
 
     def read_result(self, comparison_id: str) -> ComparisonResult | None:
         """Read a comparison result by ID, or None if not found."""
+        _validate_comparison_id(comparison_id)
         target_path = self.data_dir / f"{comparison_id}.json"
         if not target_path.exists():
             return None
@@ -44,4 +56,4 @@ class JSONStorage:
 
     def list_results(self) -> list[str]:
         """Return list of comparison IDs stored on disk."""
-        return [p.stem for p in self.data_dir.glob("*.json")]
+        return [p.stem for p in self.data_dir.glob("*.json") if _UUID_RE.match(p.stem)]

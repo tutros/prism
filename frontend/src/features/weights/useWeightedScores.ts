@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { Criterion } from '../comparison/types'
 
 export interface WeightedScores {
@@ -53,6 +53,16 @@ export function useWeightedScores(criteria: Criterion[]) {
     }
     return initial
   })
+
+  // Reset weights when criteria IDs change (e.g. switching comparisons via history)
+  const criteriaKey = criteria.map(c => c.id).join(',')
+  useEffect(() => {
+    const fresh: Record<string, number> = {}
+    for (const c of criteria) {
+      fresh[c.id] = c.weight
+    }
+    setWeights(fresh)
+  }, [criteriaKey])
 
   const scores = useMemo(
     () => calculateScores(criteria, weights),
