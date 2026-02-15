@@ -87,6 +87,11 @@ async def generate_comparison(
             completed_at=datetime.now(timezone.utc),
         )
 
+    # Warn if partial failure (one option has no research)
+    if research_a.error or research_b.error:
+        failed_option = option_a if research_a.error else option_b
+        add_progress(comparison_id, f"Warning: search failed for {failed_option}, analysis may be incomplete")
+
     # Step 2: Generate criteria via Claude
     add_progress(comparison_id, "Analyzing sources for hidden costs...")
 

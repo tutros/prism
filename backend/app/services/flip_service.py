@@ -104,8 +104,9 @@ def calculate_flip_analysis(
         # Simplified approximation for small changes
         required_increase = (gap / advantage) * total_weight
 
-        # Only show realistic changes (not more than doubling the weight)
-        if required_increase > 0 and required_increase <= current_w * 2:
+        # Only show realistic changes (cap at double the weight, or 20% for zero-weight)
+        max_increase = current_w * 2 if current_w > 0 else total_weight * 0.2
+        if required_increase > 0 and required_increase <= max_increase:
             suggestions.append(FlipSuggestion(
                 criterion_id=c.id,
                 criterion_name=c.name,

@@ -226,23 +226,46 @@ All Critical and High issues are fixable with minimal code changes — most are 
 
 **Verification:** Backend imports clean, frontend TypeScript type check passes.
 
+### Medium issues fixed (2026-02-14):
+
+- [x] **M-1 (No error boundary)** — Added `ErrorBoundary` class component wrapping the entire app in `App.tsx`. Displays error message with "Try Again" button.
+- [x] **M-2 (Score inputs unclamped)** — Added `Math.max(0, Math.min(100, ...))` clamping to score inputs in `CriteriaEditor.tsx` and score/weight inputs in `AddCriterion.tsx`.
+- [x] **M-3 (Infinite polling)** — Added 2-minute polling timeout to `useResults.ts`. After 120s of `status=processing`, polling stops. Also reduced retry count from 3 to 1.
+- [x] **M-4 (Browser refresh loses state)** — Persisted `comparisonId` in URL hash (`#<id>`). Reads from hash on mount, syncs via `useEffect`. Survives browser refresh.
+- [x] **M-5 (Blank screen on submit)** — Added loading spinner section shown when `comparisonId` is set but `result` hasn't loaded yet.
+- [x] **M-6 (Unbounded progress store)** — Added `cleanup()` function to `progress_store.py` that evicts entries. Called from `progress.py` after completion and on timeout.
+- [x] **M-7 (usage_metrics.json scanned)** — Already fixed by C-1's UUID-only filter in `list_results()`.
+- [x] **M-8 (No URL validation in flag_source)** — Changed `SourceFlagRequest.url` type from `str` to `AnyHttpUrl` (Pydantic validation). Convert to `str()` for dict key usage.
+- [x] **M-9 (Tavily partial failure)** — Added warning progress message when one option's search fails, so user knows analysis may be incomplete.
+- [x] **M-10 (Draft state stale after rollback)** — Added `useEffect` to sync draft from criterion props when not actively editing. Triggers on optimistic rollback.
+- [x] **M-11 (spending_guard _today stale)** — Made `_load_today_cost()` set `_today` to current date before loading records, so `_reset_if_new_day()` doesn't discard loaded costs.
+- [x] **M-12 (Flip formula drops weight=0)** — Changed filter from `current_w * 2` to `total_weight * 0.2` for zero-weight criteria, so they can appear as flip candidates.
+
+**Verification:** Backend imports clean, frontend TypeScript type check passes.
+
 ### Files modified (all fixes):
 
 **Backend:**
 - `backend/app/storage.py` — UUID validation, filtered list_results
-- `backend/app/routers/comparison.py` — try/except, asyncio.to_thread, status guards, error handling
-- `backend/app/services/orchestrator.py` — timezone.utc
+- `backend/app/routers/comparison.py` — try/except, asyncio.to_thread, status guards, error handling, AnyHttpUrl
+- `backend/app/routers/progress.py` — cleanup on complete/timeout
+- `backend/app/services/orchestrator.py` — timezone.utc, partial failure warning
 - `backend/app/services/usage_tracker.py` — add_cost inside lock
 - `backend/app/services/claude_service.py` — content guard
 - `backend/app/services/criteria_service.py` — content guard, ID-based weight mapping
-- `backend/app/services/flip_service.py` — content guard
+- `backend/app/services/flip_service.py` — content guard, weight=0 flip candidates
+- `backend/app/services/progress_store.py` — cleanup function
+- `backend/app/services/spending_guard.py` — _today sync in _load_today_cost
 
 **Frontend:**
+- `frontend/src/App.tsx` — ErrorBoundary, URL hash persistence, loading spinner
 - `frontend/src/lib/api.ts` — configurable API_BASE export
 - `frontend/src/features/weights/useWeightedScores.ts` — weight reset on criteria change
 - `frontend/src/features/criteria/GoDeeper.tsx` — error display
 - `frontend/src/features/weights/RegenerateWeights.tsx` — error display
 - `frontend/src/features/progress/useProgress.ts` — shared API_BASE, close on error
-- `frontend/src/features/criteria/CriteriaEditor.tsx` — shared API_BASE
+- `frontend/src/features/criteria/CriteriaEditor.tsx` — shared API_BASE, score clamping, draft sync
 - `frontend/src/features/criteria/SourceLink.tsx` — shared API_BASE
+- `frontend/src/features/criteria/AddCriterion.tsx` — score/weight clamping
 - `frontend/src/features/results/ResultsDisplay.tsx` — aligned staleTime, catch on refresh
+- `frontend/src/features/results/useResults.ts` — poll timeout, reduced retry

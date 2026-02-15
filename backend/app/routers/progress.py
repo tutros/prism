@@ -6,7 +6,7 @@ import asyncio
 import json
 from typing import AsyncGenerator
 
-from ..services.progress_store import progress_store, progress_complete
+from ..services.progress_store import progress_store, progress_complete, cleanup
 
 router = APIRouter(prefix="/api", tags=["progress"])
 
@@ -33,6 +33,7 @@ async def progress_generator(comparison_id: str) -> AsyncGenerator[dict, None]:
                 "event": "complete",
                 "data": json.dumps({"comparison_id": comparison_id})
             }
+            cleanup(comparison_id)
             return
 
         # Wait and poll again
@@ -40,6 +41,7 @@ async def progress_generator(comparison_id: str) -> AsyncGenerator[dict, None]:
         waited += 0.5
 
     # Timeout
+    cleanup(comparison_id)
     yield {
         "event": "error",
         "data": json.dumps({"error": "Progress stream timed out"})

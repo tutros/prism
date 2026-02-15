@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, AnyHttpUrl
 import asyncio
 import hashlib
 import uuid
@@ -22,7 +22,7 @@ from ..services.flip_service import (
 
 class SourceFlagRequest(BaseModel):
     """Request body for flagging a source URL."""
-    url: str
+    url: AnyHttpUrl
     flagged: bool
 
 router = APIRouter(prefix="/api", tags=["comparison"])
@@ -226,13 +226,14 @@ async def flag_source(comparison_id: str, data: SourceFlagRequest):
         raise HTTPException(status_code=404, detail="Comparison not found")
 
     # Set or update metadata for this URL
-    if data.url in result.source_metadata:
-        result.source_metadata[data.url].flagged = data.flagged
+    url_str = str(data.url)
+    if url_str in result.source_metadata:
+        result.source_metadata[url_str].flagged = data.flagged
     else:
-        result.source_metadata[data.url] = SourceMetadata(flagged=data.flagged)
+        result.source_metadata[url_str] = SourceMetadata(flagged=data.flagged)
 
     storage.write_result(comparison_id, result)
-    return {"url": data.url, "flagged": data.flagged}
+    return {"url": url_str, "flagged": data.flagged}
 
 
 def _dict_to_option_research(data: dict) -> OptionResearch:

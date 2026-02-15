@@ -20,3 +20,9 @@ def add_progress(comparison_id: str, status: str) -> None:
 def mark_complete(comparison_id: str) -> None:
     """Mark a comparison as complete."""
     progress_complete[comparison_id] = True
+
+
+def cleanup(comparison_id: str) -> None:
+    """Remove progress data for a comparison to prevent memory leaks."""
+    progress_store.pop(comparison_id, None)
+    progress_complete.pop(comparison_id, None)

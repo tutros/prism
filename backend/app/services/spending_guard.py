@@ -16,16 +16,16 @@ _lock = threading.Lock()
 
 def _load_today_cost() -> None:
     """Load today's accumulated cost from persisted usage records on startup."""
-    global _daily_cost_usd
+    global _today, _daily_cost_usd
     metrics_file = Path(__file__).parent.parent.parent / "data" / "usage_metrics.json"
+    _today = date.today().isoformat()
     if not metrics_file.exists():
         return
-    today = date.today().isoformat()
     try:
         records = json.loads(metrics_file.read_text())
         if isinstance(records, list):
             for r in records:
-                if r.get("timestamp", "").startswith(today):
+                if r.get("timestamp", "").startswith(_today):
                     _daily_cost_usd += r.get("cost_usd", 0.0)
     except Exception:
         pass  # Start fresh if file is corrupt

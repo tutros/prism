@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Criterion, SourceMetadata } from '../comparison/types'
 import { SourceLink } from './SourceLink'
@@ -30,6 +30,13 @@ export function CriteriaEditor({
     score_b: criterion.score_b,
   })
   const queryClient = useQueryClient()
+
+  // Sync draft when criterion props change (e.g. after optimistic rollback)
+  useEffect(() => {
+    if (!isEditing) {
+      setDraft({ name: criterion.name, score_a: criterion.score_a, score_b: criterion.score_b })
+    }
+  }, [criterion.name, criterion.score_a, criterion.score_b, isEditing])
 
   const updateMutation = useMutation({
     mutationFn: async (update: Partial<Criterion>) => {
@@ -202,7 +209,7 @@ export function CriteriaEditor({
             max="100"
             className="w-full border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={draft.score_a}
-            onChange={(e) => setDraft({ ...draft, score_a: Number(e.target.value) })}
+            onChange={(e) => setDraft({ ...draft, score_a: Math.max(0, Math.min(100, Number(e.target.value))) })}
           />
         </div>
         <div>
@@ -213,7 +220,7 @@ export function CriteriaEditor({
             max="100"
             className="w-full border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={draft.score_b}
-            onChange={(e) => setDraft({ ...draft, score_b: Number(e.target.value) })}
+            onChange={(e) => setDraft({ ...draft, score_b: Math.max(0, Math.min(100, Number(e.target.value))) })}
           />
         </div>
       </div>

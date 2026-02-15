@@ -78,7 +78,7 @@ export function AddCriterion({ comparisonId, optionAName, optionBName }: AddCrit
               max="100"
               className="w-full border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={form.score_a}
-              onChange={(e) => setForm({ ...form, score_a: Number(e.target.value) })}
+              onChange={(e) => setForm({ ...form, score_a: Math.max(0, Math.min(100, Number(e.target.value))) })}
             />
           </div>
           <div>
@@ -89,7 +89,7 @@ export function AddCriterion({ comparisonId, optionAName, optionBName }: AddCrit
               max="100"
               className="w-full border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={form.score_b}
-              onChange={(e) => setForm({ ...form, score_b: Number(e.target.value) })}
+              onChange={(e) => setForm({ ...form, score_b: Math.max(0, Math.min(100, Number(e.target.value))) })}
             />
           </div>
         </div>
@@ -102,7 +102,7 @@ export function AddCriterion({ comparisonId, optionAName, optionBName }: AddCrit
             max="100"
             className="w-full border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.weight}
-            onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
+            onChange={(e) => setForm({ ...form, weight: Math.max(0, Math.min(100, Number(e.target.value))) })}
           />
         </div>
       </div>
