@@ -17,9 +17,9 @@ cd backend && uvicorn app.main:app --reload
 
 ## Project Overview
 
-Hidden Cost Comparator - An AI-powered decision comparison tool that surfaces hidden costs and systemic impacts invisible in traditional comparisons.
+**decide/** — Unified AI-powered decision analysis tool. Supports N options (2–5+), three depth tiers (Quick/Medium/Deep), Consumer App UI, and plugs in AHP weight refinement + hidden property discovery.
 
-**Core value:** Surface the invisible threads that connect everyday choices to systemic impacts.
+Built by extending Orchids (`orchids-option-analysis-ui`). See `../tasks/PRD.md` for full requirements and `../tasks/todo.md` for build plan.
 
 ## Tech Stack
 
@@ -59,7 +59,7 @@ npx tsc --noEmit     # Type check
 ## Project Structure
 
 ```
-orchids-option-analysis-ui/
+decide/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py              # FastAPI app entry

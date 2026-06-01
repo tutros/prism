@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git check-ignore:*)",
+      "Bash(python -c:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(02-02\\): create Claude criteria generation service\n\n- Implement generate_criteria\\(\\) using Anthropic API\n- Structured output with CriterionOutput and CriteriaOutput Pydantic models\n- Prompt caching on system prompt for 90% cost reduction\n- Focus on non-obvious criteria \\(hidden costs, externalities, subsidies\\)\n- Source URL validation from Tavily research results\n- Graceful fallback on JSON parsing errors\nEOF\n\\)\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(timeout 5 python:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(type:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs"
+    ]
+  }
+}
