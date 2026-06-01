@@ -3,25 +3,35 @@ from typing import Literal
 from datetime import datetime
 
 
-class SourceMetadata(BaseModel):
-    """Quality and trust metadata for a single source URL."""
-    quality: Literal["peer-reviewed", "government", "industry", "news", "blog", "unknown"] = "unknown"
-    flagged: bool = False
-    last_verified: datetime | None = None
+class Decision(BaseModel):
+    id: str
+    title: str
+    options: list[str]
+    option_contexts: dict[str, str] = {}
+    intent: str
+    created_at: datetime
 
 
-class ComparisonInput(BaseModel):
-    option_a: str = Field(..., min_length=1, max_length=200)
-    option_b: str = Field(..., min_length=1, max_length=200)
+class DecisionInput(BaseModel):
+    options: list[str] = Field(..., min_length=1)
+    option_contexts: dict[str, str] = {}
     intent: str = Field(..., min_length=1, max_length=1000)
+    tier: Literal["quick", "medium", "deep"] | None = None
+
+
+class HiddenProperty(BaseModel):
+    name: str
+    category: str
+    magnitude: Literal["High", "Medium", "Low"]
+    confidence: Literal["high", "medium", "low"]
+    description: str
 
 
 class Criterion(BaseModel):
     id: str
     name: str
     description: str
-    score_a: float = Field(ge=0, le=100)
-    score_b: float = Field(ge=0, le=100)
+    scores: dict[str, float]  # keyed by option name, 0-100
     weight: float = Field(ge=0, le=100, default=50)
     sources: list[str] = []
     origin: Literal["ai", "user"] = "ai"
@@ -29,50 +39,31 @@ class Criterion(BaseModel):
 
 
 class CriterionCreate(BaseModel):
-    """Model for creating a new user criterion."""
     name: str = Field(..., min_length=1, max_length=200)
     description: str = Field(..., min_length=1, max_length=1000)
-    score_a: float = Field(..., ge=0, le=100)
-    score_b: float = Field(..., ge=0, le=100)
+    scores: dict[str, float]
     weight: float = Field(default=50, ge=0, le=100)
 
 
 class CriterionUpdate(BaseModel):
-    """Model for updating a criterion (all fields optional)."""
     name: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = Field(default=None, min_length=1, max_length=1000)
-    score_a: float | None = Field(default=None, ge=0, le=100)
-    score_b: float | None = Field(default=None, ge=0, le=100)
+    scores: dict[str, float] | None = None
     weight: float | None = Field(default=None, ge=0, le=100)
 
 
-class ActionableSuggestionModel(BaseModel):
-    """User-facing actionable suggestion."""
-    action: str
-    affected_criterion: str
-    impact: str
-    sources: list[str] = []
-
-
-class FlipAnalysisResponse(BaseModel):
-    """Response from flip analysis endpoint."""
-    suggestions: list[ActionableSuggestionModel] = []
-    sensitivity: dict[str, float] = {}
-
-
-class ComparisonResult(BaseModel):
-    comparison_id: str
+class AnalysisResult(BaseModel):
+    analysis_id: str
+    decision_id: str
+    tier: Literal["quick", "medium", "deep"]
     status: Literal["processing", "completed", "error"]
-    option_a_name: str
-    option_b_name: str
-    intent: str
-    criteria: list[Criterion] = []
-    winner: Literal["a", "b", "tie"] | None = None
+    options: list[str]
+    winner: str | None = None
     reasoning: str = ""
+    criteria: list[Criterion] = []
+    weights_original: dict[str, float] = {}
+    weights_current: dict[str, float] = {}
+    research: dict[str, dict] = {}
+    hidden_properties: list[HiddenProperty] = []
     created_at: datetime
     completed_at: datetime | None = None
-    # Cached research for Go Deeper / Regenerate Weights
-    research_a: dict | None = None
-    research_b: dict | None = None
-    source_metadata: dict[str, SourceMetadata] = {}  # keyed by URL
-    tavily_cached_at: str | None = None  # ISO timestamp if Tavily data came from cache
