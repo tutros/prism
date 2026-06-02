@@ -1,76 +1,81 @@
 import { useHistory } from './useHistory'
+import { apiGet } from '../../lib/api'
+import type { AnalysisResult } from '../../lib/api'
+import { useQueries } from '@tanstack/react-query'
 
-interface HistoryListProps {
-  onSelect: (comparisonId: string) => void
-  currentId: string | null
+interface Props {
+  activeDecisionId: string | null
+  onSelect: (decisionId: string, analysisId: string) => void
 }
 
-export function HistoryList({ onSelect, currentId }: HistoryListProps) {
-  const { data, isLoading, error } = useHistory()
+const TIER_STYLE: Record<string, { bg: string; color: string }> = {
+  quick:  { bg: '#fff4e0', color: '#d97706' },
+  medium: { bg: '#e7f5e8', color: '#16a34a' },
+  deep:   { bg: '#ede8ff', color: '#5b3df5' },
+}
 
-  if (isLoading) {
-    return (
-      <div className="text-sm text-gray-500">Loading history...</div>
-    )
-  }
+export function HistoryList({ activeDecisionId, onSelect }: Props) {
+  const { data, isLoading } = useHistory()
+  const decisions = data?.decisions ?? []
 
-  if (error) {
-    return (
-      <div className="text-sm text-red-600">Failed to load history</div>
-    )
-  }
+  // Fetch latest analysis for each decision to get tier + winner
+  const analysisQueries = useQueries({
+    queries: decisions.map(d => ({
+      queryKey: ['analyses-list', d.decision_id],
+      queryFn: () => apiGet<{ analyses: AnalysisResult[] }>(`/api/decisions/${d.decision_id}/analyses`),
+      staleTime: 30000,
+    })),
+  })
 
-  const comparisons = data?.comparisons ?? []
-
-  if (comparisons.length === 0) {
-    return (
-      <div className="text-sm text-gray-500">No previous comparisons</div>
-    )
-  }
-
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return ''
-    const date = new Date(dateStr)
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
+  if (isLoading) return <p style={{ fontSize: 12, color: 'var(--txm)', padding: '8px 4px' }}>Loading…</p>
+  if (decisions.length === 0) return <p style={{ fontSize: 12, color: 'var(--txm)', padding: '8px 4px' }}>No analyses yet.</p>
 
   return (
-    <div className="space-y-2">
-      {comparisons.map((comparison) => (
-        <button
-          key={comparison.comparison_id}
-          onClick={() => onSelect(comparison.comparison_id)}
-          className={`w-full text-left p-3 rounded-lg border transition-colors ${
-            currentId === comparison.comparison_id
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-200 bg-white hover:bg-gray-50'
-          }`}
-        >
-          <div className="flex justify-between items-start">
-            <div className="min-w-0 flex-1">
-              <p className="font-medium text-gray-900 truncate">
-                {comparison.option_a_name} vs {comparison.option_b_name}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {formatDate(comparison.created_at)}
-              </p>
+    <>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--txm)', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 14 }}>
+        Past Analyses
+      </div>
+      {decisions.map((d, i) => {
+        const analyses = analysisQueries[i]?.data?.analyses ?? []
+        const latest = analyses[analyses.length - 1]
+        const tier = latest?.tier ?? 'medium'
+        const tierStyle = TIER_STYLE[tier] ?? TIER_STYLE.medium
+        const isActive = d.decision_id === activeDecisionId
+
+        return (
+          <div
+            key={d.decision_id}
+            onClick={() => latest && onSelect(d.decision_id, latest.analysis_id)}
+            style={{
+              padding: '11px 13px', borderRadius: 12, cursor: latest ? 'pointer' : 'default',
+              marginBottom: 6, border: `1px solid ${isActive ? 'var(--ac)' : 'transparent'}`,
+              background: isActive ? 'var(--ac-dim)' : 'transparent', transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'var(--sf2)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--bd)' } }}
+            onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent' } }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--txb)', marginBottom: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {d.title}
             </div>
-            <span className={`ml-2 px-2 py-0.5 text-xs rounded ${
-              currentId === comparison.comparison_id
-                ? 'bg-blue-100 text-blue-700'
-                : comparison.status === 'completed'
-                ? 'bg-green-100 text-green-700'
-                : comparison.status === 'processing'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-red-100 text-red-700'
-            }`}>
-              {currentId === comparison.comparison_id
-                ? 'reviewing'
-                : comparison.status}
-            </span>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, background: tierStyle.bg, color: tierStyle.color }}>
+                {tier}
+              </span>
+              {latest?.winner && (
+                <span style={{ fontSize: 11, color: 'var(--ac)', fontWeight: 600 }}>→ {latest.winner}</span>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {d.options.slice(0, 3).map(o => (
+                <span key={o} style={{ fontSize: 10, color: 'var(--txm)', background: 'var(--sf2)', padding: '1px 7px', borderRadius: 100, border: '1px solid var(--bd)' }}>{o}</span>
+              ))}
+              {d.options.length > 3 && (
+                <span style={{ fontSize: 10, color: 'var(--txm)' }}>+{d.options.length - 3}</span>
+              )}
+            </div>
           </div>
-        </button>
-      ))}
-    </div>
+        )
+      })}
+    </>
   )
 }

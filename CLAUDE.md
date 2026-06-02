@@ -131,6 +131,20 @@ ANTHROPIC_API_KEY=sk-ant-... # https://console.anthropic.com/settings/keys
 - `GET /health` - Readiness check
 - `GET /api/monitoring` - Token usage and cost stats
 
+## Testing Approach
+
+**Backend — TDD (red-green-refactor):**
+- Write a failing test first, then implement, then refactor
+- Tests live in `backend/tests/`, run with `pytest` from the `backend/` directory
+- Mock external APIs (Claude, Tavily) — never hit real APIs in tests
+- One test file per service/router file (e.g. `test_orchestrator.py` for `orchestrator.py`)
+
+**Frontend — component tests where they add value:**
+- Test components that have meaningful logic (form validation, scoring calculations, state transitions)
+- Skip pure presentational components
+- Use Vitest + React Testing Library
+- Don't test implementation details — test behavior from the user's perspective
+
 ## Key Patterns
 
 - **Async processing:** POST returns 202, frontend polls for results

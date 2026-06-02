@@ -1,16 +1,41 @@
 @import "tailwindcss";
 
-/* Base styles for the app */
+:root {
+  --bg:   #f4f5ff;
+  --sf:   #ffffff;
+  --sf2:  #eef0fb;
+  --bd:   #e2e5f5;
+  --ac:   #5b3df5;
+  --ac-dim: rgba(91,61,245,.08);
+  --tx:   #2a2a45;
+  --txb:  #0d0d22;
+  --txm:  #8088b0;
+  --r:    14px;
+}
+
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Highlight flash animation for scroll-to targets */
-@keyframes highlight-flash {
-  0% { background-color: rgb(219 234 254); } /* blue-100 */
-  100% { background-color: white; }
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bd);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--ac);
 }
 
-.highlight-flash {
-  animation: highlight-flash 1.5s ease-out;
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ac);
+  cursor: pointer;
 }

@@ -1,30 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
-import type { ComparisonResult } from '../comparison/types'
+import type { AnalysisResult } from '../../lib/api'
 
-const POLL_TIMEOUT_MS = 120_000 // Stop polling after 2 minutes
+const POLL_TIMEOUT_MS = 120_000
 
-export function useResults(comparisonId: string | null) {
-  const pollStartRef = { current: Date.now() }
-
+export function useResults(analysisId: string | null, decisionId?: string | null) {
+  const startTime = Date.now()
   return useQuery({
-    queryKey: ['comparison', comparisonId],
-    queryFn: async () => {
-      if (!comparisonId) throw new Error('No comparison ID')
-      return apiGet<ComparisonResult>(`/api/results/${comparisonId}`)
+    queryKey: ['analysis', decisionId, analysisId],
+    queryFn: () => {
+      if (!analysisId || !decisionId) throw new Error('Missing IDs')
+      return apiGet<AnalysisResult>(`/api/decisions/${decisionId}/analyses/${analysisId}`)
     },
-    enabled: !!comparisonId,
+    enabled: !!analysisId && !!decisionId,
     refetchInterval: (query) => {
       const data = query.state.data
-      if (!data || data.status === 'completed' || data.status === 'error') {
-        return false
-      }
-      // Stop polling if stuck in processing too long
-      if (Date.now() - pollStartRef.current > POLL_TIMEOUT_MS) {
-        return false
-      }
-      return 1000
+      if (!data || data.status === 'completed' || data.status === 'error') return false
+      if (Date.now() - startTime > POLL_TIMEOUT_MS) return false
+      return 1500
     },
-    retry: 1, // Reduce retries to avoid 14s freeze during 1s polling
+    retry: 1,
   })
 }

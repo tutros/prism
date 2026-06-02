@@ -145,6 +145,29 @@ async def create_analysis(decision_id: str, body: _AnalysisInput, background_tas
     return JSONResponse(status_code=202, content={"analysis_id": analysis_id})
 
 
+@router.get("/decisions/{decision_id}/analyses")
+async def list_analyses(decision_id: str):
+    if not storage.read_decision(decision_id):
+        raise HTTPException(status_code=404, detail="Decision not found")
+    ids = await asyncio.to_thread(storage.list_analyses, decision_id)
+    analyses = []
+    for aid in ids:
+        a = await asyncio.to_thread(storage.read_analysis, decision_id, aid)
+        if a:
+            analyses.append({
+                "analysis_id": a.analysis_id,
+                "decision_id": a.decision_id,
+                "tier": a.tier,
+                "status": a.status,
+                "options": a.options,
+                "winner": a.winner,
+                "created_at": a.created_at.isoformat(),
+                "completed_at": a.completed_at.isoformat() if a.completed_at else None,
+            })
+    analyses.sort(key=lambda x: x["created_at"], reverse=True)
+    return {"analyses": analyses}
+
+
 @router.get("/decisions/{decision_id}/analyses/{analysis_id}")
 async def get_analysis(decision_id: str, analysis_id: str):
     result = storage.read_analysis(decision_id, analysis_id)

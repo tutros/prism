@@ -1,88 +1,32 @@
 import { useEffect, useState, useCallback } from 'react'
 import { API_BASE } from '../../lib/api'
 
-interface ProgressState {
-  status: string
-  error: string | null
-  complete: boolean
-  connected: boolean
-}
+export function useProgress(analysisId: string | null) {
+  const [messages, setMessages] = useState<string[]>([])
 
-export function useProgress(comparisonId: string | null) {
-  const [state, setState] = useState<ProgressState>({
-    status: 'Initializing...',
-    error: null,
-    complete: false,
-    connected: false,
-  })
-
-  const resetProgress = useCallback(() => {
-    setState({
-      status: 'Initializing...',
-      error: null,
-      complete: false,
-      connected: false,
-    })
-  }, [])
+  const reset = useCallback(() => setMessages([]), [])
 
   useEffect(() => {
-    if (!comparisonId) return
+    if (!analysisId) return
+    reset()
 
-    // Reset state for new comparison
-    resetProgress()
+    const es = new EventSource(`${API_BASE}/api/progress/${analysisId}`)
 
-    const eventSource = new EventSource(`${API_BASE}/api/progress/${comparisonId}`)
-
-    eventSource.onopen = () => {
-      setState(prev => ({ ...prev, connected: true }))
-    }
-
-    eventSource.addEventListener('progress', (event) => {
+    es.addEventListener('progress', (event) => {
       try {
-        const data = JSON.parse(event.data)
-        setState(prev => ({ ...prev, status: data.status }))
-      } catch (e) {
-        console.error('Failed to parse progress event:', e)
-      }
+        const data = JSON.parse((event as MessageEvent).data)
+        if (data.status) setMessages(prev => [...prev, data.status])
+      } catch { /* ignore */ }
     })
 
-    eventSource.addEventListener('complete', () => {
-      setState(prev => ({ ...prev, complete: true, status: 'Complete' }))
-      eventSource.close()
-    })
+    es.addEventListener('complete', () => es.close())
 
-    eventSource.addEventListener('error', (event) => {
-      // Check if it's a custom error event with data
-      if (event instanceof MessageEvent && event.data) {
-        try {
-          const data = JSON.parse(event.data)
-          setState(prev => ({ ...prev, error: data.error }))
-        } catch (e) {
-          setState(prev => ({ ...prev, error: 'Connection error' }))
-        }
-      }
-      eventSource.close()
-    })
+    es.addEventListener('error', () => es.close())
 
-    eventSource.onerror = () => {
-      // Connection error - close to prevent infinite reconnect loop
-      setState(prev => {
-        if (!prev.connected) {
-          // Never connected - close and fall back to polling
-          eventSource.close()
-          return { ...prev, error: 'Unable to connect to progress stream' }
-        }
-        // Was connected but dropped - close to stop auto-reconnect
-        // The results polling via useResults will pick up the completed result
-        eventSource.close()
-        return prev
-      })
-    }
+    es.onerror = () => es.close()
 
-    return () => {
-      eventSource.close()
-    }
-  }, [comparisonId, resetProgress])
+    return () => es.close()
+  }, [analysisId, reset])
 
-  return state
+  return { messages }
 }

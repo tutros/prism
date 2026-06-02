@@ -1,10 +1,10 @@
-import { Component, useState, useEffect } from 'react'
+import { Component, useState } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { ComparisonForm } from './features/comparison/ComparisonForm'
+import { DecisionForm } from './features/comparison/DecisionForm'
+import { ProgressView } from './features/progress/ProgressView'
 import { ResultsDisplay } from './features/results/ResultsDisplay'
 import { HistoryList } from './features/history/HistoryList'
-import { useResults } from './features/results/useResults'
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -14,25 +14,22 @@ class ErrorBoundary extends Component<
     super(props)
     this.state = { hasError: false, error: null }
   }
-
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error }
   }
-
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, info.componentStack)
+    console.error('ErrorBoundary:', error, info.componentStack)
   }
-
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
-          <div className="bg-white p-6 rounded-lg shadow max-w-md">
-            <h2 className="text-lg font-semibold text-red-700 mb-2">Something went wrong</h2>
-            <p className="text-sm text-gray-600 mb-4">{this.state.error?.message}</p>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <div style={{ background: 'var(--sf)', padding: 24, borderRadius: 'var(--r)', border: '1px solid var(--bd)', maxWidth: 400 }}>
+            <h2 style={{ color: '#dc2626', marginBottom: 8, fontWeight: 700 }}>Something went wrong</h2>
+            <p style={{ color: 'var(--txm)', fontSize: 14, marginBottom: 16 }}>{this.state.error?.message}</p>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+              style={{ padding: '8px 20px', background: 'var(--ac)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit' }}
             >
               Try Again
             </button>
@@ -44,117 +41,119 @@ class ErrorBoundary extends Component<
   }
 }
 
+interface ActiveAnalysis {
+  decisionId: string
+  analysisId: string
+}
+
+function parseHash(): ActiveAnalysis | null {
+  const hash = window.location.hash.slice(1)
+  const parts = hash.split(':')
+  if (parts.length === 2 && parts[0] && parts[1]) {
+    return { decisionId: parts[0], analysisId: parts[1] }
+  }
+  return null
+}
+
 function App() {
-  // Restore comparisonId from URL hash on mount (survives browser refresh)
-  const [comparisonId, setComparisonId] = useState<string | null>(() => {
-    const hash = window.location.hash.slice(1)
-    return hash || null
-  })
-  const [formKey, setFormKey] = useState(0)
+  const [active, setActive] = useState<ActiveAnalysis | null>(() => parseHash())
+  const [analysisStarted, setAnalysisStarted] = useState(false)
   const queryClient = useQueryClient()
-  const { data: result } = useResults(comparisonId)
 
-  // Sync comparisonId to URL hash
-  useEffect(() => {
-    window.location.hash = comparisonId ?? ''
-  }, [comparisonId])
-
-  const handleNewComparison = (id: string) => {
-    setComparisonId(id)
-    // Invalidate comparison data (dedup may return same id with updated fields)
-    queryClient.invalidateQueries({ queryKey: ['comparison', id] })
-    // Invalidate history to include new comparison
-    queryClient.invalidateQueries({ queryKey: ['history'] })
+  const handleAnalysisCreated = (decisionId: string, analysisId: string) => {
+    const next = { decisionId, analysisId }
+    setActive(next)
+    setAnalysisStarted(true)
+    window.location.hash = `${decisionId}:${analysisId}`
+    queryClient.invalidateQueries({ queryKey: ['decisions'] })
   }
 
-  const handleSelectHistory = (id: string) => {
-    setComparisonId(id)
+  const handleAnalysisComplete = () => {
+    setAnalysisStarted(false)
   }
 
-  const handleNewComparisonClick = () => {
-    setComparisonId(null)
-    setFormKey((k) => k + 1) // Force form reset
+  const handleSelectHistory = (decisionId: string, analysisId: string) => {
+    const next = { decisionId, analysisId }
+    setActive(next)
+    setAnalysisStarted(false)
+    window.location.hash = `${decisionId}:${analysisId}`
+  }
+
+  const handleNew = () => {
+    setActive(null)
+    setAnalysisStarted(false)
+    window.location.hash = ''
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <header className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Hidden Cost Comparator
-              </h1>
-              <p className="text-gray-600 text-sm sm:text-base">
-                Compare options by surfacing hidden costs and systemic impacts.
-              </p>
-            </div>
-            {comparisonId && (
-              <button
-                onClick={handleNewComparisonClick}
-                className="self-start px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                New Comparison
-              </button>
-            )}
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar - History */}
-          <aside className="lg:col-span-1 order-2 lg:order-1">
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-4">History</h2>
-              <HistoryList
-                onSelect={handleSelectHistory}
-                currentId={comparisonId}
-              />
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className="lg:col-span-3 space-y-8 order-1 lg:order-2">
-            {!comparisonId && (
-              <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">Compare Options</h2>
-                <ComparisonForm
-                  key={formKey}
-                  onSubmit={handleNewComparison}
-                />
-              </section>
-            )}
-
-            {comparisonId && !result && (
-              <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-                <div className="flex items-center gap-3 text-gray-600">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Loading comparison...
-                </div>
-              </section>
-            )}
-
-            {comparisonId && result && (
-              <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">Results</h2>
-                <ResultsDisplay result={result} comparisonId={comparisonId} onNewComparison={handleNewComparison} />
-              </section>
-            )}
-          </main>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'inherit' }}>
+      {/* Nav */}
+      <nav style={{
+        background: 'var(--sf)', borderBottom: '1px solid var(--bd)', padding: '0 28px',
+        height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        boxShadow: '0 1px 16px rgba(91,61,245,.07)', position: 'sticky', top: 0, zIndex: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 11, background: 'var(--ac)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontSize: 18, fontWeight: 800,
+          }}>⟁</div>
+          <span style={{ fontSize: 19, fontWeight: 800, color: 'var(--txb)', letterSpacing: '-0.03em' }}>Decide</span>
         </div>
+        {active && (
+          <button
+            onClick={handleNew}
+            style={{
+              fontSize: 13, fontWeight: 700, color: 'var(--ac)', background: 'var(--ac-dim)',
+              border: 'none', padding: '8px 18px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            + New
+          </button>
+        )}
+      </nav>
+
+      <div style={{ display: 'flex' }}>
+        {/* Sidebar */}
+        <aside style={{
+          width: 256, flexShrink: 0, padding: '22px 16px', borderRight: '1px solid var(--bd)',
+          background: 'var(--sf)', minHeight: 'calc(100vh - 58px)', position: 'sticky', top: 58,
+          overflowY: 'auto', maxHeight: 'calc(100vh - 58px)',
+        }}>
+          <HistoryList
+            activeDecisionId={active?.decisionId ?? null}
+            onSelect={handleSelectHistory}
+          />
+        </aside>
+
+        {/* Main */}
+        <main style={{ flex: 1, padding: '32px 36px', maxWidth: 860 }}>
+          {!active && (
+            <DecisionForm onAnalysisCreated={handleAnalysisCreated} />
+          )}
+          {active && analysisStarted && (
+            <ProgressView
+              analysisId={active.analysisId}
+              onComplete={handleAnalysisComplete}
+            />
+          )}
+          {active && !analysisStarted && (
+            <ResultsDisplay
+              decisionId={active.decisionId}
+              analysisId={active.analysisId}
+            />
+          )}
+        </main>
       </div>
     </div>
   )
 }
 
-function AppWithErrorBoundary() {
+export default function AppWithErrorBoundary() {
   return (
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
   )
 }
-
-export default AppWithErrorBoundary
