@@ -92,25 +92,15 @@ def get_cache_stats() -> dict:
     }
 
 
-async def search_both_options(
-    option_a: str, option_b: str, force_refresh: bool = False
-) -> tuple[OptionResearch, OptionResearch]:
-    """Search for both options in parallel using asyncio.gather.
-
-    Uses return_exceptions=True to handle partial failures gracefully.
-    """
-    results = await asyncio.gather(
-        search_option(option_a, force_refresh=force_refresh),
-        search_option(option_b, force_refresh=force_refresh),
+async def search_all_options(
+    options: list[str], force_refresh: bool = False
+) -> dict[str, OptionResearch]:
+    """Search for all options in parallel. Returns dict keyed by option name."""
+    raw = await asyncio.gather(
+        *[search_option(opt, force_refresh=force_refresh) for opt in options],
         return_exceptions=True,
     )
-
-    # Handle any exceptions from gather
-    research_a = results[0] if not isinstance(results[0], Exception) else OptionResearch(
-        option=option_a, results=[], error=str(results[0])
-    )
-    research_b = results[1] if not isinstance(results[1], Exception) else OptionResearch(
-        option=option_b, results=[], error=str(results[1])
-    )
-
-    return research_a, research_b
+    return {
+        opt: (r if not isinstance(r, Exception) else OptionResearch(option=opt, results=[], error=str(r)))
+        for opt, r in zip(options, raw)
+    }
