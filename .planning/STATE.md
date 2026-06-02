@@ -1,50 +1,36 @@
-# Project State: Hidden Cost Comparator
+# Project State: decide/
 
-## Current Phase
+## Current Status
 
-**v1.0 milestone complete — ready for next milestone**
+**Phase 6 of 6 — integration smoke test**  
+Last activity: 2026-06-02 — phase-5 committed (Consumer App UI + analyses list endpoint)
 
-Phase: 6 of 6 (all complete)
-Status: Milestone shipped
-Last activity: 2026-02-14 — v1.0 milestone archived
-
-Progress: SHIPPED v1.0
-
-**Next action:** `/gsd:new-milestone`
-
-## Project Reference
-
-See: `.planning/PROJECT.md` (updated 2026-02-14)
-
-**Core value:** Surface the invisible threads that connect everyday choices to systemic impacts
-**Current focus:** Planning next milestone
+**Next action:** Run integration smoke test (see `tasks/PRD.md` Phase 6 checklist)
 
 ## Progress
 
-| Phase | Milestone | Status | Plans |
-|-------|-----------|--------|-------|
-| 1 - Foundation + Core Trust | v1.0 | Shipped | 5/5 |
-| 2 - AI Integration + Async Orchestration | v1.0 | Shipped | 3/3 |
-| 3 - Interactive Analysis + Flip Detection | v1.0 | Shipped | 3/3 |
-| 4 - Source Quality + Confidence Signals | v1.0 | Shipped | 3/3 |
-| 5 - Cost Optimization + Scaling Prep | v1.0 | Shipped | 3/3 |
-| 6 - Tech Debt Cleanup | v1.0 | Shipped | 3/3 |
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Scaffold new app from Orchids | ✅ Done |
+| 2 | Backend: data model (N options + depth tier) | ✅ Done |
+| 3 | Backend: pipeline (Quick + Medium tiers) | ✅ Done |
+| 4 | Backend: Deep tier (hidden properties) | ✅ Done |
+| 5 | Frontend: Consumer App UI | ✅ Done |
+| 6 | Integration + smoke test | ⬜ Next |
 
-## Accumulated Context
+## Key Facts
 
-### Key Decisions
+- Endpoint hierarchy: `POST/GET /api/decisions`, `POST/GET /api/decisions/{id}/analyses`, `GET /api/decisions/{id}/analyses/{aid}`
+- Three depth tiers: Quick (LLM only ~5s), Medium (Tavily + LLM ~30–60s), Deep (Medium + hidden properties ~2–5min)
+- Client-side scoring: weight slider changes recalculate winner without an API call (`lib/scoring.ts`)
+- Data lives in `decide/backend/data/` (gitignored)
 
-See `.planning/PROJECT.md` Key Decisions table for full list with outcomes.
-
-### Known Blockers
-
-None.
-
-### Known Limitations
+## Known Limitations
 
 - Prompt caching annotation correct but inactive (system prompt below minimum token threshold)
-- DELETE criteria route exists in backend but no frontend UI
+- AHP pairwise refinement endpoint defined in PRD but not yet implemented
+- DELETE criterion has no frontend UI
 
 ---
-*Last updated: 2026-02-14 after v1.0 milestone completion*
-*Next: `/gsd:new-milestone`*
+*Tracking doc: `tasks/PRD.md`*  
+*Last updated: 2026-06-02*

@@ -4,14 +4,15 @@ import { useResults } from '../results/useResults'
 
 interface Props {
   analysisId: string
+  decisionId: string
   onComplete: () => void
 }
 
 const TIER_EMOJI: Record<string, string> = { quick: '⚡', medium: '🔍', deep: '🔬' }
 
-export function ProgressView({ analysisId, onComplete }: Props) {
+export function ProgressView({ analysisId, decisionId, onComplete }: Props) {
   const { messages } = useProgress(analysisId)
-  const { data: result } = useResults(analysisId)
+  const { data: result } = useResults(analysisId, decisionId)
 
   useEffect(() => {
     if (result?.status === 'completed' || result?.status === 'error') {

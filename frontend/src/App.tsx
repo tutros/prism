@@ -135,6 +135,7 @@ function App() {
           {active && analysisStarted && (
             <ProgressView
               analysisId={active.analysisId}
+              decisionId={active.decisionId}
               onComplete={handleAnalysisComplete}
             />
           )}
