@@ -8,6 +8,7 @@ from typing import Literal
 from ..models import AnalysisResult, Criterion
 from .tavily_service import search_all_options, OptionResearch
 from .claude_service import generate_criteria_quick, generate_criteria_medium
+from .hidden_service import discover_hidden_properties
 from .progress_store import add_progress, mark_complete
 
 
@@ -65,11 +66,25 @@ async def run_analysis(
             )
         add_progress(analysis_id, f"Generated {len(output.criteria)} criteria")
 
-    # Deep tier: hidden properties (Phase 4 — no-op for now)
+    # Serialise research for JSON storage (empty for Quick tier)
+    research_store: dict = {}
+    if tier != "quick":
+        research_store = {
+            opt: asdict(res) for opt, res in research_by_option.items()
+        }
+
+    # Deep tier: hidden properties
     hidden_properties = []
     if tier == "deep":
         add_progress(analysis_id, "Discovering hidden properties...")
-        # Phase 4 wires hidden_service here
+        try:
+            hidden_properties = await discover_hidden_properties(
+                options=options,
+                intent=intent,
+                research=research_store,
+            )
+        except Exception:
+            pass  # hidden properties are best-effort; don't fail the analysis
 
     # Build criteria with generated IDs
     criteria = [
@@ -89,13 +104,6 @@ async def run_analysis(
     # Weights derived from criteria weight fields (normalised to sum 1.0)
     total = sum(c.weight for c in criteria) or 1.0
     weights = {c.name: round(c.weight / total, 4) for c in criteria}
-
-    # Research stored as plain dicts for JSON serialisation
-    research_store: dict = {}
-    if tier != "quick":
-        research_store = {
-            opt: asdict(res) for opt, res in research_by_option.items()
-        }
 
     add_progress(analysis_id, "Finalizing...")
     mark_complete(analysis_id)
