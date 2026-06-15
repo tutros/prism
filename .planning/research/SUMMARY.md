@@ -1,6 +1,6 @@
 # Project Research Summary
 
-**Project:** Hidden Cost Comparator (AI-powered Decision Comparison Tool)
+**Project:** Prism (AI-powered Decision Comparison Tool)
 **Domain:** AI-powered web application for decision support
 **Researched:** 2026-02-01
 **Confidence:** HIGH

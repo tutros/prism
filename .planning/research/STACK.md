@@ -422,4 +422,4 @@ ruff>=0.8.0
 ---
 
 *Last updated: 2026-02-01*
-*Research conducted for: Hidden Cost Comparator (AI-powered decision comparison tool)*
+*Research conducted for: Prism (AI-powered decision comparison tool)*

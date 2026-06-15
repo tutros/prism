@@ -10,7 +10,7 @@ provides:
   - Vite + React 19 + TypeScript frontend scaffold
   - TanStack Query v5 client with 1-minute staleTime and DevTools
   - Tailwind CSS v4 styling via Vite plugin with base body styles
-  - Hidden Cost Comparator landing page shell
+  - Prism landing page shell
 affects:
   - 01-03 (comparison flow UI)
   - 01-04 (weight system UI)
@@ -69,7 +69,7 @@ completed: 2026-02-04
 - Scaffolded Vite + React + TypeScript project with zero lint/type errors
 - Configured TanStack Query v5 with QueryClientProvider and ReactQueryDevtools (flower icon, initially closed)
 - Set up Tailwind CSS v4 using the @tailwindcss/vite plugin with base body styles and utility classes
-- Created the Hidden Cost Comparator app shell with styled heading and card
+- Created the Prism app shell with styled heading and card
 
 ## Task Commits
 
@@ -91,7 +91,7 @@ Each task was committed atomically:
 - `frontend/src/main.tsx` - React entry point with QueryClientProvider and DevTools
 - `frontend/src/lib/queryClient.ts` - TanStack Query client (staleTime 1min, no refetch on focus)
 - `frontend/src/index.css` - Tailwind v4 import and base body styles
-- `frontend/src/App.tsx` - App shell with Hidden Cost Comparator heading and card
+- `frontend/src/App.tsx` - App shell with Prism heading and card
 - `frontend/src/App.css` - Deleted (replaced by Tailwind utility classes)
 
 ## Decisions Made

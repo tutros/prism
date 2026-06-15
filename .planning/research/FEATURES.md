@@ -229,7 +229,7 @@ Rating each feature's implementation difficulty (Low/Medium/High) based on techn
 ### Cost Analysis Patterns
 - **LCCA tools focus on Total Cost of Ownership:** Initial + operational + maintenance + end-of-life ([WBDG](https://www.wbdg.org/resources/life-cycle-cost-analysis-lcca))
 - **Hidden costs are often overlooked:** Training, integration, disposal, externalities ([Business Case Analysis](https://www.business-case-analysis.com/total-cost-of-ownership.html))
-- **Implication:** "Hidden Cost Comparator" aligns perfectly with LCCA methodology. This is a validated approach
+- **Implication:** "Prism" aligns perfectly with LCCA methodology. This is a validated approach
 
 ### What-If Analysis Patterns
 - **Real-time recalculation is expected:** Users adjust variables and see instant results ([Cube](https://www.cubesoftware.com/scenario-what-if-analysis))

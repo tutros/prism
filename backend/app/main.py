@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import health, comparison, progress, monitoring
 
 app = FastAPI(
-    title="Hidden Cost Comparator API",
+    title="Prism API",
     description="Compare options by surfacing hidden costs and systemic impacts",
     version="0.1.0",
 )
@@ -28,4 +28,4 @@ app.include_router(monitoring.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Hidden Cost Comparator API", "docs": "/docs"}
+    return {"message": "Prism API", "docs": "/docs"}

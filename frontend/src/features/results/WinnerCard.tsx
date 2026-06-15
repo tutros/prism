@@ -12,7 +12,7 @@ const CONFIDENCE_STYLE: Record<string, { bg: string; color: string; label: strin
   low:    { bg: '#fee2e2', color: '#dc2626', label: 'Low Confidence' },
 }
 
-function overallConfidence(scores: ReturnType<typeof calcWeightedScores>, result: AnalysisResult): string {
+function overallConfidence(result: AnalysisResult): string {
   const highCount = result.criteria.filter(c => c.confidence === 'high').length
   const total = result.criteria.length
   if (total === 0) return 'low'
@@ -24,7 +24,7 @@ function overallConfidence(scores: ReturnType<typeof calcWeightedScores>, result
 export function WinnerCard({ result, weights }: Props) {
   const scores = calcWeightedScores(result.criteria, result.options, weights)
   const winner = scores[0]
-  const conf = overallConfidence(scores, result)
+  const conf = overallConfidence(result)
   const confStyle = CONFIDENCE_STYLE[conf]
   const maxScore = scores[0]?.score ?? 1
 

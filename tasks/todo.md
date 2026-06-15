@@ -1,4 +1,4 @@
-# Code Review: Hidden Cost Comparator v1.0
+# Code Review: Prism v1.0
 
 **Reviewed:** 2026-02-14
 **Scope:** Full codebase (~3,640 LOC across 43 source files)

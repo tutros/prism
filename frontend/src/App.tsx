@@ -99,7 +99,7 @@ function App() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontSize: 18, fontWeight: 800,
           }}>⟁</div>
-          <span style={{ fontSize: 19, fontWeight: 800, color: 'var(--txb)', letterSpacing: '-0.03em' }}>Decide</span>
+          <span style={{ fontSize: 19, fontWeight: 800, color: 'var(--txb)', letterSpacing: '-0.03em' }}>Prism</span>
         </div>
         {active && (
           <button

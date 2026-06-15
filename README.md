@@ -1,4 +1,4 @@
-# Hidden Cost Comparator
+# Prism
 
 An AI-powered decision comparison tool that surfaces hidden costs and systemic impacts invisible in traditional comparisons.
 
