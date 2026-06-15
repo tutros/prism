@@ -49,7 +49,6 @@ async def _run_analysis_bg(
         )
         storage.write_analysis(result)
     except Exception as e:
-        mark_complete(analysis_id)
         storage.write_analysis(AnalysisResult(
             analysis_id=analysis_id,
             decision_id=decision_id,
@@ -60,6 +59,7 @@ async def _run_analysis_bg(
             created_at=datetime.now(timezone.utc),
             completed_at=datetime.now(timezone.utc),
         ))
+        mark_complete(analysis_id)
 
 
 # ── Decision endpoints ────────────────────────────────────────────────────────

@@ -5,3 +5,4 @@ anthropic==0.75.0
 tavily-python==0.7.21
 sse-starlette==3.0.3
 cachetools==6.2.2
+truststore==0.10.4

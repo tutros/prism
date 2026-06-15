@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
-from typing import Literal
+from typing import Annotated, Literal
 from datetime import datetime
+from pydantic import BaseModel, Field
 
 
 class Decision(BaseModel):
@@ -13,7 +13,7 @@ class Decision(BaseModel):
 
 
 class DecisionInput(BaseModel):
-    options: list[str] = Field(..., min_length=1)
+    options: list[Annotated[str, Field(min_length=1, max_length=200)]] = Field(..., min_length=2, max_length=10)
     option_contexts: dict[str, str] = {}
     intent: str = Field(..., min_length=1, max_length=1000)
     tier: Literal["quick", "medium", "deep"] | None = None

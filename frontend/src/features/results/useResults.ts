@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import type { AnalysisResult } from '../../lib/api'
@@ -5,7 +6,7 @@ import type { AnalysisResult } from '../../lib/api'
 const POLL_TIMEOUT_MS = 120_000
 
 export function useResults(analysisId: string | null, decisionId?: string | null) {
-  const startTime = Date.now()
+  const startTimeRef = useRef(Date.now())
   return useQuery({
     queryKey: ['analysis', decisionId, analysisId],
     queryFn: () => {
@@ -16,7 +17,7 @@ export function useResults(analysisId: string | null, decisionId?: string | null
     refetchInterval: (query) => {
       const data = query.state.data
       if (!data || data.status === 'completed' || data.status === 'error') return false
-      if (Date.now() - startTime > POLL_TIMEOUT_MS) return false
+      if (Date.now() - startTimeRef.current > POLL_TIMEOUT_MS) return false
       return 1500
     },
     retry: 1,

@@ -1,6 +1,7 @@
 """Claude API service for criteria generation."""
 
 import json
+import re
 from pydantic import BaseModel, Field
 
 from .config import get_anthropic_client
@@ -42,10 +43,9 @@ class CriteriaOutput(BaseModel):
 
 
 def _parse_criteria_output(text: str) -> CriteriaOutput:
-    if "```json" in text:
-        json_str = text.split("```json")[1].split("```")[0].strip()
-    elif "```" in text:
-        json_str = text.split("```")[1].split("```")[0].strip()
+    match = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
+    if match:
+        json_str = match.group(1).strip()
     else:
         json_str = text.strip()
     try:

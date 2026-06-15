@@ -89,7 +89,7 @@ async def run_analysis(
     # Build criteria with generated IDs
     criteria = [
         Criterion(
-            id=str(i + 1),
+            id=str(uuid.uuid4()),
             name=c.name,
             description=c.description,
             scores=c.scores,
