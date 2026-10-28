@@ -3,7 +3,7 @@
 ## Current Status
 
 **v1.0 MVP shipped 2026-06-15 (untagged; the `v1.0`/`v1.0.1` tags point at the 2026-02 predecessor). No active milestone.**
-Last activity: 2026-10-27 — post-v1 hygiene (tests green, stale worktree unregistered, tier-suggestion parsing fix)
+Last activity: 2026-10-27 — post-v1 hygiene (tests green, stale worktree removed, tier-suggestion parsing fix)
 
 **Next action:** Define milestone v1.1 with the owner. Candidate directions recorded in
 `.planning/MILESTONES.md`: database storage, shareable links, user accounts; or a polish
@@ -36,7 +36,6 @@ release closing the known limitations below.
 - AHP pairwise refinement endpoint was planned in the original PRD but never implemented
 - DELETE criterion route exists in backend but has no frontend UI
 - `npm run lint` reports 7 pre-existing errors (React set-state-in-effect, two `any`); tracked as issue #2
-- Stale checkout `.claude/worktrees/phase-2-data-model/` and empty `.git/worktrees/phase-2-data-model/` are still on disk (unregistered from git; manual delete pending)
 
 ---
 *Last updated: 2026-10-27*
