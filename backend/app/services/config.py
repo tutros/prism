@@ -1,14 +1,15 @@
 """API client configuration and initialization."""
 
 import os
-import truststore
+import sys
 from functools import lru_cache
 
 from anthropic import AsyncAnthropic
 from tavily import AsyncTavilyClient
 
-# Inject Windows certificate store into ssl so httpx picks it up
-truststore.inject_into_ssl()
+if sys.platform == "win32":
+    import truststore
+    truststore.inject_into_ssl()
 
 
 @lru_cache()
