@@ -21,6 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 cd backend
 pip install -r requirements.txt
+pip install -r requirements-dev.txt    # pytest + pyyaml (tests only)
 uvicorn app.main:app --reload          # dev server on port 8000
 python -c "from app.main import app; print('OK')"  # verify imports
 pytest tests/                          # run all tests
