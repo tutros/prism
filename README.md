@@ -52,6 +52,25 @@ If the backend runs on a different host or port, set this before starting the fr
 export VITE_API_BASE=http://your-host:8000
 ```
 
+### 5. (Alternative) Run with Docker
+
+Docker Compose auto-loads `docker-compose.override.yml`, so the bare command is the **dev** stack
+(hot reload, source bind-mounted, backend on 8000, Vite on 5173):
+
+```bash
+cp .env.example .env          # then fill in the two API keys
+docker compose up --build
+```
+
+**Production** (nginx on port 80 serving the built SPA and proxying `/api`, backend not exposed)
+must skip the override file explicitly:
+
+```bash
+docker compose -f docker-compose.yml up --build -d
+```
+
+Analysis data persists in `backend/data/` via the compose volume. Requires Docker Compose v2.24 or newer.
+
 ## How It Works
 
 1. **User submits a comparison** — two options and a decision intent.
