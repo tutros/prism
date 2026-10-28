@@ -1,6 +1,7 @@
 """Lightweight tier auto-suggestion using claude-haiku."""
 import json
 import asyncio
+import re
 from typing import Literal, TypedDict
 
 from .config import get_anthropic_client
@@ -19,6 +20,28 @@ class TierSuggestion(TypedDict):
     rationale: str
 
 
+_VALID_TIERS = {"quick", "medium", "deep"}
+_FENCE_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)```")
+
+
+def _parse_tier_suggestion(text: str) -> TierSuggestion:
+    """Parse the model reply into a TierSuggestion.
+
+    Haiku wraps its reply in a ```json fence despite being told not to, so the
+    fence is stripped before parsing (same approach as claude_service).
+    """
+    match = _FENCE_RE.search(text)
+    json_str = match.group(1).strip() if match else text.strip()
+    try:
+        data = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Tier suggestion was not valid JSON: {e}") from e
+    tier = data.get("tier") if isinstance(data, dict) else None
+    if tier not in _VALID_TIERS:
+        raise ValueError(f"Tier suggestion returned unknown tier: {tier!r}")
+    return TierSuggestion(tier=tier, rationale=str(data.get("rationale", "")))
+
+
 async def _suggest_tier_async(decision_text: str) -> TierSuggestion:
     client = get_anthropic_client()
     response = await client.messages.create(
@@ -27,8 +50,7 @@ async def _suggest_tier_async(decision_text: str) -> TierSuggestion:
         system=_SYSTEM,
         messages=[{"role": "user", "content": decision_text}],
     )
-    data = json.loads(response.content[0].text)
-    return TierSuggestion(tier=data["tier"], rationale=data["rationale"])
+    return _parse_tier_suggestion(response.content[0].text)
 
 
 def suggest_tier(decision_text: str) -> TierSuggestion:
