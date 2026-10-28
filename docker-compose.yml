@@ -31,4 +31,5 @@ services:
 
 volumes:
   prism-data:
-    name: prism-data   # fixed name, independent of the compose project name
+    # No explicit `name:` on purpose: Compose prefixes it with the project name, so two
+    # stacks on one host (different checkouts or -p) get separate data.

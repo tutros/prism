@@ -70,7 +70,7 @@ backend CORS settings assume this, so a split frontend/backend deployment is not
 docker compose -f docker-compose.yml up --build -d
 ```
 
-In production, analysis data lives in the named Docker volume `prism-data` (inspect with `docker volume inspect prism-data`; copy out with `docker cp`). In dev it stays in `backend/data/` on the host. Requires Docker Compose v2.24.4 or newer (for the `!override` tag).
+In production, analysis data lives in the named Docker volume `prism-data` (Compose prefixes it with the project name; find it with `docker volume ls --filter name=prism-data`, copy out with `docker cp`). In dev it stays in `backend/data/` on the host. Requires Docker Compose v2.24.4 or newer (for the `!override` tag).
 
 ## How It Works
 
