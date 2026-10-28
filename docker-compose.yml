@@ -31,3 +31,4 @@ services:
 
 volumes:
   prism-data:
+    name: prism-data   # fixed name, independent of the compose project name

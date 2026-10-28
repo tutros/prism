@@ -14,7 +14,7 @@ services:
 
   frontend:
     # The base file builds the nginx image; dev runs plain node on a bind mount instead.
-    # !reset drops the inherited build block (Compose v2.24+), otherwise --build would
+    # !reset drops the inherited build block (Compose v2.18+), otherwise --build would
     # build the production image, tag it node:22-alpine and run npm install inside nginx.
     build: !reset null
     image: node:22-alpine

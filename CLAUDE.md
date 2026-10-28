@@ -91,7 +91,7 @@ GET .../analyses/{id} ← poll until status = "completed"
 GET /api/progress/{id} ← SSE stream (uses analysis_id as comparison_id parameter)
 ```
 
-### Storage layout (`backend/data/`)
+### Storage layout (`backend/data/`; in production Docker the named volume `prism-data` mounted at `/app/data`)
 ```
 data/
   decisions/

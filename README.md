@@ -69,7 +69,7 @@ must skip the override file explicitly:
 docker compose -f docker-compose.yml up --build -d
 ```
 
-In production, analysis data lives in the named Docker volume `prism-data` (inspect with `docker volume inspect prism_prism-data`; copy out with `docker cp`). In dev it stays in `backend/data/` on the host. Requires Docker Compose v2.24 or newer.
+In production, analysis data lives in the named Docker volume `prism-data` (inspect with `docker volume inspect prism-data`; copy out with `docker cp`). In dev it stays in `backend/data/` on the host. Requires Docker Compose v2.24 or newer.
 
 ## How It Works
 
