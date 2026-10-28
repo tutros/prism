@@ -1,5 +1,6 @@
 services:
   backend:
+    restart: "no"   # dev should not auto-start after a reboot (base says unless-stopped)
     build:
       target: dev
     # !override replaces the base volume list instead of merging, so the named prism-data
@@ -17,6 +18,7 @@ services:
     # !reset drops the inherited build block (Compose v2.18+), otherwise --build would
     # build the production image, tag it node:22-alpine and run npm install inside nginx.
     build: !reset null
+    restart: "no"
     image: node:22-alpine
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host"
