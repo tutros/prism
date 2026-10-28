@@ -63,7 +63,8 @@ docker compose up --build
 ```
 
 **Production** (nginx on port 80 serving the built SPA and proxying `/api`, backend not exposed)
-must skip the override file explicitly:
+must skip the override file explicitly. UI and API are served from one origin; the CSP and
+backend CORS settings assume this, so a split frontend/backend deployment is not supported:
 
 ```bash
 docker compose -f docker-compose.yml up --build -d

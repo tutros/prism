@@ -23,7 +23,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    ports:
+    # !override: a plain list would merge with the base 80:80 and dev would fail to start
+    # whenever something else holds port 80.
+    ports: !override
       - "5173:5173"
     environment:
       - NODE_ENV=development
