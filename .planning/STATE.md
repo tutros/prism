@@ -27,7 +27,7 @@ release closing the known limitations below.
 - Three depth tiers: Quick (LLM only ~5s), Medium (Tavily + LLM ~30–60s), Deep (Medium + hidden properties ~2–5min)
 - Client-side scoring: weight slider changes recalculate winner without an API call (`lib/scoring.ts`)
 - Data lives in `backend/data/` (gitignored); production Docker uses the named volume `prism-data` at `/app/data`
-- Backend tests: `cd backend; venv/Scripts/python -m pytest tests/` (31 tests; 3 are live and skip without `ANTHROPIC_API_KEY`, 1 needs Docker and skips without it)
+- Backend tests: `cd backend; venv/Scripts/python -m pytest tests/` (32 tests; 3 are live and skip without `ANTHROPIC_API_KEY`, 1 needs Docker and skips without it)
 - No CI. One vitest file exists (`frontend/src/lib/scoring.test.ts`) but vitest is not installed and there is no `npm test` script, so it never runs
 
 ## Known Limitations
