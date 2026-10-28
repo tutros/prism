@@ -2,7 +2,9 @@ services:
   backend:
     build:
       target: dev
-    volumes:
+    # !override replaces the base volume list instead of merging, so the named prism-data
+    # volume is not mounted over the bind-mounted source tree in dev.
+    volumes: !override
       - ./backend:/app
       - /app/__pycache__
     ports:
