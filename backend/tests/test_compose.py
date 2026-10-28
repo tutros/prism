@@ -88,7 +88,13 @@ def test_rendered_volume_sources_differ_per_project(tmp_path):
             ["docker", "compose", "-p", project, "-f", "docker-compose.yml", "config", "--format", "json"],
             cwd=tmp_path, capture_output=True, text=True, check=True,
         ).stdout
-        mounts = [m for m in json.loads(out)["services"]["backend"]["volumes"] if m["target"] == "/app/data"]
+        cfg = json.loads(out)
+        mounts = [m for m in cfg["services"]["backend"]["volumes"] if m["target"] == "/app/data"]
         assert len(mounts) == 1 and mounts[0]["type"] == "volume"
-        sources[project] = mounts[0]["source"]
+        key = mounts[0]["source"]          # the compose-file key, "prism-data" in every project
+        # The engine-level volume name carries the project prefix (e.g. "alpha_prism-data").
+        # It is the top-level volumes[<key>].name in rendered output, not the mount's source.
+        engine_name = cfg["volumes"][key].get("name")
+        assert engine_name, f"rendered config has no engine-level name for volume {key!r}"
+        sources[project] = engine_name
     assert sources["alpha"] != sources["beta"], sources
