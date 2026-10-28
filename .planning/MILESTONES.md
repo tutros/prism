@@ -15,7 +15,7 @@
 - Hidden property discovery (Deep tier) surfaces second-order systemic impacts
 - Consumer App UI with scoring engine, analyses list, and history sidebar
 - SSE real-time progress streaming; atomic JSON persistence; daily spending cap
-- Code review: 35 issues found and fixed (5 Critical, 10 High, 12 Medium, 8 Low)
+- Code review of the Prism codebase: findings across 8 files fixed (9d394d5). The earlier 35-issue review (5 Critical, 10 High, 12 Medium, 8 Low, see `tasks/todo.md`) was done on the orchids predecessor in 2026-02, before the Prism scaffold
 
 **What's next:** Planning next milestone — potential areas include database storage, shareable links, user accounts.
 
