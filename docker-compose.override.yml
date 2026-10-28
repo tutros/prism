@@ -11,6 +11,10 @@ services:
       CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
 
   frontend:
+    # The base file builds the nginx image; dev runs plain node on a bind mount instead.
+    # !reset drops the inherited build block (Compose v2.24+), otherwise --build would
+    # build the production image, tag it node:22-alpine and run npm install inside nginx.
+    build: !reset null
     image: node:22-alpine
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host"
