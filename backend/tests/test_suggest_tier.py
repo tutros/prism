@@ -36,6 +36,13 @@ def test_parse_plain_fence():
     assert _parse_tier_suggestion(raw) == _PAYLOAD
 
 
+def test_parse_uppercase_or_other_fence_tag():
+    # Review nit: ```JSON / ```javascript tags must not leak into the payload.
+    for tag in ("JSON", "javascript"):
+        raw = "```" + tag + chr(10) + json.dumps(_PAYLOAD) + chr(10) + "```"
+        assert _parse_tier_suggestion(raw) == _PAYLOAD
+
+
 def test_parse_invalid_tier_raises():
     with pytest.raises(ValueError):
         _parse_tier_suggestion(json.dumps({"tier": "ultra", "rationale": "x"}))

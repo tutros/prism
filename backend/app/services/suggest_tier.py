@@ -21,7 +21,7 @@ class TierSuggestion(TypedDict):
 
 
 _VALID_TIERS = {"quick", "medium", "deep"}
-_FENCE_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)```")
+_FENCE_RE = re.compile(r"```[a-zA-Z]*\s*([\s\S]*?)```")
 
 
 def _parse_tier_suggestion(text: str) -> TierSuggestion:
