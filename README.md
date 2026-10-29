@@ -160,7 +160,7 @@ frontend/src/
 - **No database.** JSON files keep the stack free of infrastructure; atomic writes prevent corruption on crash.
 - **Async with polling.** Analyses take seconds to minutes, so the API answers `202` at once and the client polls (with SSE for progress messages).
 - **Deduplication.** Starting an analysis at a tier that already has a completed analysis for the same decision returns the existing `analysis_id` instead of spending again.
-- **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts. Limits: only starting an analysis checks the cap, so go-deeper and regenerate-weights (counted) and the tier-suggestion call on every new decision (not counted) still run past it; Tavily usage is not counted; analyses already running can overshoot it.
+- **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached; requests that match a completed analysis still get it back, since they cost nothing. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts. Limits: only starting an analysis checks the cap, so go-deeper and regenerate-weights (counted) and the tier-suggestion call on every new decision (not counted) still run past it; Tavily usage is not counted; analyses already running can overshoot it.
 - **Confidence.** Criteria carry a `confidence` field, but confidence scoring is not implemented yet: AI-generated criteria are all marked `low`. Deep-tier hidden properties get their confidence from Claude.
 
 ## API Endpoints
