@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A web app that helps users compare N options (2–6+) by surfacing hidden costs and non-obvious systemic impacts. Uses AI (Claude) to research options via web search (Tavily), generate non-obvious criteria with source citations, and present interactive results with adjustable weights, flip detection, and source quality signals. Three depth tiers let users trade speed for depth. Users can go deeper for more criteria, edit criteria inline, and see what realistic actions would reverse the winner.
+A web app that helps users compare N options (2–6+) by surfacing hidden costs and non-obvious systemic impacts. Uses AI (Claude) to research options via web search (Tavily), generate non-obvious criteria with source citations, and present results with a winner, per-criterion scores and client-side weight sliders. Three depth tiers let users trade speed for depth; the Deep tier adds hidden second-order impacts. Go deeper, inline criteria editing, flip detection and source quality signals are not in the mounted UI (see "Not shipped in v1.0" below).
 
 ## Core Value
 
@@ -43,7 +43,7 @@ interface, unmounted since the N-option rebuild and deleted in issue #4. Backend
 - User can add/edit custom criteria alongside AI-generated — routes exist
 - Weight changes persist (`PATCH .../weights`) — route exists; sliders are client-only today
 - Example prompts to help users get started — frontend only
-- System shows what would flip the outcome for losing option, with realistic suggestions — no backend
+- System shows what would flip the outcome for losing option, with realistic suggestions — no route; the unused `flip_service.py` was removed with this list
 - User can flag unreliable sources — no backend
 - Sources display quality indicators (6 tiers) — no backend (analysis sources are plain URLs)
 
@@ -78,7 +78,7 @@ interface, unmounted since the N-option rebuild and deleted in issue #4. Backend
 - **AI Provider:** Claude API for reasoning and synthesis
 - **Search Provider:** Tavily API for sourced web search
 - **POC Persistence:** File-based (JSON files) — no database yet
-- **Scope:** Configurable criteria count, "go deeper" for more
+- **Scope:** Configurable criteria count; "go deeper" for more has a backend route but no mounted UI (v1.1 candidate)
 
 ## Key Decisions
 
@@ -96,7 +96,7 @@ interface, unmounted since the N-option rebuild and deleted in issue #4. Backend
 | Client-side scoring service | Instant weight recalculation without API calls | Good |
 | SSE for progress streaming | Real-time feedback during AI processing | Good |
 | Tailwind v4 with @tailwindcss/vite | Modern CSS, no PostCSS config needed | Good |
-| 6-tier source quality classification | AI classifies during generation, not domain heuristics | Good |
+| 6-tier source quality classification | AI classifies during generation, not domain heuristics | Superseded: not carried into the N-option rebuild; sources are plain URLs (see "Not shipped in v1.0") |
 | TTLCache for Tavily results | 24h cache avoids duplicate web searches | Good |
 | Daily spending cap with 429 response | Prevents runaway API costs | Good |
 | N-option support (2–6+) | Broadens use cases beyond binary comparisons | Good |
