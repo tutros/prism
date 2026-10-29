@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { SourceMetadata } from '../comparison/types'
+import type { ComparisonResult, SourceMetadata } from '../comparison/types'
 import { API_BASE } from '../../lib/api'
 
 // Quality badge styling - matches existing badge patterns
@@ -56,14 +56,19 @@ export function SourceLink({ url, metadata, comparisonId }: SourceLinkProps) {
       await queryClient.cancelQueries({ queryKey: ['comparison', comparisonId] })
       const previous = queryClient.getQueryData(['comparison', comparisonId])
 
-      queryClient.setQueryData(['comparison', comparisonId], (old: any) => {
+      queryClient.setQueryData<ComparisonResult>(['comparison', comparisonId], (old) => {
         if (!old) return old
+        // `satisfies` checks the fallback literal regardless of compiler flags.
+        // Without noUncheckedIndexedAccess the index read is non-nullable, so
+        // the right operand of `??` would otherwise never be type-checked.
+        const base = old.source_metadata[url] ?? ({
+          quality: 'unknown',
+          flagged: false,
+          last_verified: null,
+        } satisfies SourceMetadata)
         return {
           ...old,
-          source_metadata: {
-            ...old.source_metadata,
-            [url]: { ...(old.source_metadata?.[url] ?? { quality: 'unknown' }), flagged },
-          },
+          source_metadata: { ...old.source_metadata, [url]: { ...base, flagged } },
         }
       })
 

@@ -375,7 +375,7 @@ The app uses React state for "routing" with the comparison ID synced to the URL 
 
 ```bash
 cd frontend
-npx tsc --noEmit
+npx tsc -b   # tsconfig.json is references-only; plain `tsc --noEmit` checks nothing
 ```
 
 ### Linting

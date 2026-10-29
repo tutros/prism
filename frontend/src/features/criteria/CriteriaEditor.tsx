@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { Criterion, SourceMetadata } from '../comparison/types'
+import type { ComparisonResult, Criterion, SourceMetadata } from '../comparison/types'
 import { SourceLink } from './SourceLink'
 import { API_BASE } from '../../lib/api'
 
@@ -31,13 +31,9 @@ export function CriteriaEditor({
   })
   const queryClient = useQueryClient()
 
-  // Sync draft when criterion props change (e.g. after optimistic rollback)
-  useEffect(() => {
-    if (!isEditing) {
-      setDraft({ name: criterion.name, score_a: criterion.score_a, score_b: criterion.score_b })
-    }
-  }, [criterion.name, criterion.score_a, criterion.score_b, isEditing])
-
+  // The draft is only shown while editing, so it is seeded from the current
+  // criterion when editing starts (see handleEdit). That covers props changing
+  // while closed, e.g. after an optimistic rollback, without an effect.
   const updateMutation = useMutation({
     mutationFn: async (update: Partial<Criterion>) => {
       const res = await fetch(
@@ -55,11 +51,11 @@ export function CriteriaEditor({
       await queryClient.cancelQueries({ queryKey: ['comparison', comparisonId] })
       const previous = queryClient.getQueryData(['comparison', comparisonId])
 
-      queryClient.setQueryData(['comparison', comparisonId], (old: any) => {
+      queryClient.setQueryData<ComparisonResult>(['comparison', comparisonId], (old) => {
         if (!old) return old
         return {
           ...old,
-          criteria: old.criteria.map((c: Criterion) =>
+          criteria: old.criteria.map((c) =>
             c.id === criterion.id ? { ...c, ...update } : c
           ),
         }
@@ -87,12 +83,16 @@ export function CriteriaEditor({
     setIsEditing(false)
   }
 
-  const handleCancel = () => {
+  const handleEdit = () => {
     setDraft({
       name: criterion.name,
       score_a: criterion.score_a,
       score_b: criterion.score_b,
     })
+    setIsEditing(true)
+  }
+
+  const handleCancel = () => {
     setIsEditing(false)
   }
 
@@ -129,7 +129,7 @@ export function CriteriaEditor({
       <div
         id={`criterion-${criterion.id}`}
         className="p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors scroll-mt-4"
-        onClick={() => setIsEditing(true)}
+        onClick={handleEdit}
       >
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-start gap-2">
