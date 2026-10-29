@@ -53,7 +53,7 @@ These features would set this tool apart from generic comparison sites and AI as
 
 ### Non-Obvious Criteria Discovery
 **What:** AI actively searches for hidden/systemic impacts users wouldn't think of (embedded energy, subsidies, externalities)
-**Why Differentiating:** Most comparison tools show what users already know. This surfaces invisible connections ([Project requirement](E:/James/Documents/Code/Apps/orchids-option-analysis-ui/.planning/PROJECT.md))
+**Why Differentiating:** Most comparison tools show what users already know. This surfaces invisible connections (Project requirement, predecessor project `orchids-option-analysis-ui`)
 **Complexity:** High - Requires sophisticated prompting, domain knowledge, web search orchestration
 **Notes:** This is THE core differentiator. Must be reliable or entire value prop fails
 
@@ -71,7 +71,7 @@ These features would set this tool apart from generic comparison sites and AI as
 
 ### Systemic Impact Focus
 **What:** Prioritize criteria about systems (supply chains, externalities, subsidies) over individual attributes
-**Why Differentiating:** Forces consideration of broader impacts. Educational component ([Project motivation](E:/James/Documents/Code/Apps/orchids-option-analysis-ui/.planning/PROJECT.md))
+**Why Differentiating:** Forces consideration of broader impacts. Educational component (Project motivation, predecessor project `orchids-option-analysis-ui`)
 **Complexity:** Medium - Requires curated prompt templates, domain knowledge
 **Notes:** Could maintain a library of "systemic impact categories" to guide search
 
@@ -106,7 +106,7 @@ These features would set this tool apart from generic comparison sites and AI as
 These are features to deliberately NOT build, despite users potentially asking for them or competitors having them.
 
 ### More Than 2 Options at Once
-**Why NOT:** Cognitive overload. Comparison complexity grows exponentially (2 options = 1 comparison, 3 = 3 comparisons, 4 = 6 comparisons). Keep it simple ([Project scope](E:/James/Documents/Code/Apps/orchids-option-analysis-ui/.planning/PROJECT.md))
+**Why NOT:** Cognitive overload. Comparison complexity grows exponentially (2 options = 1 comparison, 3 = 3 comparisons, 4 = 6 comparisons). Keep it simple (Project scope, predecessor project `orchids-option-analysis-ui`)
 **Instead:** Allow sequential comparisons, but one head-to-head at a time
 **Exception:** Could add in v2+ if users consistently request it
 
@@ -116,7 +116,7 @@ These are features to deliberately NOT build, despite users potentially asking f
 **Exception:** Power users who explicitly request comprehensive analysis
 
 ### Collaborative/Multi-User Editing
-**Why NOT:** Scope creep. Adds authentication, real-time sync, conflict resolution. Wrong focus for MVP ([Project constraints](E:/James/Documents/Code/Apps/orchids-option-analysis-ui/.planning/PROJECT.md))
+**Why NOT:** Scope creep. Adds authentication, real-time sync, conflict resolution. Wrong focus for MVP (Project constraints, predecessor project `orchids-option-analysis-ui`)
 **Instead:** Export/share read-only results. Users can discuss offline
 **Exception:** Could add in future if this becomes a team decision tool
 
