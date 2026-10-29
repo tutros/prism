@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useComparison } from './useComparison'
 import { ExamplePrompts, type Example } from './ExamplePrompts'
 
@@ -15,15 +15,17 @@ export function ComparisonForm({ onSubmit, initialValues }: ComparisonFormProps)
 
   const mutation = useComparison()
 
-  // Apply initial values when provided
-  useEffect(() => {
-    if (initialValues) {
-      setOptionA(initialValues.optionA)
-      setOptionB(initialValues.optionB)
-      setIntent(initialValues.intent)
-      setShowExamples(false)
-    }
-  }, [initialValues])
+  // Apply initial values when a new set is provided. Done during render
+  // (https://react.dev/reference/react/useState#storing-information-from-previous-renders)
+  // instead of in an effect, so the form never paints the stale values first.
+  const [appliedInitial, setAppliedInitial] = useState<Example | null | undefined>(undefined)
+  if (initialValues && initialValues !== appliedInitial) {
+    setAppliedInitial(initialValues)
+    setOptionA(initialValues.optionA)
+    setOptionB(initialValues.optionB)
+    setIntent(initialValues.intent)
+    setShowExamples(false)
+  }
 
   const handleExampleSelect = (example: Example) => {
     setOptionA(example.optionA)

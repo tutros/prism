@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import type { Criterion } from '../comparison/types'
 
 export interface WeightedScores {
@@ -44,25 +44,26 @@ export function calculateScores(
   return { totalA, totalB, winner }
 }
 
-export function useWeightedScores(criteria: Criterion[]) {
-  // Initialize weights from criteria defaults
-  const [weights, setWeights] = useState<Record<string, number>>(() => {
-    const initial: Record<string, number> = {}
-    for (const c of criteria) {
-      initial[c.id] = c.weight
-    }
-    return initial
-  })
+interface WeightOverrides {
+  key: string // criteria IDs the overrides belong to
+  weights: Record<string, number>
+}
 
-  // Reset weights when criteria IDs change (e.g. switching comparisons via history)
+export function useWeightedScores(criteria: Criterion[]) {
   const criteriaKey = criteria.map(c => c.id).join(',')
-  useEffect(() => {
-    const fresh: Record<string, number> = {}
+  const defaults = useMemo(() => {
+    const d: Record<string, number> = {}
     for (const c of criteria) {
-      fresh[c.id] = c.weight
+      d[c.id] = c.weight
     }
-    setWeights(fresh)
-  }, [criteriaKey])
+    return d
+  }, [criteria])
+
+  // User overrides are tagged with the criteria set they were made for, so
+  // switching comparisons (new IDs) falls back to that comparison's defaults
+  // without resetting state from an effect.
+  const [overrides, setOverrides] = useState<WeightOverrides | null>(null)
+  const weights = overrides?.key === criteriaKey ? overrides.weights : defaults
 
   const scores = useMemo(
     () => calculateScores(criteria, weights),
@@ -70,7 +71,10 @@ export function useWeightedScores(criteria: Criterion[]) {
   )
 
   const updateWeight = (criterionId: string, value: number) => {
-    setWeights((prev) => ({ ...prev, [criterionId]: value }))
+    setOverrides((prev) => ({
+      key: criteriaKey,
+      weights: { ...(prev?.key === criteriaKey ? prev.weights : defaults), [criterionId]: value },
+    }))
   }
 
   return { weights, scores, updateWeight }

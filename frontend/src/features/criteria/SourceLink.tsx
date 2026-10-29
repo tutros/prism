@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { SourceMetadata } from '../comparison/types'
+import type { ComparisonResult, SourceMetadata } from '../comparison/types'
 import { API_BASE } from '../../lib/api'
 
 // Quality badge styling - matches existing badge patterns
@@ -56,7 +56,7 @@ export function SourceLink({ url, metadata, comparisonId }: SourceLinkProps) {
       await queryClient.cancelQueries({ queryKey: ['comparison', comparisonId] })
       const previous = queryClient.getQueryData(['comparison', comparisonId])
 
-      queryClient.setQueryData(['comparison', comparisonId], (old: any) => {
+      queryClient.setQueryData<ComparisonResult>(['comparison', comparisonId], (old) => {
         if (!old) return old
         return {
           ...old,

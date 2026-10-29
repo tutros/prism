@@ -1,21 +1,28 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { API_BASE } from '../../lib/api'
 
-export function useProgress(analysisId: string | null) {
-  const [messages, setMessages] = useState<string[]>([])
+const NO_MESSAGES: string[] = []
 
-  const reset = useCallback(() => setMessages([]), [])
+export function useProgress(analysisId: string | null) {
+  // Messages are tagged with the analysis they belong to, so a new analysisId
+  // reads as empty without resetting state from inside the effect.
+  const [stream, setStream] = useState<{ id: string; messages: string[] } | null>(null)
 
   useEffect(() => {
     if (!analysisId) return
-    reset()
 
     const es = new EventSource(`${API_BASE}/api/progress/${analysisId}`)
 
     es.addEventListener('progress', (event) => {
       try {
         const data = JSON.parse((event as MessageEvent).data)
-        if (data.status) setMessages(prev => [...prev, data.status])
+        if (data.status) {
+          setStream(prev =>
+            prev?.id === analysisId
+              ? { id: analysisId, messages: [...prev.messages, data.status] }
+              : { id: analysisId, messages: [data.status] }
+          )
+        }
       } catch { /* ignore */ }
     })
 
@@ -26,7 +33,8 @@ export function useProgress(analysisId: string | null) {
     es.onerror = () => es.close()
 
     return () => es.close()
-  }, [analysisId, reset])
+  }, [analysisId])
 
+  const messages = stream?.id === analysisId ? stream.messages : NO_MESSAGES
   return { messages }
 }
