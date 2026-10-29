@@ -267,7 +267,6 @@ backend/app/
     ├── tavily_service.py     Web search with in-memory result caching
     ├── claude_service.py     Prompt construction and Claude API calls
     ├── criteria_service.py   Go deeper, regenerate weights
-    ├── flip_service.py       Sensitivity analysis and flip suggestions
     ├── orchestrator.py       Coordinates search → analysis → result
     ├── progress_store.py     In-memory SSE event buffer
     ├── spending_guard.py     Daily cost cap enforcement

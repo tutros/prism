@@ -43,7 +43,7 @@ interface, unmounted since the N-option rebuild and deleted in issue #4. Backend
 - User can add/edit custom criteria alongside AI-generated — routes exist
 - Weight changes persist (`PATCH .../weights`) — route exists; sliders are client-only today
 - Example prompts to help users get started — frontend only
-- System shows what would flip the outcome for losing option, with realistic suggestions — no route; the unused `flip_service.py` was removed with this list
+- System shows what would flip the outcome for losing option, with realistic suggestions — no route (the unused `flip_service.py` was removed in PR #10)
 - User can flag unreliable sources — no backend
 - Sources display quality indicators (6 tiers) — no backend (analysis sources are plain URLs)
 
