@@ -1,8 +1,11 @@
 services:
   backend:
+    restart: "no"   # dev should not auto-start after a reboot (base says unless-stopped)
     build:
       target: dev
-    volumes:
+    # !override replaces the base volume list instead of merging, so the named prism-data
+    # volume is not mounted over the bind-mounted source tree in dev.
+    volumes: !override
       - ./backend:/app
       - /app/__pycache__
     ports:
@@ -12,16 +15,19 @@ services:
 
   frontend:
     # The base file builds the nginx image; dev runs plain node on a bind mount instead.
-    # !reset drops the inherited build block (Compose v2.24+), otherwise --build would
+    # !reset drops the inherited build block (Compose v2.18+), otherwise --build would
     # build the production image, tag it node:22-alpine and run npm install inside nginx.
     build: !reset null
+    restart: "no"
     image: node:22-alpine
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host"
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    ports:
+    # !override: a plain list would merge with the base 80:80 and dev would fail to start
+    # whenever something else holds port 80.
+    ports: !override
       - "5173:5173"
     environment:
       - NODE_ENV=development

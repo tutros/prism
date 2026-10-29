@@ -7,7 +7,9 @@ services:
     environment:
       CORS_ORIGINS: ""
     volumes:
-      - ./backend/data:/app/data
+      # Named volume, not a bind mount: on a Linux host a bind-mounted ./backend/data keeps the
+      # host owner's uid and the container's non-root appuser cannot write to it.
+      - prism-data:/app/data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       start_period: 30s
@@ -26,3 +28,8 @@ services:
       backend:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  prism-data:
+    # No explicit `name:` on purpose: Compose prefixes it with the project name, so two
+    # stacks on one host (different checkouts or -p) get separate data.

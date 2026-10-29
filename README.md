@@ -63,13 +63,14 @@ docker compose up --build
 ```
 
 **Production** (nginx on port 80 serving the built SPA and proxying `/api`, backend not exposed)
-must skip the override file explicitly:
+must skip the override file explicitly. UI and API are served from one origin; the CSP and
+backend CORS settings assume this, so a split frontend/backend deployment is not supported:
 
 ```bash
 docker compose -f docker-compose.yml up --build -d
 ```
 
-Analysis data persists in `backend/data/` via the compose volume. Requires Docker Compose v2.24 or newer.
+In production, analysis data lives in the named Docker volume `prism-data` (Compose prefixes it with the project name; find it with `docker volume ls --filter name=prism-data`, copy out with `docker cp`). In dev it stays in `backend/data/` on the host. Requires Docker Compose v2.24.4 or newer (for the `!override` tag).
 
 ## How It Works
 
