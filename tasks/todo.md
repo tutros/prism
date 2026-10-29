@@ -1,5 +1,7 @@
 # Code Review: Prism v1.0
 
+> Historical record. File paths under `frontend/src/features/{criteria,flip,weights}/`, `comparison/ComparisonForm.tsx`, `ExamplePrompts.tsx`, `useComparison.ts`, `types.ts`, `progress/ProgressDisplay.tsx`, `results/ScoringExplainer.tsx` and `backend/app/services/flip_service.py` were deleted on 2026-10-29 (issue #4, PRs #8 and #10); findings against them no longer apply.
+
 **Reviewed:** 2026-02-14
 **Scope:** Full codebase (~3,640 LOC across 43 source files)
 **Reviewers:** 5 parallel agents (backend, frontend, architecture/security, error handling, CLAUDE.md compliance)
