@@ -23,23 +23,29 @@ Surface the invisible threads that connect everyday choices to systemic impacts 
 - AI weights criteria based on user intent — v1.0
 - User can adjust weights via sliders — v1.0
 - Weights auto-recalculate winner when adjusted — v1.0
-- User can regenerate weights (re-prompts AI with intent) — v1.0
 - System shows winning option with reasoning — v1.0
-- System shows what would flip the outcome for losing option — v1.0
-- Flip suggestions are realistic and actionable — v1.0
 - All information includes sources — v1.0
-- Sources display quality indicators (6 tiers) — v1.0
-- User can "go deeper" to get more criteria — v1.0
-- User can add/edit custom criteria alongside AI-generated — v1.0
 - Results saved to file for later recall — v1.0
 - Multiple analyses per decision (re-run at different tiers) — v1.0
 - Loading states and streaming progress during AI processing — v1.0
 - Mobile responsive design — v1.0
-- Example prompts to help users get started — v1.0
 - Token usage tracking and daily spending cap — v1.0
 - Tavily result caching with cache age indicator — v1.0
 - Monitoring dashboard for cost visibility — v1.0
-- User can flag unreliable sources — v1.0
+
+### Not shipped in v1.0 (candidates for v1.1)
+
+Listed as validated until 2026-10-29, but the UI for each was the predecessor's two-option
+interface, unmounted since the N-option rebuild and deleted in issue #4. Backend status per item:
+
+- User can regenerate weights (re-prompts AI with intent) — route exists
+- User can "go deeper" to get more criteria — route exists
+- User can add/edit custom criteria alongside AI-generated — routes exist
+- Weight changes persist (`PATCH .../weights`) — route exists; sliders are client-only today
+- Example prompts to help users get started — frontend only
+- System shows what would flip the outcome for losing option, with realistic suggestions — no backend
+- User can flag unreliable sources — no backend
+- Sources display quality indicators (6 tiers) — no backend (analysis sources are plain URLs)
 
 ### Active
 
