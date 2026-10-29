@@ -35,7 +35,7 @@ release closing the known limitations below.
 - Prompt caching annotation correct but inactive (system prompt below minimum token threshold)
 - AHP pairwise refinement endpoint was planned in the original PRD but never implemented
 - DELETE criterion route exists in backend but has no frontend UI
-- `npm run lint` reports 7 pre-existing errors (React set-state-in-effect, two `any`); tracked as issue #2
+- `npm run lint` is clean (issue #2, PR #7). Type check is `npx tsc -b`; `tsc --noEmit` checks nothing (references-only root tsconfig)
 
 ---
 *Last updated: 2026-10-27*
