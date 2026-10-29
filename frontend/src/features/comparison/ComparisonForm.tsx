@@ -18,7 +18,7 @@ export function ComparisonForm({ onSubmit, initialValues }: ComparisonFormProps)
   // Apply initial values when a new set is provided. Done during render
   // (https://react.dev/reference/react/useState#storing-information-from-previous-renders)
   // instead of in an effect, so the form never paints the stale values first.
-  const [appliedInitial, setAppliedInitial] = useState<Example | null | undefined>(undefined)
+  const [appliedInitial, setAppliedInitial] = useState<Example | undefined>(undefined)
   if (initialValues && initialValues !== appliedInitial) {
     setAppliedInitial(initialValues)
     setOptionA(initialValues.optionA)

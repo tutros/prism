@@ -34,7 +34,7 @@ cd frontend
 npm install
 npm run dev          # dev server on port 5173
 npm run build
-npx tsc --noEmit     # type check
+npx tsc -b           # type check (tsconfig.json is references-only, so plain `tsc --noEmit` checks nothing)
 ```
 
 ## Environment Variables

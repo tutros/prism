@@ -58,12 +58,16 @@ export function SourceLink({ url, metadata, comparisonId }: SourceLinkProps) {
 
       queryClient.setQueryData<ComparisonResult>(['comparison', comparisonId], (old) => {
         if (!old) return old
+        // Annotated so the fallback is checked as a full SourceMetadata even
+        // without noUncheckedIndexedAccess (where the index read is non-nullable).
+        const base: SourceMetadata = old.source_metadata[url] ?? {
+          quality: 'unknown',
+          flagged: false,
+          last_verified: null,
+        }
         return {
           ...old,
-          source_metadata: {
-            ...old.source_metadata,
-            [url]: { ...(old.source_metadata?.[url] ?? { quality: 'unknown' }), flagged },
-          },
+          source_metadata: { ...old.source_metadata, [url]: { ...base, flagged } },
         }
       })
 

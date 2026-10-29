@@ -49,6 +49,10 @@ interface WeightOverrides {
   weights: Record<string, number>
 }
 
+/**
+ * Pass a stable `criteria` array (state or memoised): with no user overrides,
+ * `weights` is derived from it and takes a new identity whenever it does.
+ */
 export function useWeightedScores(criteria: Criterion[]) {
   const criteriaKey = criteria.map(c => c.id).join(',')
   const defaults = useMemo(() => {
