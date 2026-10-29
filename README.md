@@ -2,14 +2,14 @@
 
 An AI-powered decision comparison tool that surfaces hidden costs and systemic impacts invisible in traditional comparisons.
 
-Enter two to ten options and your intent (e.g. "buying a house vs. renting, optimizing for 10-year financial outcome"). Prism suggests a depth tier, researches the options via web search (Medium and Deep tiers), then uses Claude to generate scored criteria covering financial, environmental, social, and long-term factors you might not have considered. The Deep tier also surfaces hidden systemic properties: second-order effects of each option.
+Enter two to six options (the API accepts up to ten) and your intent (e.g. "buying a house vs. renting, optimizing for 10-year financial outcome"). Prism suggests a depth tier, researches the options via web search (Medium and Deep tiers), then uses Claude to generate scored criteria covering financial, environmental, social, and long-term factors you might not have considered. The Deep tier also surfaces hidden systemic properties: second-order effects of each option.
 
 ## Quick Start
 
 ### Prerequisites
 
 - Python 3.11+
-- Node.js 18+
+- Node.js 20.19+ or 22.12+ (required by Vite 7)
 - API keys for [Anthropic](https://console.anthropic.com/settings/keys) and [Tavily](https://app.tavily.com/home)
 
 ### 1. Set environment variables
@@ -74,7 +74,7 @@ In production, analysis data lives in the named Docker volume `prism-data` (Comp
 
 ## Security: local use only
 
-Prism has **no authentication**. Every endpoint, including `/api/monitoring` (usage and cost stats), is open to anyone who can reach the server, and every analysis spends your Anthropic and Tavily credit. Run it on `localhost` or a private network only. `DAILY_SPEND_CAP_USD` limits the damage but is not access control. If you expose it beyond that, put it behind an authenticating reverse proxy first.
+Prism has **no authentication**. Every endpoint, including `/api/monitoring` (usage and cost stats), is open to anyone who can reach the server, and every analysis spends your Anthropic and Tavily credit. Run it on `localhost` or a private network only. `DAILY_SPEND_CAP_USD` is not access control and only partly limits spending (see Spending guard below). If you expose it beyond that, put it behind an authenticating reverse proxy first.
 
 To report a security problem, please open a [private security advisory](https://github.com/tutros/prism/security/advisories/new) rather than a public issue.
 
@@ -83,7 +83,7 @@ To report a security problem, please open a [private security advisory](https://
 1. **Create a decision**: options plus intent. Claude Haiku suggests a tier (Quick, Medium or Deep) with a rationale.
 2. **Run an analysis** at the chosen tier. The backend returns `202` with an `analysis_id` and works in a background task.
 3. **Watch progress** over Server-Sent Events while the frontend polls for the result.
-4. **Read the result**: a winner with reasoning, scored criteria with sources and confidence levels, and (Deep only) hidden properties.
+4. **Read the result**: a winner with reasoning, scored criteria with sources, and (Deep only) hidden properties.
 
 ### Tiers
 
@@ -159,9 +159,9 @@ frontend/src/
 
 - **No database.** JSON files keep the stack free of infrastructure; atomic writes prevent corruption on crash.
 - **Async with polling.** Analyses take seconds to minutes, so the API answers `202` at once and the client polls (with SSE for progress messages).
-- **Deduplication.** Running an analysis whose options (case-insensitive, any order), intent and tier match a completed analysis of the same decision returns the existing `analysis_id` instead of spending again.
-- **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts.
-- **Source confidence.** Each criterion gets a high / medium / low confidence from the number and quality of its sources, as classified by Claude.
+- **Deduplication.** Starting an analysis at a tier that already has a completed analysis for the same decision returns the existing `analysis_id` instead of spending again.
+- **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts. Limits: only starting an analysis checks the cap, so go-deeper and regenerate-weights (counted) and the tier-suggestion call on every new decision (not counted) still run past it; Tavily usage is not counted; analyses already running can overshoot it.
+- **Confidence.** Criteria carry a `confidence` field, but confidence scoring is not implemented yet: AI-generated criteria are all marked `low`. Deep-tier hidden properties get their confidence from Claude.
 
 ## API Endpoints
 
@@ -216,7 +216,7 @@ The web UI uses the decision, analysis and progress endpoints. The weights, crit
 # Backend tests. Most mock Claude and Tavily; a few live tests also call the real
 # Anthropic API when ANTHROPIC_API_KEY is set, so unset it to stay offline.
 cd backend
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 pytest tests/
 
 # Frontend
