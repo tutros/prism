@@ -115,11 +115,6 @@ async def create_analysis(decision_id: str, body: _AnalysisInput, background_tas
     if not decision:
         raise HTTPException(status_code=404, detail="Decision not found")
 
-    try:
-        check_spending_cap()
-    except ValueError as e:
-        raise HTTPException(status_code=429, detail=str(e))
-
     tier = body.tier
     target_key = _dedup_key(decision.options, decision.intent, tier)
     for aid in await asyncio.to_thread(storage.list_analyses, decision_id):
@@ -127,6 +122,12 @@ async def create_analysis(decision_id: str, body: _AnalysisInput, background_tas
         if existing and existing.status == "completed":
             if _dedup_key(existing.options, decision.intent, existing.tier) == target_key:
                 return JSONResponse(status_code=202, content={"analysis_id": aid, "deduplicated": True})
+
+    # Only new analyses cost money, so the cap is checked after the dedup lookup.
+    try:
+        check_spending_cap()
+    except ValueError as e:
+        raise HTTPException(status_code=429, detail=str(e))
 
     analysis_id = str(uuid.uuid4())
     storage.write_analysis(AnalysisResult(

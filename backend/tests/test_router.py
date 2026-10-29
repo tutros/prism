@@ -128,6 +128,32 @@ def test_dedup_key_different_tier_different_hash():
     assert h1 != h2
 
 
+# ── 5b. Spending cap vs dedup ────────────────────────────────────────────────
+
+@pytest.fixture
+def cap_exceeded(monkeypatch):
+    import app.routers.comparison as comp_module
+
+    def _raise():
+        raise ValueError("Daily spending cap reached")
+    monkeypatch.setattr(comp_module, "check_spending_cap", _raise)
+
+
+def test_dedup_hit_bypasses_exceeded_cap(client, storage, cap_exceeded):
+    storage.write_decision(_decision())
+    storage.write_analysis(_analysis())
+    resp = client.post(f"/api/decisions/{DECISION_ID}/analyses", json={"tier": "quick"})
+    assert resp.status_code == 202
+    assert resp.json() == {"analysis_id": ANALYSIS_ID, "deduplicated": True}
+
+
+def test_new_analysis_rejected_when_cap_exceeded(client, storage, cap_exceeded):
+    storage.write_decision(_decision())
+    storage.write_analysis(_analysis())
+    resp = client.post(f"/api/decisions/{DECISION_ID}/analyses", json={"tier": "medium"})
+    assert resp.status_code == 429
+
+
 # ── 6. POST /api/decisions (requires API key) ─────────────────────────────────
 
 @pytest.mark.skipif(not os.getenv("ANTHROPIC_API_KEY"), reason="ANTHROPIC_API_KEY not set")
