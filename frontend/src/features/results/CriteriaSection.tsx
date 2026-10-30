@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import type { Criterion } from '../../lib/api'
+import type { Criterion, Tier } from '../../lib/api'
+import { CONFIDENCE_STYLE, isGraded } from '../../lib/confidence'
 
 interface Props {
+  tier: Tier
   criteria: Criterion[]
   options: string[]
   weights: Record<string, number>
   onWeightChange: (criterionId: string, weight: number) => void
 }
 
-export function CriteriaSection({ criteria, options, weights, onWeightChange }: Props) {
+export function CriteriaSection({ tier, criteria, options, weights, onWeightChange }: Props) {
   const [srcOpen, setSrcOpen] = useState<Record<string, boolean>>({})
 
   return (
@@ -22,11 +24,19 @@ export function CriteriaSection({ criteria, options, weights, onWeightChange }: 
         const w = weights[c.id] ?? c.weight
         const scores = options.map(o => c.scores[o] ?? 0)
         const maxScore = Math.max(...scores, 1)
+        const conf = isGraded(c, tier) && c.confidence ? CONFIDENCE_STYLE[c.confidence] : null
         return (
           <div key={c.id} style={{ marginBottom: 20, paddingBottom: 20, borderBottom: ci < criteria.length - 1 ? '1px solid var(--bd)' : 'none' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--txb)', marginBottom: 3 }}>{c.name}</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 3 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--txb)' }}>{c.name}</span>
+                  {conf && (
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 100, background: conf.bg, color: conf.color }}>
+                      {conf.label}
+                    </span>
+                  )}
+                </div>
                 <div style={{ fontSize: 12, color: 'var(--txm)' }}>{c.description}</div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 16 }}>

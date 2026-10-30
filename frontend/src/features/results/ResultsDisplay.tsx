@@ -40,6 +40,7 @@ export function ResultsDisplay({ decisionId, analysisId }: Props) {
     <div>
       <WinnerCard result={result} weights={effectiveWeights} />
       <CriteriaSection
+        tier={result.tier}
         criteria={result.criteria}
         options={result.options}
         weights={effectiveWeights}

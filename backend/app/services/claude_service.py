@@ -5,6 +5,7 @@ import re
 from pydantic import BaseModel, Field
 
 from .config import get_anthropic_client
+from .source_quality import CLASSIFICATION_PROMPT, SourceClassification
 from .tavily_service import OptionResearch
 from .usage_tracker import record_usage
 
@@ -40,6 +41,7 @@ class CriteriaOutput(BaseModel):
     criteria: list[CriterionOutput] = Field(min_length=3, max_length=5)
     winner: str = Field(description="Exact option name that wins")
     reasoning: str = Field(description="1-2 sentence plain-language explanation")
+    source_classifications: list[SourceClassification] = Field(default_factory=list)
 
 
 def _parse_criteria_output(text: str) -> CriteriaOutput:
@@ -107,9 +109,11 @@ async def generate_criteria_medium(
         + "\n\n".join(research_sections)
         + f"\n\nAVAILABLE SOURCE URLS (only use these):\n{sources_list}\n\n"
         f"Generate 3-5 non-obvious criteria. Each criterion must cite at least one source URL from above.\n"
-        f"Respond ONLY as JSON:\n"
+        + CLASSIFICATION_PROMPT
+        + f"\nRespond ONLY as JSON:\n"
         f'{{"criteria":[{{"name":"...","description":"...","scores":{{{scores_template}}},'
-        f'"weight":50,"sources":["https://..."]}}],"winner":"{options[0]}","reasoning":"..."}}'
+        f'"weight":50,"sources":["https://..."]}}],"winner":"{options[0]}","reasoning":"...",'
+        f'"source_classifications":[{{"url":"https://...","quality":"news"}}]}}'
     )
     response = await client.messages.create(
         model=_MODEL,

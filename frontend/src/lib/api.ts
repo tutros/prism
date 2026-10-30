@@ -67,7 +67,7 @@ export interface Criterion {
   weight: number
   sources: string[]
   origin: 'ai' | 'user'
-  confidence: 'high' | 'medium' | 'low'
+  confidence: 'high' | 'medium' | 'low' | null  // null = not graded (Quick, user-added)
 }
 
 export interface AnalysisResult {
@@ -82,6 +82,7 @@ export interface AnalysisResult {
   weights_original: Record<string, number>
   weights_current: Record<string, number>
   research: Record<string, unknown>
+  source_quality: Record<string, string>  // url -> peer-reviewed / government / industry / news / blog / unknown
   hidden_properties: HiddenProperty[]
   created_at: string
   completed_at: string | null

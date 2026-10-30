@@ -34,6 +34,7 @@ cd frontend
 npm install
 npm run dev          # dev server on port 5173
 npm run build
+npm test             # vitest (unit tests in src/**/*.test.ts)
 npx tsc -b           # type check (tsconfig.json is references-only, so plain `tsc --noEmit` checks nothing)
 ```
 
