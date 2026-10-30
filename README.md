@@ -161,7 +161,7 @@ frontend/src/
 - **Async with polling.** Analyses take seconds to minutes, so the API answers `202` at once and the client polls (with SSE for progress messages).
 - **Deduplication.** Starting an analysis at a tier that already has a completed analysis for the same decision returns the existing `analysis_id` instead of spending again.
 - **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached; requests that match a completed analysis still get it back, since they cost nothing. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts. Limits: only starting an analysis checks the cap, so go-deeper and regenerate-weights (counted) and the tier-suggestion call on every new decision (not counted) still run past it; Tavily usage is not counted; analyses already running can overshoot it.
-- **Confidence.** Criteria carry a `confidence` field, but confidence scoring is not implemented yet: AI-generated criteria are all marked `low`. Deep-tier hidden properties get their confidence from Claude.
+- **Confidence.** On Medium and Deep, Claude labels each cited source as peer-reviewed, government, industry, news or blog (stored in `source_quality`), and code grades each criterion from its sources: **high** needs at least 2 sources including a peer-reviewed or government one; **medium** needs at least 1 source of news quality or better (industry or news, or a single peer-reviewed or government source); anything else (no sources, or only blog or unclassified sources) is **low**. Only URLs from the web research count. Go-deeper criteria are graded the same way. Quick-tier criteria (no sources) and user-added criteria are not graded (`confidence: null`): they get no badge and don't count toward the winner card's overall confidence, which is the share of graded criteria rated high. Quick results show "Based on AI knowledge only, no sources" instead of a badge. Analyses saved before this change keep their old `low` grades. Deep-tier hidden properties get their confidence from Claude.
 
 ## API Endpoints
 
@@ -223,6 +223,7 @@ pytest tests/
 cd frontend
 npx tsc -b         # type check (tsconfig.json is references-only; plain `tsc --noEmit` checks nothing)
 npm run lint
+npm test           # vitest
 npm run build      # output in frontend/dist/
 ```
 

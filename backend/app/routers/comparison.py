@@ -210,16 +210,18 @@ async def go_deeper_endpoint(decision_id: str, analysis_id: str):
     }
 
     try:
-        new_criteria = await go_deeper(
+        new_criteria, source_quality = await go_deeper(
             options=result.options,
             intent=intent,
             research_by_option=research_by_option,
             existing_criteria=result.criteria,
+            source_quality=result.source_quality,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"AI analysis failed: {e}")
 
     result.criteria.extend(new_criteria)
+    result.source_quality = source_quality
     storage.write_analysis(result)
     return result
 

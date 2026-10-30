@@ -35,7 +35,8 @@ class Criterion(BaseModel):
     weight: float = Field(ge=0, le=100, default=50)
     sources: list[str] = []
     origin: Literal["ai", "user"] = "ai"
-    confidence: Literal["high", "medium", "low"] = "low"
+    # None = not graded (Quick tier and user-added criteria have no sources to grade)
+    confidence: Literal["high", "medium", "low"] | None = None
 
 
 class CriterionCreate(BaseModel):
@@ -64,6 +65,7 @@ class AnalysisResult(BaseModel):
     weights_original: dict[str, float] = {}
     weights_current: dict[str, float] = {}
     research: dict[str, dict] = {}
+    source_quality: dict[str, str] = {}  # url -> quality tier (Medium/Deep only)
     hidden_properties: list[HiddenProperty] = []
     created_at: datetime
     completed_at: datetime | None = None

@@ -1,31 +1,17 @@
 import type { AnalysisResult } from '../../lib/api'
 import { calcWeightedScores } from '../../lib/scoring'
+import { CONFIDENCE_STYLE, overallConfidence } from '../../lib/confidence'
 
 interface Props {
   result: AnalysisResult
   weights: Record<string, number>
 }
 
-const CONFIDENCE_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  high:   { bg: '#dcfce7', color: '#16a34a', label: 'High Confidence' },
-  medium: { bg: '#fef3c7', color: '#d97706', label: 'Medium Confidence' },
-  low:    { bg: '#fee2e2', color: '#dc2626', label: 'Low Confidence' },
-}
-
-function overallConfidence(result: AnalysisResult): string {
-  const highCount = result.criteria.filter(c => c.confidence === 'high').length
-  const total = result.criteria.length
-  if (total === 0) return 'low'
-  if (highCount / total >= 0.5) return 'high'
-  if (highCount / total >= 0.25) return 'medium'
-  return 'low'
-}
-
 export function WinnerCard({ result, weights }: Props) {
   const scores = calcWeightedScores(result.criteria, result.options, weights)
   const winner = scores[0]
   const conf = overallConfidence(result)
-  const confStyle = CONFIDENCE_STYLE[conf]
+  const confStyle = conf ? CONFIDENCE_STYLE[conf] : null
   const maxScore = scores[0]?.score ?? 1
 
   if (!winner) return null
@@ -46,9 +32,16 @@ export function WinnerCard({ result, weights }: Props) {
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ac)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
               Our Recommendation
             </span>
-            <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 100, background: confStyle.bg, color: confStyle.color }}>
-              {confStyle.label}
-            </span>
+            {confStyle && (
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 100, background: confStyle.bg, color: confStyle.color }}>
+                {confStyle.label}
+              </span>
+            )}
+            {result.tier === 'quick' && (
+              <span style={{ fontSize: 11, color: 'var(--txm)' }}>
+                Based on AI knowledge only, no sources
+              </span>
+            )}
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--txb)', letterSpacing: '-0.03em', marginBottom: 8 }}>
             {winner.option}

@@ -9,6 +9,7 @@ from ..models import AnalysisResult, Criterion
 from .tavily_service import search_all_options, OptionResearch
 from .claude_service import generate_criteria_quick, generate_criteria_medium
 from .hidden_service import discover_hidden_properties
+from .source_quality import classify_sources, compute_confidence
 from .progress_store import add_progress, mark_complete
 
 
@@ -68,10 +69,13 @@ async def run_analysis(
 
     # Serialise research for JSON storage (empty for Quick tier)
     research_store: dict = {}
+    source_quality: dict[str, str] = {}
     if tier != "quick":
         research_store = {
             opt: asdict(res) for opt, res in research_by_option.items()
         }
+        research_urls = {r.url for res in research_by_option.values() for r in res.results}
+        source_quality = classify_sources(output.source_classifications, research_urls)
 
     # Deep tier: hidden properties
     hidden_properties = []
@@ -96,7 +100,8 @@ async def run_analysis(
             weight=c.weight,
             sources=c.sources,
             origin="ai",
-            confidence="low",
+            # Quick tier has no sources, so its criteria are not graded
+            confidence=None if tier == "quick" else compute_confidence(c.sources, source_quality),
         )
         for i, c in enumerate(output.criteria)
     ]
@@ -120,6 +125,7 @@ async def run_analysis(
         weights_original=weights,
         weights_current=weights,
         research=research_store,
+        source_quality=source_quality,
         hidden_properties=hidden_properties,
         created_at=now,
         completed_at=datetime.now(timezone.utc),

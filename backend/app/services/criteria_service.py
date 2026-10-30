@@ -5,6 +5,12 @@ import uuid
 from pydantic import BaseModel, Field
 
 from .config import get_anthropic_client
+from .source_quality import (
+    CLASSIFICATION_PROMPT,
+    SourceLabels,
+    classify_sources,
+    compute_confidence,
+)
 from .tavily_service import OptionResearch
 from .usage_tracker import record_usage
 from ..models import Criterion
@@ -21,6 +27,7 @@ _SYSTEM_CACHED = {
 
 class _AdditionalCriteria(BaseModel):
     criteria: list[dict] = Field(min_length=2, max_length=3)
+    source_classifications: SourceLabels = Field(default_factory=list)
 
 
 class _WeightsOutput(BaseModel):
@@ -32,8 +39,12 @@ async def go_deeper(
     intent: str,
     research_by_option: dict[str, OptionResearch],
     existing_criteria: list[Criterion],
-) -> list[Criterion]:
-    """Generate 2-3 additional criteria using cached research."""
+    source_quality: dict[str, str],
+) -> tuple[list[Criterion], dict[str, str]]:
+    """Generate 2-3 additional criteria using cached research.
+
+    Returns the new criteria and source_quality merged with the new labels.
+    """
     client = get_anthropic_client()
 
     research_sections = []
@@ -56,14 +67,16 @@ async def go_deeper(
         f"Do NOT repeat:\n{existing_list}\n\n"
         + "\n\n".join(research_sections)
         + f"\n\nAVAILABLE SOURCE URLS:\n{sources_list}\n\n"
-        f"Respond ONLY as JSON:\n"
+        + CLASSIFICATION_PROMPT
+        + f"\nRespond ONLY as JSON:\n"
         f'{{"criteria":[{{"name":"...","description":"...","scores":{{{scores_template}}},'
-        f'"weight":30,"sources":["https://..."]}}]}}'
+        f'"weight":30,"sources":["https://..."]}}],'
+        f'"source_classifications":[{{"url":"https://...","quality":"news"}}]}}'
     )
 
     response = await client.messages.create(
         model=_MODEL,
-        max_tokens=2048,
+        max_tokens=4096,
         system=[_SYSTEM_BASE, _SYSTEM_CACHED],
         messages=[{"role": "user", "content": prompt}],
     )
@@ -83,7 +96,11 @@ async def go_deeper(
     except Exception as e:
         raise ValueError(f"Failed to parse go_deeper response: {e}")
 
-    return [
+    # Labels from the original run win; new labels fill in the rest
+    known = {url: q for url, q in source_quality.items() if q != "unknown"}
+    merged = {**classify_sources(output.source_classifications, all_sources), **known}
+
+    criteria = [
         Criterion(
             id=str(uuid.uuid4()),
             name=c.get("name", ""),
@@ -92,9 +109,11 @@ async def go_deeper(
             weight=c.get("weight", 50),
             sources=c.get("sources", []),
             origin="ai",
+            confidence=compute_confidence(c.get("sources", []), merged),
         )
         for c in output.criteria
     ]
+    return criteria, merged
 
 
 async def regenerate_weights(
