@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from .config import get_anthropic_client
 from .source_quality import (
     CLASSIFICATION_PROMPT,
-    SourceClassification,
+    SourceLabels,
     classify_sources,
     compute_confidence,
 )
@@ -27,7 +27,7 @@ _SYSTEM_CACHED = {
 
 class _AdditionalCriteria(BaseModel):
     criteria: list[dict] = Field(min_length=2, max_length=3)
-    source_classifications: list[SourceClassification] = Field(default_factory=list)
+    source_classifications: SourceLabels = Field(default_factory=list)
 
 
 class _WeightsOutput(BaseModel):
@@ -76,7 +76,7 @@ async def go_deeper(
 
     response = await client.messages.create(
         model=_MODEL,
-        max_tokens=2048,
+        max_tokens=4096,
         system=[_SYSTEM_BASE, _SYSTEM_CACHED],
         messages=[{"role": "user", "content": prompt}],
     )

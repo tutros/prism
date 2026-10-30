@@ -5,7 +5,7 @@ import re
 from pydantic import BaseModel, Field
 
 from .config import get_anthropic_client
-from .source_quality import CLASSIFICATION_PROMPT, SourceClassification
+from .source_quality import CLASSIFICATION_PROMPT, SourceLabels
 from .tavily_service import OptionResearch
 from .usage_tracker import record_usage
 
@@ -41,7 +41,7 @@ class CriteriaOutput(BaseModel):
     criteria: list[CriterionOutput] = Field(min_length=3, max_length=5)
     winner: str = Field(description="Exact option name that wins")
     reasoning: str = Field(description="1-2 sentence plain-language explanation")
-    source_classifications: list[SourceClassification] = Field(default_factory=list)
+    source_classifications: SourceLabels = Field(default_factory=list)
 
 
 def _parse_criteria_output(text: str) -> CriteriaOutput:

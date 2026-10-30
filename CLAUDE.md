@@ -120,6 +120,7 @@ Writes are atomic: tempfile + fsync + `os.replace`.
 - `orchestrator.py` — routes quick/medium/deep pipeline; single entry point `run_analysis()`
 - `claude_service.py` — `generate_criteria_quick` / `generate_criteria_medium`; uses prompt caching (`cache_control: ephemeral`) on the system instructions
 - `hidden_service.py` — `discover_hidden_properties()`; Deep tier only
+- `source_quality.py` — `classify_sources()` (Claude's source labels → `source_quality` map) and `compute_confidence()` (criterion confidence rule); Medium/Deep only
 - `suggest_tier.py` — auto-tier classification via claude-haiku
 - `tavily_service.py` — web search with result caching
 - `spending_guard.py` — daily cap; reads `DAILY_SPEND_CAP_USD`, persists across restarts by summing today's records from `usage_metrics.json`

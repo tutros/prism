@@ -24,6 +24,7 @@ export function CriteriaSection({ tier, criteria, options, weights, onWeightChan
         const w = weights[c.id] ?? c.weight
         const scores = options.map(o => c.scores[o] ?? 0)
         const maxScore = Math.max(...scores, 1)
+        // `&& c.confidence` only narrows the type; isGraded already excludes null
         const conf = isGraded(c, tier) && c.confidence ? CONFIDENCE_STYLE[c.confidence] : null
         return (
           <div key={c.id} style={{ marginBottom: 20, paddingBottom: 20, borderBottom: ci < criteria.length - 1 ? '1px solid var(--bd)' : 'none' }}>

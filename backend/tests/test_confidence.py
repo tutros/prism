@@ -290,3 +290,59 @@ def test_user_added_criteria_are_not_graded(client, storage):
     )
     assert resp.status_code == 201
     assert resp.json()["confidence"] is None
+
+
+def test_malformed_source_labels_do_not_fail_the_output():
+    from app.services.claude_service import _parse_criteria_output
+    raw = json.dumps({
+        "criteria": [
+            {"name": n, "description": "d", "scores": {"A": 50}, "weight": 50, "sources": [GOV]}
+            for n in ("One", "Two", "Three")
+        ],
+        "winner": "A",
+        "reasoning": "r",
+        "source_classifications": [
+            {"url": GOV, "quality": None},
+            {"url": NEWS},
+            {"quality": "news"},
+            "not-an-object",
+            {"url": PEER, "quality": "peer-reviewed"},
+        ],
+    })
+    out = _parse_criteria_output(raw)
+    assert classify_sources(out.source_classifications, {GOV, NEWS, PEER}) == {
+        GOV: "unknown", NEWS: "unknown", PEER: "peer-reviewed",
+    }
+
+
+def test_go_deeper_on_analysis_saved_before_grading(client, storage, monkeypatch):
+    from app.services import criteria_service
+    _seed(storage)
+    # Strip the new field and the old default grade, as in pre-#14 JSON files
+    stored = storage.read_analysis(DECISION_ID, ANALYSIS_ID).model_dump(mode="json")
+    stored.pop("source_quality")
+    stored["criteria"][0]["confidence"] = "low"
+    storage.write_analysis(AnalysisResult.model_validate(stored))
+    raw = json.dumps({
+        "criteria": [
+            {"name": "Policy risk", "description": "d", "scores": {"A": 50, "B": 70}, "weight": 30,
+             "sources": [GOV, PEER]},
+            {"name": "Coverage", "description": "d", "scores": {"A": 50, "B": 70}, "weight": 30,
+             "sources": [NEWS]},
+        ],
+        "source_classifications": [
+            {"url": GOV, "quality": "government"},
+            {"url": NEWS, "quality": "news"},
+        ],
+    })
+    _fake_client(monkeypatch, criteria_service, raw)
+
+    resp = client.post(f"/api/decisions/{DECISION_ID}/analyses/{ANALYSIS_ID}/go-deeper")
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["criteria"][0]["confidence"] == "low"  # old grade left as stored
+    assert {c["name"]: c["confidence"] for c in body["criteria"][1:]} == {
+        "Policy risk": "high", "Coverage": "medium",
+    }
+    assert body["source_quality"] == {GOV: "government", PEER: "unknown", NEWS: "news"}

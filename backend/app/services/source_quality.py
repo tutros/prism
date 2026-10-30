@@ -2,13 +2,15 @@
 
 Claude labels each cited source during criteria generation; classify_sources()
 turns those labels into the stored url -> quality map. It is the one place that
-decides a source's quality, so it can later be swapped for another classifier
-(#22) without touching compute_confidence().
+decides a source's quality, so compute_confidence() won't change if the
+classifier does. Moving the labelling out of Claude (#22) also means dropping
+CLASSIFICATION_PROMPT and source_classifications from the criteria and
+go-deeper prompts and output models.
 """
 
-from typing import Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, BeforeValidator
 
 SourceQuality = Literal["peer-reviewed", "government", "industry", "news", "blog", "unknown"]
 Confidence = Literal["high", "medium", "low"]
@@ -42,6 +44,21 @@ class SourceClassification(BaseModel):
     quality: str
 
 
+def _drop_malformed(value: Any) -> list:
+    """Keep well-formed labels only, so one bad label can't fail the analysis."""
+    if not isinstance(value, list):
+        return []
+    return [
+        v for v in value
+        if isinstance(v, SourceClassification)
+        or isinstance(v, dict) and isinstance(v.get("url"), str) and isinstance(v.get("quality"), str)
+    ]
+
+
+# Field type for source_classifications in Claude's output models
+SourceLabels = Annotated[list[SourceClassification], BeforeValidator(_drop_malformed)]
+
+
 def classify_sources(
     classifications: list[SourceClassification],
     research_urls: set[str],
@@ -62,7 +79,8 @@ def compute_confidence(sources: list[str], source_quality: dict[str, str]) -> Co
     """Grade a criterion from its sources.
 
     - high:   >= 2 sources AND at least one peer-reviewed or government source
-    - medium: >= 1 source AND at least one industry or news source
+    - medium: >= 1 source of news quality or better (industry or news, or a
+              single peer-reviewed or government source)
     - low:    otherwise
 
     Only sources present in source_quality (i.e. from the research) count.
