@@ -9,14 +9,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-# Price per token for claude-sonnet-4-5-20250929 (in USD)
+# Price per token (in USD); unknown models are priced as sonnet
 PRICE_PER_TOKEN: dict[str, dict[str, float]] = {
     "claude-sonnet-4-5-20250929": {
         "input": 3.00 / 1_000_000,
         "cache_write": 3.75 / 1_000_000,
         "cache_read": 0.30 / 1_000_000,
         "output": 15.00 / 1_000_000,
-    }
+    },
+    "claude-haiku-4-5-20251001": {
+        "input": 1.00 / 1_000_000,
+        "cache_write": 1.25 / 1_000_000,
+        "cache_read": 0.10 / 1_000_000,
+        "output": 5.00 / 1_000_000,
+    },
 }
 
 # Absolute path to data/ directory (backend/data/)
@@ -35,6 +41,7 @@ class UsageRecord:
     cache_read_tokens: int
     cost_usd: float
     timestamp: str
+    backend: str = "api"  # "cli" costs are notional and don't count toward the cap
 
 
 _usage_records: list[dict] = []
@@ -69,14 +76,21 @@ def _persist_records(records: list[dict]) -> None:
         raise
 
 
-def record_usage(feature: str, model: str, usage) -> UsageRecord:
-    """Record a Claude API call's token usage and persist to disk.
+def record_usage(
+    feature: str,
+    model: str,
+    usage,
+    backend: str = "api",
+    cost_usd: float | None = None,
+) -> UsageRecord:
+    """Record a Claude call's token usage and persist to disk.
 
-    Also accumulates daily spend in spending_guard.
+    API calls also accumulate daily spend in spending_guard. CLI calls keep
+    the notional `cost_usd` claude -p reports but don't count toward the cap.
     """
     from .spending_guard import add_cost  # avoid circular import at module level
 
-    cost = calculate_cost(model, usage)
+    cost = calculate_cost(model, usage) if cost_usd is None else round(cost_usd, 8)
     record = UsageRecord(
         feature=feature,
         model=model,
@@ -86,6 +100,7 @@ def record_usage(feature: str, model: str, usage) -> UsageRecord:
         cache_read_tokens=getattr(usage, "cache_read_input_tokens", None) or 0,
         cost_usd=cost,
         timestamp=datetime.now(timezone.utc).isoformat(),
+        backend=backend,
     )
 
     with _lock:
@@ -96,7 +111,8 @@ def record_usage(feature: str, model: str, usage) -> UsageRecord:
             pass  # Never fail the API call because of metrics persistence
 
         # Add cost inside lock to prevent TOCTOU race with spending guard
-        add_cost(cost)
+        if backend != "cli":
+            add_cost(cost)
 
     return record
 
@@ -111,6 +127,8 @@ def get_usage_stats() -> dict:
     total_cache_read = 0
     total_cache_creation = 0
     total_cost = 0.0
+    cli_cost = 0.0
+    cli_calls = 0
     by_feature: dict[str, dict] = {}
 
     for r in records:
@@ -118,14 +136,20 @@ def get_usage_stats() -> dict:
         total_output += r.get("output_tokens", 0)
         total_cache_read += r.get("cache_read_tokens", 0)
         total_cache_creation += r.get("cache_creation_tokens", 0)
-        total_cost += r.get("cost_usd", 0.0)
+        # cli costs are notional; keep them out of real spend
+        is_cli = r.get("backend", "api") == "cli"
+        cost = 0.0 if is_cli else r.get("cost_usd", 0.0)
+        if is_cli:
+            cli_calls += 1
+            cli_cost += r.get("cost_usd", 0.0)
+        total_cost += cost
 
         feature = r.get("feature", "unknown")
         if feature not in by_feature:
             by_feature[feature] = {"count": 0, "cost_usd": 0.0}
         by_feature[feature]["count"] += 1
         by_feature[feature]["cost_usd"] = round(
-            by_feature[feature]["cost_usd"] + r.get("cost_usd", 0.0), 8
+            by_feature[feature]["cost_usd"] + cost, 8
         )
 
     return {
@@ -134,6 +158,8 @@ def get_usage_stats() -> dict:
         "total_cache_read_tokens": total_cache_read,
         "total_cache_creation_tokens": total_cache_creation,
         "total_cost_usd": round(total_cost, 8),
+        "cli_calls": cli_calls,
+        "cli_notional_cost_usd": round(cli_cost, 8),
         "by_feature": by_feature,
     }
 
