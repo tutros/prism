@@ -22,7 +22,18 @@ export TAVILY_API_KEY=tvly-...
 Optional:
 ```bash
 export DAILY_SPEND_CAP_USD=5.0   # Default $5/day cap on Claude API costs
+export LLM_BACKEND=api           # api (default) or cli; see below
 ```
+
+#### Running Claude on a subscription (`LLM_BACKEND=cli`)
+
+With `LLM_BACKEND=cli`, Prism sends every Claude call through Claude Code's headless mode (`claude -p`) instead of the Anthropic API, so it runs on your logged-in Claude subscription and `ANTHROPIC_API_KEY` isn't needed. This is for running Prism locally for yourself only; don't use it for a shared or hosted instance.
+
+- Install Claude Code and log in (`claude`, then `/login`). The backend refuses to start if `claude` isn't on `PATH`.
+- If `ANTHROPIC_API_KEY` is set, `claude -p` bills the key instead of the subscription. Prism removes the key from the `claude` subprocess's environment, so CLI mode always uses the subscription.
+- CLI mode isn't supported in Docker. Run the backend directly on the host with `uvicorn` (step 2); the Docker setup keeps using the API key.
+- CLI calls are logged in `usage_metrics.json` with `backend: "cli"` and the cost `claude -p` reports, but that cost isn't billed and doesn't count toward `DAILY_SPEND_CAP_USD`. `/api/monitoring` reports it separately as `cli_notional_cost_usd`.
+- Each call has a fixed overhead of about 1 to 2 seconds. `max_tokens` isn't applied in CLI mode.
 
 ### 2. Start the backend
 
@@ -160,7 +171,7 @@ frontend/src/
 - **No database.** JSON files keep the stack free of infrastructure; atomic writes prevent corruption on crash.
 - **Async with polling.** Analyses take seconds to minutes, so the API answers `202` at once and the client polls (with SSE for progress messages).
 - **Deduplication.** Starting an analysis at a tier that already has a completed analysis for the same decision returns the existing `analysis_id` instead of spending again.
-- **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached; requests that match a completed analysis still get it back, since they cost nothing. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts. Limits: only starting an analysis checks the cap, so go-deeper and regenerate-weights (counted) and the tier-suggestion call on every new decision (not counted) still run past it; Tavily usage is not counted; analyses already running can overshoot it.
+- **Spending guard.** A daily cap (default $5, `DAILY_SPEND_CAP_USD`) rejects new analyses with `429` once reached; requests that match a completed analysis still get it back, since they cost nothing. It rebuilds today's total from `usage_metrics.json` on startup, so it survives restarts. Calls made with `LLM_BACKEND=cli` are not counted (see above). Limits: only starting an analysis checks the cap, so go-deeper, regenerate-weights and the tier-suggestion call on every new decision are counted but still run past it; Tavily usage is not counted; analyses already running can overshoot it.
 - **Confidence.** On Medium and Deep, Claude labels each cited source as peer-reviewed, government, industry, news or blog (stored in `source_quality`), and code grades each criterion from its sources: **high** needs at least 2 sources including a peer-reviewed or government one; **medium** needs at least 1 source of news quality or better (industry or news, or a single peer-reviewed or government source); anything else (no sources, or only blog or unclassified sources) is **low**. Only URLs from the web research count. Go-deeper criteria are graded the same way. Quick-tier criteria (no sources) and user-added criteria are not graded (`confidence: null`): they get no badge and don't count toward the winner card's overall confidence, which is the share of graded criteria rated high. Quick results show "Based on AI knowledge only, no sources" instead of a badge. Analyses saved before this change keep their old `low` grades. Deep-tier hidden properties get their confidence from Claude.
 
 ## API Endpoints

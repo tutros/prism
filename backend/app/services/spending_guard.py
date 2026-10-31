@@ -14,10 +14,15 @@ _daily_cost_usd: float = 0.0
 _lock = threading.Lock()
 
 
-def _load_today_cost() -> None:
-    """Load today's accumulated cost from persisted usage records on startup."""
+_METRICS_FILE = Path(__file__).parent.parent.parent / "data" / "usage_metrics.json"
+
+
+def _load_today_cost(metrics_file: Path = _METRICS_FILE) -> None:
+    """Load today's accumulated cost from persisted usage records on startup.
+
+    Records from the cli backend are notional and skipped.
+    """
     global _today, _daily_cost_usd
-    metrics_file = Path(__file__).parent.parent.parent / "data" / "usage_metrics.json"
     _today = date.today().isoformat()
     if not metrics_file.exists():
         return
@@ -25,6 +30,8 @@ def _load_today_cost() -> None:
         records = json.loads(metrics_file.read_text())
         if isinstance(records, list):
             for r in records:
+                if r.get("backend", "api") == "cli":
+                    continue
                 if r.get("timestamp", "").startswith(_today):
                     _daily_cost_usd += r.get("cost_usd", 0.0)
     except Exception:

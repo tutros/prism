@@ -44,7 +44,10 @@ npx tsc -b           # type check (tsconfig.json is references-only, so plain `t
 TAVILY_API_KEY=tvly-...           # https://app.tavily.com/home
 ANTHROPIC_API_KEY=sk-ant-...      # https://console.anthropic.com/settings/keys
 DAILY_SPEND_CAP_USD=5.0           # optional, default $5/day
+LLM_BACKEND=api                   # optional: api (default) or cli
 ```
+
+`LLM_BACKEND=cli` runs every Claude call through `claude -p` on the logged-in Claude subscription (personal local use only). The key isn't needed then. Traps: if `ANTHROPIC_API_KEY` is in the env, `claude -p` bills the key, so `llm.py` strips it from the child env; `--bare` can't be used (API-key auth only). The backend fails at startup if `claude` isn't on PATH. CLI mode isn't for Docker: run `uvicorn` on the host. CLI calls are logged with `backend: "cli"` and don't count toward the spend cap.
 
 ## API Endpoints
 
@@ -118,12 +121,13 @@ Writes are atomic: tempfile + fsync + `os.replace`.
 
 ### Key services
 - `orchestrator.py` — routes quick/medium/deep pipeline; single entry point `run_analysis()`
+- `llm.py` — `complete()` is the only place that calls Claude; `api` backend (SDK, keeps `cache_control`) or `cli` backend (`claude -p` subprocess); `check_backend()` runs at startup
 - `claude_service.py` — `generate_criteria_quick` / `generate_criteria_medium`; uses prompt caching (`cache_control: ephemeral`) on the system instructions
 - `hidden_service.py` — `discover_hidden_properties()`; Deep tier only
 - `source_quality.py` — `classify_sources()` (Claude's source labels → `source_quality` map) and `compute_confidence()` (criterion confidence rule); Medium/Deep only
 - `suggest_tier.py` — auto-tier classification via claude-haiku
 - `tavily_service.py` — web search with result caching
-- `spending_guard.py` — daily cap; reads `DAILY_SPEND_CAP_USD`, persists across restarts by summing today's records from `usage_metrics.json`
+- `spending_guard.py` — daily cap; reads `DAILY_SPEND_CAP_USD`, persists across restarts by summing today's records from `usage_metrics.json` (skipping `backend: "cli"` records)
 - `storage.py` — `JSONStorage` class; UUID-validated reads/writes; `list_decisions()` / `list_analyses()`
 
 ### Frontend structure

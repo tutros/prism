@@ -96,10 +96,13 @@ interface, unmounted since the N-option rebuild and deleted in issue #4. Backend
 | Client-side scoring service | Instant weight recalculation without API calls | Good |
 | SSE for progress streaming | Real-time feedback during AI processing | Good |
 | Tailwind v4 with @tailwindcss/vite | Modern CSS, no PostCSS config needed | Good |
-| 6-tier source quality classification | AI classifies during generation, not domain heuristics | Superseded: not carried into the N-option rebuild; sources are plain URLs (see "Not shipped in v1.0") |
+| Source quality labels drive criterion confidence (#14) | Claude labels each cited source (peer-reviewed, government, industry, news, blog) during generation; code grades confidence from the labels | Good (replaces the old 6-tier classification) |
 | TTLCache for Tavily results | 24h cache avoids duplicate web searches | Good |
 | Daily spending cap with 429 response | Prevents runaway API costs | Good |
 | N-option support (2–6+) | Broadens use cases beyond binary comparisons | Good |
+| Explicit `LLM_BACKEND=api\|cli`, default `api` (#24) | No auto-detection, so a key being present never silently changes who is billed | Pending |
+| CLI calls logged but outside the spend cap (#24) | Subscription use isn't billed per call; recorded with `backend: "cli"` and skipped on the startup rebuild | Pending |
+| CLI mode not supported in Docker (#24) | Needs a logged-in host `claude`; backend fails at startup without it; Docker keeps the API key | Pending |
 
 ---
 *Last updated: 2026-06-15 to reflect current Prism architecture (N options, 3 tiers, decisions→analyses API)*
