@@ -105,4 +105,4 @@ interface, unmounted since the N-option rebuild and deleted in issue #4. Backend
 | CLI mode not supported in Docker (#24) | Needs a logged-in host `claude`; backend fails at startup without it; Docker keeps the API key | Pending |
 
 ---
-*Last updated: 2026-06-15 to reflect current Prism architecture (N options, 3 tiers, decisions→analyses API)*
+*Last updated: 2026-10-31 for #14 (source-quality confidence) and #24 (`LLM_BACKEND`) key decisions*

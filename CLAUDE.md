@@ -47,7 +47,7 @@ DAILY_SPEND_CAP_USD=5.0           # optional, default $5/day
 LLM_BACKEND=api                   # optional: api (default) or cli
 ```
 
-`LLM_BACKEND=cli` runs every Claude call through `claude -p` on the logged-in Claude subscription (personal local use only). The key isn't needed then. Traps: if `ANTHROPIC_API_KEY` is in the env, `claude -p` bills the key, so `llm.py` strips it from the child env; `--bare` can't be used (API-key auth only). The backend fails at startup if `claude` isn't on PATH. CLI mode isn't for Docker: run `uvicorn` on the host. CLI calls are logged with `backend: "cli"` and don't count toward the spend cap.
+`LLM_BACKEND=cli` runs every Claude call through `claude -p` on the logged-in Claude subscription (personal local use only). The key isn't needed then. Traps: if `ANTHROPIC_API_KEY` is in the env, `claude -p` bills the key, so `llm.py` strips it (and `ANTHROPIC_AUTH_TOKEN` + provider switches) from the child env; a Windows `.cmd` shim is refused at startup; `--bare` can't be used (API-key auth only). The backend fails at startup if `claude` isn't on PATH. CLI mode isn't for Docker: run `uvicorn` on the host. CLI calls are logged with `backend: "cli"` and don't count toward the spend cap.
 
 ## API Endpoints
 

@@ -17,6 +17,15 @@ from .usage_tracker import record_usage
 
 _BACKENDS = ("api", "cli")
 _CLI_TIMEOUT_S = 300
+# Credentials and provider switches that would make `claude -p` bill something
+# other than the logged-in subscription.
+_CLI_STRIPPED_ENV = (
+    "ANTHROPIC_API_KEY",
+    "ANTHROPIC_AUTH_TOKEN",
+    "CLAUDE_CODE_USE_BEDROCK",
+    "CLAUDE_CODE_USE_VERTEX",
+    "CLAUDE_CODE_USE_FOUNDRY",
+)
 
 
 class LLMError(RuntimeError):
@@ -35,11 +44,20 @@ def get_backend() -> str:
 
 def check_backend() -> None:
     """Validate the backend at startup; raise with a clear message if unusable."""
-    if get_backend() == "cli" and shutil.which("claude") is None:
+    if get_backend() != "cli":
+        return
+    exe = shutil.which("claude")
+    if exe is None:
         raise RuntimeError(
             "LLM_BACKEND=cli needs the Claude Code CLI (`claude`) on PATH. "
             "Install and log in to Claude Code, or set LLM_BACKEND=api. "
             "CLI mode is not supported in Docker."
+        )
+    if exe.lower().endswith((".cmd", ".bat")):
+        # cmd.exe would mangle the multi-line, quoted system prompt.
+        raise RuntimeError(
+            f"LLM_BACKEND=cli found `claude` as a {exe!r} shim; "
+            "install the native Claude Code binary instead."
         )
 
 
@@ -107,7 +125,9 @@ async def _complete_cli(feature, model, system, prompt) -> str:
     if exe is None:
         raise LLMError("LLM_BACKEND=cli but `claude` is not on PATH")
     # With ANTHROPIC_API_KEY set, `claude -p` bills the key, not the subscription.
-    env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+    env = {k: v for k, v in os.environ.items() if k not in _CLI_STRIPPED_ENV}
+    # Cancelling the awaiting task doesn't stop the subprocess; it runs until
+    # it finishes or hits the timeout.
     try:
         proc = await asyncio.to_thread(
             subprocess.run,

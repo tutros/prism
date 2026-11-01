@@ -227,3 +227,75 @@ def test_startup_rebuild_skips_cli_records(monkeypatch, tmp_path):
     monkeypatch.setattr(spending_guard, "_daily_cost_usd", 0.0)
     spending_guard._load_today_cost(metrics)
     assert spending_guard._daily_cost_usd == pytest.approx(1.5)
+
+
+# -- Review follow-ups (PR #25) ---------------------------------------------------
+
+def _call_sites():
+    from app.models import Criterion
+    from app.services import claude_service, criteria_service, hidden_service, suggest_tier
+    crit = [Criterion(id="c1", name="n", description="d", scores={"A": 1, "B": 2})]
+    return [
+        ("criteria_quick", lambda: claude_service.generate_criteria_quick(["A", "B"], "i")),
+        ("criteria_medium", lambda: claude_service.generate_criteria_medium(["A", "B"], "i", {})),
+        ("go_deeper", lambda: criteria_service.go_deeper(["A", "B"], "i", {}, crit, {})),
+        ("regenerate_weights", lambda: criteria_service.regenerate_weights(crit, "i")),
+        ("hidden_properties", lambda: hidden_service.discover_hidden_properties(["A", "B"], "i", {})),
+        ("suggest_tier", lambda: suggest_tier._suggest_tier_async("decision")),
+    ]
+
+
+@pytest.mark.parametrize("index", range(6))
+def test_every_call_site_goes_through_llm_complete(monkeypatch, index):
+    feature, call = _call_sites()[index]
+    seen = []
+
+    async def fake_complete(feat, model, system, prompt, max_tokens):
+        seen.append(feat)
+        return "not json"  # callers fail parsing; we only need the routing
+
+    monkeypatch.setattr(llm, "complete", fake_complete)
+    try:
+        asyncio.run(call())
+    except Exception:
+        pass
+    assert seen == [feature]
+
+
+def test_no_direct_claude_calls_outside_llm():
+    from pathlib import Path
+    app_dir = Path(llm.__file__).parent.parent
+    offenders = [
+        str(p) for p in app_dir.rglob("*.py")
+        if p.name not in ("llm.py", "config.py")
+        and ("messages.create" in p.read_text(encoding="utf-8")
+             or "get_anthropic_client" in p.read_text(encoding="utf-8"))
+    ]
+    assert offenders == []
+
+
+def test_cli_strips_all_credential_overrides_from_child_env(cli, recorded, monkeypatch):
+    for var in llm._CLI_STRIPPED_ENV:
+        monkeypatch.setenv(var, "1")
+    _complete()
+    env = cli.calls[-1].kwargs["env"]
+    assert "ANTHROPIC_AUTH_TOKEN" in llm._CLI_STRIPPED_ENV
+    assert not set(llm._CLI_STRIPPED_ENV) & set(env)
+
+
+@pytest.mark.parametrize("shim", ["C:/npm/claude.CMD", "C:/npm/claude.bat"])
+def test_cli_rejects_cmd_shim(monkeypatch, shim):
+    monkeypatch.setenv("LLM_BACKEND", "cli")
+    monkeypatch.setattr(llm.shutil, "which", lambda name: shim)
+    with pytest.raises(RuntimeError, match="native"):
+        llm.check_backend()
+
+
+def test_app_starts_in_cli_mode_without_api_key(monkeypatch):
+    from fastapi.testclient import TestClient
+    from app.main import app
+    monkeypatch.setenv("LLM_BACKEND", "cli")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setattr(llm.shutil, "which", lambda name: "/bin/claude")
+    with TestClient(app) as client:
+        assert client.get("/health").status_code == 200

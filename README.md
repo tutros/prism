@@ -29,10 +29,11 @@ export LLM_BACKEND=api           # api (default) or cli; see below
 
 With `LLM_BACKEND=cli`, Prism sends every Claude call through Claude Code's headless mode (`claude -p`) instead of the Anthropic API, so it runs on your logged-in Claude subscription and `ANTHROPIC_API_KEY` isn't needed. This is for running Prism locally for yourself only; don't use it for a shared or hosted instance.
 
-- Install Claude Code and log in (`claude`, then `/login`). The backend refuses to start if `claude` isn't on `PATH`.
-- If `ANTHROPIC_API_KEY` is set, `claude -p` bills the key instead of the subscription. Prism removes the key from the `claude` subprocess's environment, so CLI mode always uses the subscription.
+- Install Claude Code with the native installer and log in (`claude`, then `/login`). The backend refuses to start if `claude` isn't on `PATH`, or if it's an npm `.cmd` shim on Windows (which would garble the prompts).
+- If `ANTHROPIC_API_KEY` is set, `claude -p` bills the key instead of the subscription. Prism removes it, plus `ANTHROPIC_AUTH_TOKEN` and the `CLAUDE_CODE_USE_BEDROCK` / `_VERTEX` / `_FOUNDRY` switches, from the `claude` subprocess's environment.
 - CLI mode isn't supported in Docker. Run the backend directly on the host with `uvicorn` (step 2); the Docker setup keeps using the API key.
-- CLI calls are logged in `usage_metrics.json` with `backend: "cli"` and the cost `claude -p` reports, but that cost isn't billed and doesn't count toward `DAILY_SPEND_CAP_USD`. `/api/monitoring` reports it separately as `cli_notional_cost_usd`.
+- CLI calls are logged in `usage_metrics.json` with `backend: "cli"` and the cost `claude -p` reports, but that cost isn't billed and doesn't count toward `DAILY_SPEND_CAP_USD`. `/api/monitoring` reports it separately as `cli_notional_cost_usd`; its token totals and per-feature counts include CLI calls, each of which adds about 24k cache-creation tokens of Claude Code overhead.
+- The cap is still checked when starting an analysis, so if earlier API spend reached it today, CLI mode gets `429` too until tomorrow (or raise `DAILY_SPEND_CAP_USD`).
 - Each call has a fixed overhead of about 1 to 2 seconds. `max_tokens` isn't applied in CLI mode.
 
 ### 2. Start the backend
