@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.models import AnalysisResult, Criterion, Decision
+from app.services import llm
 from app.services.source_quality import (
     SourceClassification,
     classify_sources,
@@ -131,10 +132,11 @@ class _FakeMessages:
         )
 
 
-def _fake_client(monkeypatch, module, text):
+def _fake_client(monkeypatch, text):
     messages = _FakeMessages(text)
-    monkeypatch.setattr(module, "get_anthropic_client", lambda: SimpleNamespace(messages=messages))
-    monkeypatch.setattr(module, "record_usage", lambda *a, **k: None)
+    monkeypatch.delenv("LLM_BACKEND", raising=False)
+    monkeypatch.setattr(llm, "get_anthropic_client", lambda: SimpleNamespace(messages=messages))
+    monkeypatch.setattr(llm, "record_usage", lambda *a, **k: None)
     return messages
 
 
@@ -159,7 +161,7 @@ def test_medium_prompt_asks_claude_to_classify_each_source(monkeypatch):
         "reasoning": "r",
         "source_classifications": [{"url": GOV, "quality": "government"}],
     })
-    messages = _fake_client(monkeypatch, claude_service, raw)
+    messages = _fake_client(monkeypatch, raw)
     asyncio.run(claude_service.generate_criteria_medium(["A", "B"], "intent", _research({"A": [GOV], "B": []})))
     for tier in ("peer-reviewed", "government", "industry", "news", "blog", "source_classifications"):
         assert tier in messages.prompt
@@ -269,7 +271,7 @@ def test_go_deeper_criteria_are_graded_by_the_same_rule(client, storage, monkeyp
             {"url": NEWS, "quality": "news"},
         ],
     })
-    messages = _fake_client(monkeypatch, criteria_service, raw)
+    messages = _fake_client(monkeypatch, raw)
 
     resp = client.post(f"/api/decisions/{DECISION_ID}/analyses/{ANALYSIS_ID}/go-deeper")
 
@@ -335,7 +337,7 @@ def test_go_deeper_on_analysis_saved_before_grading(client, storage, monkeypatch
             {"url": NEWS, "quality": "news"},
         ],
     })
-    _fake_client(monkeypatch, criteria_service, raw)
+    _fake_client(monkeypatch, raw)
 
     resp = client.post(f"/api/decisions/{DECISION_ID}/analyses/{ANALYSIS_ID}/go-deeper")
 

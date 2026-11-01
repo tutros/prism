@@ -4,7 +4,7 @@ import asyncio
 import re
 from typing import Literal, TypedDict
 
-from .config import get_anthropic_client
+from . import llm
 
 _SYSTEM = """You are a routing assistant for a decision analysis tool.
 Given a decision description, classify it into one of three depth tiers:
@@ -43,14 +43,14 @@ def _parse_tier_suggestion(text: str) -> TierSuggestion:
 
 
 async def _suggest_tier_async(decision_text: str) -> TierSuggestion:
-    client = get_anthropic_client()
-    response = await client.messages.create(
-        model="claude-haiku-4-5-20251001",
+    text = await llm.complete(
+        "suggest_tier",
+        "claude-haiku-4-5-20251001",
+        _SYSTEM,
+        decision_text,
         max_tokens=100,
-        system=_SYSTEM,
-        messages=[{"role": "user", "content": decision_text}],
     )
-    return _parse_tier_suggestion(response.content[0].text)
+    return _parse_tier_suggestion(text)
 
 
 def suggest_tier(decision_text: str) -> TierSuggestion:

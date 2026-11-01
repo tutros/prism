@@ -1,14 +1,24 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import health, comparison, progress, monitoring
+from .services.llm import check_backend
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    check_backend()  # fail fast on a bad LLM_BACKEND or a missing `claude`
+    yield
+
 
 app = FastAPI(
     title="Prism API",
     description="Compare options by surfacing hidden costs and systemic impacts",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 _cors_origins_raw = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")

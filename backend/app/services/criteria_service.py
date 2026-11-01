@@ -4,7 +4,7 @@ import json
 import uuid
 from pydantic import BaseModel, Field
 
-from .config import get_anthropic_client
+from . import llm
 from .source_quality import (
     CLASSIFICATION_PROMPT,
     SourceLabels,
@@ -12,7 +12,6 @@ from .source_quality import (
     compute_confidence,
 )
 from .tavily_service import OptionResearch
-from .usage_tracker import record_usage
 from ..models import Criterion
 
 _MODEL = "claude-sonnet-4-5-20250929"
@@ -45,8 +44,6 @@ async def go_deeper(
 
     Returns the new criteria and source_quality merged with the new labels.
     """
-    client = get_anthropic_client()
-
     research_sections = []
     all_sources: set[str] = set()
     for opt in options:
@@ -74,15 +71,13 @@ async def go_deeper(
         f'"source_classifications":[{{"url":"https://...","quality":"news"}}]}}'
     )
 
-    response = await client.messages.create(
-        model=_MODEL,
+    content = await llm.complete(
+        "go_deeper",
+        _MODEL,
+        [_SYSTEM_BASE, _SYSTEM_CACHED],
+        prompt,
         max_tokens=4096,
-        system=[_SYSTEM_BASE, _SYSTEM_CACHED],
-        messages=[{"role": "user", "content": prompt}],
     )
-    record_usage("go_deeper", _MODEL, response.usage)
-
-    content = response.content[0].text
     if "```json" in content:
         json_str = content.split("```json")[1].split("```")[0].strip()
     elif "```" in content:
@@ -121,8 +116,6 @@ async def regenerate_weights(
     intent: str,
 ) -> dict[str, float]:
     """Ask AI to re-weight criteria by intent. Returns criterion_id → weight."""
-    client = get_anthropic_client()
-
     criteria_list = "\n".join(f"- [{c.id}] {c.name}: {c.description}" for c in criteria)
     valid_ids = {c.id for c in criteria}
 
@@ -132,18 +125,16 @@ async def regenerate_weights(
         f'Respond ONLY as JSON: {{"weights": {{"<id>": 35, ...}}}}'
     )
 
-    response = await client.messages.create(
-        model=_MODEL,
-        max_tokens=512,
-        system=[
+    content = await llm.complete(
+        "regenerate_weights",
+        _MODEL,
+        [
             {"type": "text", "text": "Assign weights reflecting the user's priorities."},
             {"type": "text", "text": "Use exact criterion IDs as keys.", "cache_control": {"type": "ephemeral"}},
         ],
-        messages=[{"role": "user", "content": prompt}],
+        prompt,
+        max_tokens=512,
     )
-    record_usage("regenerate_weights", _MODEL, response.usage)
-
-    content = response.content[0].text
     if "```json" in content:
         json_str = content.split("```json")[1].split("```")[0].strip()
     elif "```" in content:

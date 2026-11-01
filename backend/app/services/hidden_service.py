@@ -3,8 +3,7 @@
 import json
 from typing import Any
 
-from .config import get_anthropic_client
-from .usage_tracker import record_usage
+from . import llm
 from ..models import HiddenProperty
 
 _MODEL = "claude-sonnet-4-5-20250929"
@@ -58,8 +57,6 @@ async def discover_hidden_properties(
     research: dict[str, Any],
 ) -> list[HiddenProperty]:
     """Discover hidden systemic properties across all options (Deep tier)."""
-    client = get_anthropic_client()
-
     options_str = ", ".join(f'"{o}"' for o in options)
     research_sections = []
     for opt in options:
@@ -82,11 +79,11 @@ async def discover_hidden_properties(
         f"Each property should be non-obvious and potentially decision-changing."
     )
 
-    response = await client.messages.create(
-        model=_MODEL,
+    text = await llm.complete(
+        "hidden_properties",
+        _MODEL,
+        _SYSTEM,
+        prompt,
         max_tokens=2048,
-        system=_SYSTEM,
-        messages=[{"role": "user", "content": prompt}],
     )
-    record_usage("hidden_properties", _MODEL, response.usage)
-    return _parse_hidden_properties(response.content[0].text)
+    return _parse_hidden_properties(text)
